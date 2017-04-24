@@ -26,6 +26,6 @@ y.tab.c: c6.y
 cleanc6:
 	$(RM) lex.yy.c y.tab.c y.tab.h c6c
 
-q2: nas c6c
+A3: nas c6c
 
 cleanall: cleannas cleanc6
