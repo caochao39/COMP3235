@@ -3,7 +3,10 @@
 #include "calc3.h"
 #include "y.tab.h"
 void yyerror(char *);
+char text[500];
 %}
+
+%x S
 
 %%
 
@@ -43,7 +46,21 @@ void yyerror(char *);
 
 \/\/.*\n    ;    /* skip comments */
 
+\"		{ BEGIN S; *text = 0; }
+<S>[^"\\]*	{ strcat(text, yytext); }
+<S>\"		{ yylval.sValue = text; BEGIN 0; return STRING; }
+<S>\\\"		{ strcat(text, "\""); }
+<S>\\n		{ strcat(text, "\n"); }
+<S>\\t		{ strcat(text, "\t"); }
+<S>\\		{ strcat(text, "\\"); }
+
 [ \t\n]+    ;       /* ignore whitespace */
+
+'\\n'		{ yylval.iValue = (int) '\n'; return INTEGER; }
+'\\t'		{ yylval.iValue = (int) '\t'; return INTEGER; }
+'\\''		{ yylval.iValue = (int) '\''; return INTEGER; }
+''		{ yylval.iValue = 0; return INTEGER; }
+'[^']'		{ yylval.iValue = (int) yytext[1]; return INTEGER; }
 
 .           yyerror("Unknown character");
 

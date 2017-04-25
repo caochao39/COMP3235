@@ -11,6 +11,9 @@ int ex(nodeType *p, int blbl, int clbl) {
     case typeCon:
         printf("\tpush\t%d\n", p->con.value);
         break;
+    case typeStrCon:
+	printf("\tpush\t%s\n", p->strCon.value);
+        break;
     case typeId:
         printf("\tpush\t%c\n", p->id.i + 'a');
         break;
