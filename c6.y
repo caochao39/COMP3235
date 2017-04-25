@@ -9,6 +9,7 @@
 nodeType *opr(int oper, int nops, ...);
 nodeType *id(int i);
 nodeType *con(int value);
+nodeType *charCon(int value);
 nodeType *strCon(char *value);
 void freeNode(nodeType *p);
 int ex(nodeType *p, int, int);
@@ -26,7 +27,7 @@ int sym[26];                    /* symbol table */
     nodeType *nPtr;             /* node pointer */
 };
 
-%token <iValue> INTEGER 
+%token <iValue> INTEGER CHARACTER
 %token <sValue> STRING
 %token <sIndex> VARIABLE
 %token FOR WHILE IF PRINT READ BREAK CONTINUE OFFSET RVALUE
@@ -55,14 +56,14 @@ function:
 
 stmt:
           ';'                                 { $$ = opr(';', 2, NULL, NULL); }
-        | allexpr ';'                            { $$ = $1; }
-        | PRINT allexpr ';'                      { $$ = opr(PRINT, 1, $2); }
+        | allexpr ';'                         { $$ = $1; }
+        | PRINT allexpr ';'                   { $$ = opr(PRINT, 1, $2); }
         | READ vari ';'                       { $$ = opr(READ, 1, $2); }
-        | vari '=' allexpr ';'                   { $$ = opr('=', 2, $1, $3); }
+        | vari '=' allexpr ';'                { $$ = opr('=', 2, $1, $3); }
         | FOR '(' stmt stmt stmt ')' stmt     { $$ = opr(FOR, 4, $3, $4, $5, $7); }
-        | WHILE '(' allexpr ')' stmt             { $$ = opr(WHILE, 2, $3, $5); }
-        | IF '(' allexpr ')' stmt %prec IFX      { $$ = opr(IF, 2, $3, $5); }
-        | IF '(' allexpr ')' stmt ELSE stmt      { $$ = opr(IF, 3, $3, $5, $7); }
+        | WHILE '(' allexpr ')' stmt          { $$ = opr(WHILE, 2, $3, $5); }
+        | IF '(' allexpr ')' stmt %prec IFX   { $$ = opr(IF, 2, $3, $5); }
+        | IF '(' allexpr ')' stmt ELSE stmt   { $$ = opr(IF, 3, $3, $5, $7); }
         | '{' stmt_list '}'                   { $$ = $2; }
         | BREAK ';'                           { $$ = opr(BREAK, 0); }
         | CONTINUE ';'                        { $$ = opr(CONTINUE, 0); }
@@ -85,6 +86,7 @@ allexpr:
 
 expr:
           INTEGER               { $$ = con($1); }
+	| CHARACTER		{ $$ = charCon($1); }
         | vari                  { $$ = $1; }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
         | expr '+' expr         { $$ = opr('+', 2, $1, $3); }
@@ -118,6 +120,22 @@ nodeType *con(int value) {
 
     /* copy information */
     p->type = typeCon;
+    p->con.value = value;
+
+    return p;
+}
+
+nodeType *charCon(int value) {
+    nodeType *p;
+    size_t nodeSize;
+
+    /* allocate node */
+    nodeSize = SIZEOF_NODETYPE + sizeof(conNodeType);
+    if ((p = malloc(nodeSize)) == NULL)
+        yyerror("out of memory");
+
+    /* copy information */
+    p->type = typeCharCon;
     p->con.value = value;
 
     return p;

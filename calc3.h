@@ -1,9 +1,14 @@
-typedef enum { typeCon, typeStrCon, typeId, typeOpr } nodeEnum;
+typedef enum { typeCon, typeStrCon, typeCharCon, typeId, typeOpr } nodeEnum;
 
 /* constants */
 typedef struct {
     int value;                  /* value of constant */
 } conNodeType;
+
+/* character constants */
+typedef struct {
+    int value;                 /* value of string constant */
+} charConNodeType;
 
 /* string constants */
 typedef struct {
@@ -29,6 +34,7 @@ typedef struct nodeTypeTag {
     /* because operNodeType may dynamically increase */
     union {
         conNodeType con;        /* constants */
+	charConNodeType charCon; /* character constants */
 	strConNodeType strCon;	/* string constants */
         idNodeType id;          /* identifiers */
         oprNodeType opr;        /* operators */
