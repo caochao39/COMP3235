@@ -9,10 +9,10 @@ int ex(nodeType *p, int blbl, int clbl) {
     if (!p) return 0;
     switch(p->type) {
     case typeCon:
-        printf("\tpush\t%d\n", p->con.value);
+        printf("\tpush\t%d\n", p->con.value); 
         break;
     case typeCharCon:
-	printf("\tpush\t'%c'\n", (char)p->con.value);
+	printf("\tpush\t\'%s\'\n", p->charCon.value);
         break;
     case typeStrCon:
 	printf("\tpush\t\"%s\"\n", p->strCon.value);

@@ -9,7 +9,7 @@
 nodeType *opr(int oper, int nops, ...);
 nodeType *id(int i);
 nodeType *con(int value);
-nodeType *charCon(int value);
+nodeType *charCon(char *value);
 nodeType *strCon(char *value);
 void freeNode(nodeType *p);
 int ex(nodeType *p, int, int);
@@ -27,8 +27,8 @@ int sym[26];                    /* symbol table */
     nodeType *nPtr;             /* node pointer */
 };
 
-%token <iValue> INTEGER CHARACTER
-%token <sValue> STRING
+%token <iValue> INTEGER 
+%token <sValue> STRING CHARACTER
 %token <sIndex> VARIABLE
 %token FOR WHILE IF PRINT READ BREAK CONTINUE OFFSET RVALUE
 %nonassoc IFX
@@ -125,7 +125,7 @@ nodeType *con(int value) {
     return p;
 }
 
-nodeType *charCon(int value) {
+nodeType *charCon(char *value) {
     nodeType *p;
     size_t nodeSize;
 
@@ -133,10 +133,9 @@ nodeType *charCon(int value) {
     nodeSize = SIZEOF_NODETYPE + sizeof(conNodeType);
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
-
     /* copy information */
     p->type = typeCharCon;
-    p->con.value = value;
+    p->charCon.value = value;
 
     return p;
 }

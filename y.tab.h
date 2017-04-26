@@ -46,8 +46,8 @@ extern int yydebug;
   enum yytokentype
   {
     INTEGER = 258,
-    CHARACTER = 259,
-    STRING = 260,
+    STRING = 259,
+    CHARACTER = 260,
     VARIABLE = 261,
     FOR = 262,
     WHILE = 263,
@@ -71,8 +71,8 @@ extern int yydebug;
 #endif
 /* Tokens.  */
 #define INTEGER 258
-#define CHARACTER 259
-#define STRING 260
+#define STRING 259
+#define CHARACTER 260
 #define VARIABLE 261
 #define FOR 262
 #define WHILE 263

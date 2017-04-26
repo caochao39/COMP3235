@@ -944,28 +944,28 @@ YY_RULE_SETUP
 case 28:
 YY_RULE_SETUP
 #line 59 "c6.l"
-{ yylval.iValue = (int) '\n'; return CHARACTER; }
+{ yylval.sValue = "\\n"; return CHARACTER; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
 #line 60 "c6.l"
-{ yylval.iValue = (int) '\t'; return CHARACTER; }
+{ yylval.sValue = "\\t"; return CHARACTER; }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
 #line 61 "c6.l"
-{ yylval.iValue = (int) '\''; return CHARACTER; }
+{ yylval.sValue = "\\'"; return CHARACTER; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
 #line 62 "c6.l"
-{ yylval.iValue = 0; return CHARACTER; }
+{ yylval.sValue = ""; return CHARACTER; }
 	YY_BREAK
 case 32:
 /* rule 32 can match eol */
 YY_RULE_SETUP
 #line 63 "c6.l"
-{ yylval.iValue = (int) yytext[1]; return CHARACTER; }
+{ yylval.sValue = yytext; return CHARACTER; }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP

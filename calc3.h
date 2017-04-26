@@ -7,12 +7,12 @@ typedef struct {
 
 /* character constants */
 typedef struct {
-    int value;                 /* value of string constant */
+    char *value;                 /* value of string constant */
 } charConNodeType;
 
 /* string constants */
 typedef struct {
-    char* value;                /* value of string constant */
+    char *value;                /* value of string constant */
 } strConNodeType;
 
 /* identifiers */

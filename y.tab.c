@@ -74,7 +74,7 @@
 nodeType *opr(int oper, int nops, ...);
 nodeType *id(int i);
 nodeType *con(int value);
-nodeType *charCon(int value);
+nodeType *charCon(char *value);
 nodeType *strCon(char *value);
 void freeNode(nodeType *p);
 int ex(nodeType *p, int, int);
@@ -120,8 +120,8 @@ extern int yydebug;
   enum yytokentype
   {
     INTEGER = 258,
-    CHARACTER = 259,
-    STRING = 260,
+    STRING = 259,
+    CHARACTER = 260,
     VARIABLE = 261,
     FOR = 262,
     WHILE = 263,
@@ -145,8 +145,8 @@ extern int yydebug;
 #endif
 /* Tokens.  */
 #define INTEGER 258
-#define CHARACTER 259
-#define STRING 260
+#define STRING 259
+#define CHARACTER 260
 #define VARIABLE 261
 #define FOR 262
 #define WHILE 263
@@ -505,7 +505,7 @@ static const yytype_uint8 yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "INTEGER", "CHARACTER", "STRING",
+  "$end", "error", "$undefined", "INTEGER", "STRING", "CHARACTER",
   "VARIABLE", "FOR", "WHILE", "IF", "PRINT", "READ", "BREAK", "CONTINUE",
   "OFFSET", "RVALUE", "IFX", "ELSE", "AND", "OR", "GE", "LE", "EQ", "NE",
   "'>'", "'<'", "'+'", "'-'", "'*'", "'/'", "'%'", "UMINUS", "';'", "'='",
@@ -556,7 +556,7 @@ static const yytype_int16 yypact[] =
      means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       4,     0,     2,     1,    22,    23,    21,    17,     0,     0,
+       4,     0,     2,     1,    22,    21,    23,    17,     0,     0,
        0,     0,     0,     0,     0,     0,     5,     0,     0,     3,
       24,     0,    20,     0,     0,     0,    24,     0,     0,    15,
       16,    25,     0,    18,     0,     0,     6,     0,     0,     0,
@@ -594,7 +594,7 @@ static const yytype_uint8 yytable[] =
       20,    20,    20,     0,     0,     0,     0,    20,    20,     0,
       59,    60,    61,    62,    63,    64,    65,    66,    67,    68,
       69,    70,    71,     4,     5,     6,     7,     8,     9,    10,
-      11,    12,    13,    14,     4,     5,     0,     7,     0,     0,
+      11,    12,    13,    14,     4,     0,     6,     7,     0,     0,
        0,     0,     0,     0,     0,     0,     0,    15,     0,     0,
        0,     0,    16,     0,    17,     0,    18,     0,    15,     0,
        0,     0,     0,     0,     0,    17,    37,    38,    39,    40,
@@ -616,7 +616,7 @@ static const yytype_int8 yycheck[] =
       72,    73,    74,    -1,    -1,    -1,    -1,    79,    80,    -1,
       37,    38,    39,    40,    41,    42,    43,    44,    45,    46,
       47,    48,    49,     3,     4,     5,     6,     7,     8,     9,
-      10,    11,    12,    13,     3,     4,    -1,     6,    -1,    -1,
+      10,    11,    12,    13,     3,    -1,     5,     6,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    27,    -1,    -1,
       -1,    -1,    32,    -1,    34,    -1,    36,    -1,    27,    -1,
       -1,    -1,    -1,    -1,    -1,    34,    18,    19,    20,    21,
@@ -1454,7 +1454,7 @@ yyreduce:
 
   case 23:
 #line 89 "c6.y" /* yacc.c:1646  */
-    { (yyval.nPtr) = charCon((yyvsp[0].iValue)); }
+    { (yyval.nPtr) = charCon((yyvsp[0].sValue)); }
 #line 1459 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1804,7 +1804,7 @@ nodeType *con(int value) {
     return p;
 }
 
-nodeType *charCon(int value) {
+nodeType *charCon(char *value) {
     nodeType *p;
     size_t nodeSize;
 
@@ -1812,10 +1812,9 @@ nodeType *charCon(int value) {
     nodeSize = SIZEOF_NODETYPE + sizeof(conNodeType);
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
-
     /* copy information */
     p->type = typeCharCon;
-    p->con.value = value;
+    p->charCon.value = value;
 
     return p;
 }

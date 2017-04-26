@@ -56,11 +56,11 @@ char text[500];
 
 [ \t\n]+    ;       /* ignore whitespace */
 
-'\\n'		{ yylval.iValue = (int) '\n'; return CHARACTER; }
-'\\t'		{ yylval.iValue = (int) '\t'; return CHARACTER; }
-'\\''		{ yylval.iValue = (int) '\''; return CHARACTER; }
-''		{ yylval.iValue = 0; return CHARACTER; }
-'[^']'		{ yylval.iValue = (int) yytext[1]; return CHARACTER; }
+'\\n'		{ yylval.sValue = "\\n"; return CHARACTER; }
+'\\t'		{ yylval.sValue = "\\t"; return CHARACTER; }
+'\\''		{ yylval.sValue = "\\'"; return CHARACTER; }
+''		{ yylval.sValue = ""; return CHARACTER; }
+'[^']'		{ yylval.sValue = yytext; return CHARACTER; }
 
 .           yyerror("Unknown character");
 
