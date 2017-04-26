@@ -49,10 +49,10 @@ char text[500];
 \"		{ BEGIN S; *text = 0; }
 <S>[^"\\]*	{ strcat(text, yytext); }
 <S>\"		{ yylval.sValue = text; BEGIN 0; return STRING; }
-<S>\\\"		{ strcat(text, "\""); }
-<S>\\n		{ strcat(text, "\n"); }
-<S>\\t		{ strcat(text, "\t"); }
-<S>\\		{ strcat(text, "\\"); }
+<S>\\\"		{ strcat(text, "\\\""); }
+<S>\\n		{ strcat(text, "\\n"); }
+<S>\\t		{ strcat(text, "\\t"); }
+<S>\\		{ strcat(text, "\\\\"); }
 
 [ \t\n]+    ;       /* ignore whitespace */
 

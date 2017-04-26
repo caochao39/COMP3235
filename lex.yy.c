@@ -918,22 +918,22 @@ YY_RULE_SETUP
 case 23:
 YY_RULE_SETUP
 #line 52 "c6.l"
-{ strcat(text, "\""); }
+{ strcat(text, "\\\""); }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
 #line 53 "c6.l"
-{ strcat(text, "\n"); }
+{ strcat(text, "\\n"); }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
 #line 54 "c6.l"
-{ strcat(text, "\t"); }
+{ strcat(text, "\\t"); }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
 #line 55 "c6.l"
-{ strcat(text, "\\"); }
+{ strcat(text, "\\\\"); }
 	YY_BREAK
 case 27:
 /* rule 27 can match eol */
