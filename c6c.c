@@ -10,45 +10,62 @@ extern char* func[200];
 function to let nas know the number of global variables
 */
 void printsp(){
-    printf("\tpop\tsp\n"); 
+    printf("\tpush\tsp\n"); 
     printf("\tpush\t%d\n", var_count); 
+    printf("\tadd\n"); 
     printf("\tpop\tsp\n"); 
 }
 
 /* initialize the global variables */
-void prepass(nodeType *p){
+void prepass(nodeType *p, int infunc){
     if (!p) return;
     switch(p->type) {
 	case typeFunc:
 	    insertFUNC(p->func.name);
+	    prepass(p->func.op, 1);
 	    break;
 	case typeOpr:
             switch(p->opr.oper) {
 		case FOR:
-		    prepass(p->opr.op[3]);
+		    prepass(p->opr.op[0], infunc);
+		    prepass(p->opr.op[1], infunc);
+		    prepass(p->opr.op[3], infunc);
+		    prepass(p->opr.op[2], infunc);
 		    break;
 		case WHILE:
-		    prepass(p->opr.op[1]);
+		    prepass(p->opr.op[1], infunc);
 		    break;
 		case IF:
 		    if (p->opr.nops > 2) {
 		    /* if else then */
-			prepass(p->opr.op[1]);
-			prepass(p->opr.op[2]);
+			prepass(p->opr.op[1], infunc);
+			prepass(p->opr.op[2], infunc);
 		    } else {
 		    /* if else */
-			prepass(p->opr.op[1]);
+			prepass(p->opr.op[1], infunc);
 		    }
 		    break;
 		case '=':
-		    if(p->opr.op[0]->type == typeId) {
+		    if(p->opr.op[0]->type == typeId && infunc == 0) {
 		    	/* insert into symbol table */
+			p->opr.op[0]->id.isGlobal=1;
     		    	insertSYM(p->opr.op[0]->id.var_name);
+		    }else if(p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == '@'){
+			prepass(p->opr.op[0], infunc);
 		    }
 		    break;
+		case '@':
+		    if(p->opr.op[0]->type == typeId && infunc == 1) {
+		    	/* insert into symbol table */
+			p->opr.op[0]->id.isGlobal=1;
+    		    	insertSYM(p->opr.op[0]->id.var_name);
+		    }else{
+			yyerror("Wrong @ usage!");
+			exit(0);
+		    }
 		default:
-            	    prepass(p->opr.op[0]);
-            	    prepass(p->opr.op[1]);
+            	    prepass(p->opr.op[0], infunc);
+            	    prepass(p->opr.op[1], infunc);
 		    break;
 	    }
 	default:
@@ -244,7 +261,7 @@ int checkExprType (nodeType* p){
 }
 
 static int lbl;
-int ex(nodeType *p, int blbl, int clbl) {
+int ex(nodeType *p, int blbl, int clbl, int infunc) {
     int lblx, lbly, lblz;
 
     if (!p) return 0;
@@ -272,6 +289,9 @@ int ex(nodeType *p, int blbl, int clbl) {
 
         break;
     }
+    case typeFunc:
+	printf("L%03d:", 500 + getFUNCIdx(p->func.name));
+	break;
     case typeOpr:
         switch(p->opr.oper) {
         case BREAK:
@@ -284,13 +304,13 @@ int ex(nodeType *p, int blbl, int clbl) {
             lblx = lbl++;
             lbly = lbl++;
             lblz = lbl++;
-            ex(p->opr.op[0], blbl, clbl);
+            ex(p->opr.op[0], blbl, clbl, infunc);
             printf("L%03d:\n", lblx);
-            ex(p->opr.op[1], blbl, clbl);
+            ex(p->opr.op[1], blbl, clbl, infunc);
             printf("\tj0\tL%03d\n", lbly);
-            ex(p->opr.op[3], lbly, lblz);
+            ex(p->opr.op[3], lbly, lblz, infunc);
             printf("L%03d:\n", lblz);
-            ex(p->opr.op[2], blbl, clbl);
+            ex(p->opr.op[2], blbl, clbl, infunc);
             printf("\tjmp\tL%03d\n", lblx);
             printf("L%03d:\n", lbly);
             break;
@@ -298,26 +318,26 @@ int ex(nodeType *p, int blbl, int clbl) {
             lblx = lbl++;
             lbly = lbl++;
             printf("L%03d:\n", lblx);
-            ex(p->opr.op[0], blbl, clbl);
+            ex(p->opr.op[0], blbl, clbl, infunc);
             printf("\tj0\tL%03d\n", lbly);
-            ex(p->opr.op[1], lbly, lblx);
+            ex(p->opr.op[1], lbly, lblx, infunc);
             printf("\tjmp\tL%03d\n", lblx);
             printf("L%03d:\n", lbly);
             break;
         case IF:
-            ex(p->opr.op[0], blbl, clbl);
+            ex(p->opr.op[0], blbl, clbl, infunc);
             if (p->opr.nops > 2) {
                 /* if else */
                 printf("\tj0\tL%03d\n", lblx = lbl++);
-                ex(p->opr.op[1], blbl, clbl);
+                ex(p->opr.op[1], blbl, clbl, infunc);
                 printf("\tjmp\tL%03d\n", lbly = lbl++);
                 printf("L%03d:\n", lblx);
-                ex(p->opr.op[2], blbl, clbl);
+                ex(p->opr.op[2], blbl, clbl, infunc);
                 printf("L%03d:\n", lbly);
             } else {
                 /* if */
                 printf("\tj0\tL%03d\n", lblx = lbl++);
-                ex(p->opr.op[1], blbl, clbl);
+                ex(p->opr.op[1], blbl, clbl, infunc);
                 printf("L%03d:\n", lblx);
             }
             break;
@@ -326,19 +346,18 @@ int ex(nodeType *p, int blbl, int clbl) {
             if(p->opr.op[0]->type == typeId) {
                 printf("\tpop\t%s\n", p->opr.op[0]->id.var_name);
             } else {
-                printf("\tpopi\t%c\n", ex(p->opr.op[0], blbl, clbl));
+                printf("\tpopi\t%c\n", ex(p->opr.op[0], blbl, clbl, infunc));
             }
             break;
         case PRINT:
-            ex(p->opr.op[0], blbl, clbl);
+            ex(p->opr.op[0], blbl, clbl, infunc);
 	    int type = checkExprType(p->opr.op[0]);
             printStackTop(type);
             break;
         case '=':
-            ex(p->opr.op[1], blbl, clbl);
+            ex(p->opr.op[1], blbl, clbl, infunc);
 	    if(p->opr.op[0]->type == typeId) {
 		/* insert into symbol table */
-    		insertSYM(p->opr.op[0]->id.var_name);
                 int ind = getSYMIdx(p->opr.op[0]->id.var_name);
 		int thisT = checkExprType(p->opr.op[1]);
 		setType(ind, thisT);
@@ -351,12 +370,12 @@ int ex(nodeType *p, int blbl, int clbl) {
 	    }
             break;
         case UMINUS:
-            ex(p->opr.op[0], blbl, clbl);
+            ex(p->opr.op[0], blbl, clbl, infunc);
             printf("\tneg\n");
             break;
         default:
-            ex(p->opr.op[0], blbl, clbl);
-            ex(p->opr.op[1], blbl, clbl);
+            ex(p->opr.op[0], blbl, clbl, infunc);
+            ex(p->opr.op[1], blbl, clbl, infunc);
             switch(p->opr.oper) {
                 case '+':   printf("\tadd\n"); break;
                 case '-':   printf("\tsub\n"); break;

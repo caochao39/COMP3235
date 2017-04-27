@@ -14,7 +14,7 @@ nodeType *charCon(char *value);
 nodeType *strCon(char *value);
 nodeType* addOperand(nodeType* p1,nodeType* p2);
 void freeNode(nodeType *p);
-int ex(nodeType *p, int, int);
+int ex(nodeType *p, int, int, int);
 void eop();
 int yylex(void);
 
@@ -46,7 +46,7 @@ int vType[200]; //type table
 int checkExprType (nodeType* p);
 
 int argc = 0; // global variable for arguments count
-void prepass();
+void prepass(nodeType *p, int infunc);
 %}
 
 %union {
@@ -75,7 +75,7 @@ void prepass();
 %%
 
 program:
-        tree                { prepass($1); printsp(); ex($1, 998, 998); exit(0); }
+        tree                { prepass($1, 0); printsp(); ex($1, 998, 998, 0); exit(0); }
         ;
 
 tree:
@@ -112,6 +112,7 @@ stmt:
 
 vari:
           VARIABLE { $$ = id($1); }
+	| '@' VARIABLE { $$ = opr('@', 1, id($2)); }
         ;
 
 
@@ -192,7 +193,7 @@ nodeType* addOperand(nodeType* p1,nodeType* p2){
         (p1->opr.nops) * sizeof(nodeType*);
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
-    //copy from old to newp
+    // copy values
     p->type = typeOpr;
     p->opr.oper = p1->opr.oper;
     p->opr.nops = p1->opr.nops +1;
@@ -227,8 +228,6 @@ nodeType *id(char *name) {
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
 
-    // get rid of rubbish memory for the name
-    
     p->id.var_name = name;
     p->type = typeId;
 
