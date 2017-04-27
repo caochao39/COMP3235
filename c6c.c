@@ -16,18 +16,21 @@ void printsp(){
     printf("\tpop\tsp\n"); 
 }
 
-/* initialize the global variables */
+/* prepass the whole tree */
 void prepass(nodeType *p, int infunc){
     if (!p) return;
     switch(p->type) {
 	case typeFunc:
 	    insertFUNC(p->func.name);
+	    prepass(p->func.args, 1);
 	    prepass(p->func.op, 1);
 	    break;
 	case typeId:
 	    if (infunc == 0){
 	      p->id.isGlobal=1;
  	    }
+	    printf("prepass var: %s\n", p->id.var_name);
+	    insertSYM(p->id.var_name, p->id.isGlobal);
 	    break;
 	case typeOpr:
             switch(p->opr.oper) {
@@ -323,6 +326,7 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
     }
     case typeFunc:
 	printf("L%03d:", 500 + getFUNCIdx(p->func.name));
+	prepass(p->func.args, 1);
 	ex(p->func.op, blbl, clbl, 1);
 	break;
     case typeOpr:

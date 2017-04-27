@@ -1,19 +1,8 @@
 x=1+2;
 
-func(a){
-  @x = 1;
-  @y = 2;
-  a = 2;
-  b = 3;
-  x = 4;
-  return a;
-}
-
-func1(a){
-  @x = 1;
-  @y = 2;
-  a = 2;
-  b = 3;
-  x = 4;
+func(a, b, c, d){
+  y = 1;
+  z = 2;
+  a = 3;
   return a;
 }
