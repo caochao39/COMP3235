@@ -23,11 +23,12 @@ void yyerror(char *s);
 // variable related
 char* sym[200]; //symbol table
 int var_count = 0; //variable count
+int loc_var_count = 0;//count for local variable
 
 int inSYM(char *var_name);
-void insertSYM(char *var_name);
-int getSYMIdx(char *var_name);
-void emptySYM();
+void insertSYM(char *var_name, int isGlobal);
+int getSYMIdx(char *var_name, int isGlobal);
+void emptySYM(int isGlobal);
 void printsp();
 
 // function related
@@ -97,6 +98,7 @@ args:     args ',' vari			      { argc++; $$ = addOperand($1, $3); }
 stmt:
           ';'                                 { $$ = opr(';', 2, NULL, NULL); }
         | allexpr ';'                         { $$ = $1; }
+        | RETURN allexpr ';'                  { $$ = opr(RETURN, 1, $2); }
         | PRINT allexpr ';'                   { $$ = opr(PRINT, 1, $2); }
         | READ vari ';'                       { $$ = opr(READ, 1, $2); }
         | vari '=' allexpr ';'                { $$ = opr('=', 2, $1, $3); }

@@ -2,7 +2,7 @@
 #include "calc3.h"
 #include "y.tab.h"
 
-extern int var_count, func_count;
+extern int var_count, func_count, loc_var_count;
 extern int vType[200];
 extern char* func[200];
 
@@ -23,6 +23,11 @@ void prepass(nodeType *p, int infunc){
 	case typeFunc:
 	    insertFUNC(p->func.name);
 	    prepass(p->func.op, 1);
+	    break;
+	case typeId:
+	    if (infunc == 0){
+	      p->id.isGlobal=1;
+ 	    }
 	    break;
 	case typeOpr:
             switch(p->opr.oper) {
@@ -46,10 +51,12 @@ void prepass(nodeType *p, int infunc){
 		    }
 		    break;
 		case '=':
-		    if(p->opr.op[0]->type == typeId && infunc == 0) {
+		    if(p->opr.op[0]->type == typeId) {
 		    	/* insert into symbol table */
-			p->opr.op[0]->id.isGlobal=1;
-    		    	insertSYM(p->opr.op[0]->id.var_name);
+			if (infunc == 0){
+			    p->opr.op[0]->id.isGlobal=1;
+ 			}
+    		    	insertSYM(p->opr.op[0]->id.var_name, p->opr.op[0]->id.isGlobal);
 		    }else if(p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == '@'){
 			prepass(p->opr.op[0], infunc);
 		    }
@@ -58,7 +65,7 @@ void prepass(nodeType *p, int infunc){
 		    if(p->opr.op[0]->type == typeId && infunc == 1) {
 		    	/* insert into symbol table */
 			p->opr.op[0]->id.isGlobal=1;
-    		    	insertSYM(p->opr.op[0]->id.var_name);
+    		    	insertSYM(p->opr.op[0]->id.var_name, 1);
 		    }else{
 			yyerror("Wrong @ usage!");
 			exit(0);
@@ -111,18 +118,24 @@ int inSYM(char * var_name)
 function for adding variables to symbol table
   var_name: variable name
 */
-void insertSYM(char * var_name)
+void insertSYM(char * var_name, int isGlobal)
 {
   if(var_count >= 200)
   {
     printf("\tNumber of variables exceeds the limit!\n");
     return;
   }
-  if(inSYM(var_name) == 0)//not in sym
+  if(getSYMIdx(var_name, isGlobal) < 0)//not in sym
   {
-    sym[var_count] = (char *) malloc (strlen(var_name));
-    strcpy(sym[var_count], var_name);
-    var_count ++;
+    if(isGlobal == 1){ //global variable
+      sym[var_count] = (char *) malloc (strlen(var_name));
+      strcpy(sym[var_count], var_name);
+      var_count ++;
+    } else {
+      sym[loc_var_count+100] = (char *) malloc (strlen(var_name));
+      strcpy(sym[loc_var_count+100], var_name);
+      loc_var_count ++;
+    }
   }
   else
   {
@@ -134,9 +147,10 @@ void insertSYM(char * var_name)
 /*
 function for getting index of a variable in sym
 */
-int getSYMIdx(char * var_name)
+int getSYMIdx(char * var_name, int isGlobal)
 {
   int i;
+  if (isGlobal == 1){ // for global variable
   for(i = 0; i < var_count; i++)
   {
     if(strcmp(sym[i], var_name) == 0)
@@ -144,20 +158,38 @@ int getSYMIdx(char * var_name)
       return i;
     }
   }
+  }else{ // for local variable
+  for(i = 100; i < 100 + loc_var_count; i++)
+  {
+    if(strcmp(sym[i], var_name) == 0)
+    {
+      return i;
+    }
+  }
+  }
   return -1; // not found
 }
 
 /*
 function for clearing the symbol table
 */
-void emptySYM()
+void emptySYM(int isGlobal)
 {
   int i;
+  if(isGlobal){
   for(i = 0; i < var_count; i++)
   {
     free(sym[i]);
   }
   var_count = 0;
+  }
+  else{
+  for(i = 100; i < 100 + loc_var_count; i++)
+  {
+    free(sym[i]);
+  }
+  loc_var_count = 0;
+  }
 }
 
 /*
@@ -240,7 +272,7 @@ int checkExprType (nodeType* p){
     switch(p->type) {
         case typeId:{
             char *str = p->id.var_name;
-            int index = getSYMIdx(str);
+            int index = getSYMIdx(str, p->id.isGlobal);
             int type = checkType(index);
             return type;
 	}   
@@ -277,23 +309,29 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         break;
     case typeId:{
         char *str = p->id.var_name;
-        int index = getSYMIdx(str);
-
+        int index = getSYMIdx(str, p->id.isGlobal);
         if (index==-1)
         {
             printf("\tError: Variable \"%s\" uninitialized\n", str);
             exit(0);
         }
-
-	printf("\tpush\tsb[%d]\n", index);
-
+	if (p->id.isGlobal == 1)
+	  printf("\tpush\tsb[%d]\n", index);
+	else 
+	  printf("\tpush\tfp[%d]\n", index - 100);
         break;
     }
     case typeFunc:
 	printf("L%03d:", 500 + getFUNCIdx(p->func.name));
+	ex(p->func.op, blbl, clbl, 1);
 	break;
     case typeOpr:
         switch(p->opr.oper) {
+	case RETURN:
+	    ex(p->opr.op[0], -1, -1, infunc);
+            printf("\tret\n");
+ 	    emptySYM(1);
+	    break;
         case BREAK:
             printf("\tjmp\tL%03d\n", blbl);
             break;
@@ -354,19 +392,30 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
 	    int type = checkExprType(p->opr.op[0]);
             printStackTop(type);
             break;
+	case '@':
+	    ex(p->opr.op[0], blbl, clbl, infunc);
+	    break;
         case '=':
             ex(p->opr.op[1], blbl, clbl, infunc);
 	    if(p->opr.op[0]->type == typeId) {
-		/* insert into symbol table */
-                int ind = getSYMIdx(p->opr.op[0]->id.var_name);
+		/* examine type */
+                int ind = getSYMIdx(p->opr.op[0]->id.var_name, p->opr.op[0]->id.isGlobal);
 		int thisT = checkExprType(p->opr.op[1]);
 		setType(ind, thisT);
+		
+  		if (p->opr.op[0]->id.isGlobal)// for global
+		  printf("\tpop\tsb[%d]\n", getSYMIdx(p->opr.op[0]->id.var_name, p->opr.op[0]->id.isGlobal)); 
+  		else // for local
+		  printf("\tpop\tfp[%d]\n", getSYMIdx(p->opr.op[0]->id.var_name, p->opr.op[0]->id.isGlobal)-100); 
 
-		printf("\tpop\tsb[%d]\n", getSYMIdx(p->opr.op[0]->id.var_name)); // for global
-
-	    } else {
-		// array element or pointer, not in consideration yet
-	
+	    } else if (p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == '@') { /* @ for global variable */
+		nodeType* tmp = p->opr.op[0]->opr.op[0];
+		int ind = getSYMIdx(tmp->id.var_name, tmp->id.isGlobal);
+		int thisT = checkExprType(p->opr.op[1]);
+		setType(ind, thisT);
+		
+  		if (tmp->id.isGlobal)// for global
+		  printf("\tpop\tsb[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal)); 
 	    }
             break;
         case UMINUS:
