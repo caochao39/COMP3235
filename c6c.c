@@ -16,7 +16,7 @@ void printsp(){
 }
 
 /* initialize the global variables */
-void init(nodeType *p){
+void prepass(nodeType *p){
     if (!p) return;
     switch(p->type) {
 	case typeFunc:
@@ -25,19 +25,19 @@ void init(nodeType *p){
 	case typeOpr:
             switch(p->opr.oper) {
 		case FOR:
-		    init(p->opr.op[3]);
+		    prepass(p->opr.op[3]);
 		    break;
 		case WHILE:
-		    init(p->opr.op[1]);
+		    prepass(p->opr.op[1]);
 		    break;
 		case IF:
 		    if (p->opr.nops > 2) {
 		    /* if else then */
-			init(p->opr.op[1]);
-			init(p->opr.op[2]);
+			prepass(p->opr.op[1]);
+			prepass(p->opr.op[2]);
 		    } else {
 		    /* if else */
-			init(p->opr.op[1]);
+			prepass(p->opr.op[1]);
 		    }
 		    break;
 		case '=':
@@ -47,8 +47,8 @@ void init(nodeType *p){
 		    }
 		    break;
 		default:
-            	    init(p->opr.op[0]);
-            	    init(p->opr.op[1]);
+            	    prepass(p->opr.op[0]);
+            	    prepass(p->opr.op[1]);
 		    break;
 	    }
 	default:
@@ -162,17 +162,18 @@ void insertFUNC(char * func_name)
     printf("\tNumber of variables exceeds the limit!\n");
     return;
   }
+  
   if(getFUNCIdx(func_name) < 0)//not in sym
   {
     func[func_count] = (char *) malloc (strlen(func_name));
     strcpy(func[func_count], func_name);
-    var_count ++;
+    func_count ++;
   }
   else
   {
     // the function has already been defined
     yyerror("\tFunction has already been defined!\n");
-    return;
+    exit(0);
   }
 }
 
@@ -263,8 +264,8 @@ int ex(nodeType *p, int blbl, int clbl) {
 
         if (index==-1)
         {
-            printf("\tError: Variable \"%s\" undeclared\n", str);
-            break;
+            printf("\tError: Variable \"%s\" uninitialized\n", str);
+            exit(0);
         }
 
 	printf("\tpush\tsb[%d]\n", index);
@@ -342,7 +343,7 @@ int ex(nodeType *p, int blbl, int clbl) {
 		int thisT = checkExprType(p->opr.op[1]);
 		setType(ind, thisT);
 
-		printf("\tpop\tsb[%d]\n", getSYMIdx(p->opr.op[0]->id.var_name)); // for gb
+		printf("\tpop\tsb[%d]\n", getSYMIdx(p->opr.op[0]->id.var_name)); // for global
 
 	    } else {
 		// array element or pointer, not in consideration yet

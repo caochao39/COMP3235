@@ -20,7 +20,7 @@ char text[500];
                 return INTEGER;
             }
 
-[-()<>=+*/;{}.%\[\]] {
+[-()<>=+*/,;{}.%\[\]] {
                 return *yytext;
              }
 

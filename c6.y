@@ -6,12 +6,13 @@
 
 
 /* prototypes */
-nodeType *createFunc(char *name, nodeType *args, nodeType *stmtlist, int coun);
+nodeType *createFunc(nodeType * funcNameId, nodeType *args, nodeType *stmtlist, int coun);
 nodeType *opr(int oper, int nops, ...);
 nodeType *id(char *var_name);
 nodeType *con(int value);
 nodeType *charCon(char *value);
 nodeType *strCon(char *value);
+nodeType* addOperand(nodeType* p1,nodeType* p2);
 void freeNode(nodeType *p);
 int ex(nodeType *p, int, int);
 void eop();
@@ -45,7 +46,7 @@ int vType[200]; //type table
 int checkExprType (nodeType* p);
 
 int argc = 0; // global variable for arguments count
-void init();
+void prepass();
 %}
 
 %union {
@@ -74,22 +75,23 @@ void init();
 %%
 
 program:
-        tree                { init($1); printsp(); ex($1, 998, 998); exit(0); }
+        tree                { prepass($1); printsp(); ex($1, 998, 998); exit(0); }
         ;
 
 tree:
 	  tree stmt		{ $$ = opr(MAIN, 2, $1, $2); }
         | tree function         { $$ = opr(MAIN, 2, $1, $2); }
-        | /* NULL */
+        | /* NULL */		{ $$ = NULL; } 
         ;
 
 function:
 	vari '(' args ')' '{' stmt_list '}' 	{ $$ = createFunc($1, $3, $6, argc); argc = 0; }  // function definition
+	| vari '(' ')' '{' stmt_list '}' 	{ $$ = createFunc($1, NULL, $5, 0); argc = 0; } 
 	;
 
-args:     vari					{ argc++; $$ = $1; }
-	| args ',' vari				{ $$ = opr(',', 2, $1, $3); }
-	| /* NULL */				{ $$ = NULL; }
+args:     args ',' vari			      { argc++; $$ = addOperand($1, $3); }
+	| vari				      { argc++; $$ = $1; }	
+	| /* NULL */	
 	;
 
 stmt:
@@ -180,6 +182,26 @@ nodeType *charCon(char *value) {
     return p;
 }
 
+// add p2 to p1
+nodeType* addOperand(nodeType* p1,nodeType* p2){
+    nodeType* p;
+    size_t nodeSize;
+    int i;
+    /* allocate node */
+    nodeSize = SIZEOF_NODETYPE + sizeof(oprNodeType) +
+        (p1->opr.nops) * sizeof(nodeType*);
+    if ((p = malloc(nodeSize)) == NULL)
+        yyerror("out of memory");
+    //copy from old to newp
+    p->type = typeOpr;
+    p->opr.oper = p1->opr.oper;
+    p->opr.nops = p1->opr.nops +1;
+    for (i=0;i<p1->opr.nops;i++)
+        p->opr.op[i] = p1->opr.op[i];
+    p->opr.op[i] = p2;
+    return p; 
+}
+
 nodeType *strCon(char *value) {
     nodeType *p;
     size_t nodeSize;
@@ -236,19 +258,24 @@ nodeType *opr(int oper, int nops, ...) {
     return p;
 }
 
-nodeType *createFunc(char *name, nodeType *arguments, nodeType *stmtlist, int coun) {
+/* 
+funcNameId: function name id node
+arguments: function arguments
+stmtlist: content of the function
+coun: argc
+function for creating node for funtion
+*/
+nodeType *createFunc(nodeType* funcNameId, nodeType *arguments, nodeType *stmtlist, int coun) {
     nodeType *p;
     size_t nodeSize;
-
     /* allocate node */
     nodeSize = SIZEOF_NODETYPE + sizeof(funcNodeType);
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
-
     /* copy information */
     p->func.argc = coun;
     p->func.args = arguments;
-    p->func.name = name;
+    p->func.name = funcNameId->id.var_name;
     p->func.op = stmtlist;
     p->type = typeFunc;
 

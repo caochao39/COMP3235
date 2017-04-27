@@ -1,9 +1,6 @@
-x = 1;
-y = 2;
-z = 3;
-t = y+z;
+x=1;
 
-print x;
-print y;
-print z;
-print t;
+func (a, b, c){
+  a = 0;
+}
+
