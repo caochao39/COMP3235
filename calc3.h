@@ -1,4 +1,4 @@
-typedef enum { typeCon, typeStrCon, typeCharCon, typeId, typeOpr } nodeEnum;
+typedef enum { typeCon, typeStrCon, typeCharCon, typeId, typeOpr, typeFunc } nodeEnum;
 
 /* constants */
 typedef struct {
@@ -17,7 +17,8 @@ typedef struct {
 
 /* identifiers */
 typedef struct {
-    int i;                      /* subscript to sym array */
+    char *var_name;             /* subscript to sym array */
+    int isGlobal;
 } idNodeType;
 
 /* operators */
@@ -26,6 +27,14 @@ typedef struct {
     int nops;                   /* number of operands */
     struct nodeTypeTag *op[1];  /* operands (expandable) */
 } oprNodeType;
+
+/* function */
+typedef struct {
+    char* name; 	      	/* name of the function */
+    int argc;			/* count of number of arguments */
+    struct nodeTypeTag *args;  	/* function arguments */ 
+    struct nodeTypeTag *op;    	/* statements in the function */
+} funcNodeType;
 
 typedef struct nodeTypeTag {
     nodeEnum type;              /* type of node */
@@ -38,7 +47,11 @@ typedef struct nodeTypeTag {
 	strConNodeType strCon;	/* string constants */
         idNodeType id;          /* identifiers */
         oprNodeType opr;        /* operators */
+	funcNodeType func;	/* functions */
     };
 } nodeType;
 
-extern int sym[26];
+extern char* sym[200];
+
+#define MAIN 997
+#define CALL 996

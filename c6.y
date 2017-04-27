@@ -6,8 +6,9 @@
 
 
 /* prototypes */
+nodeType *createFunc(char *name, nodeType *args, nodeType *stmtlist, int coun);
 nodeType *opr(int oper, int nops, ...);
-nodeType *id(int i);
+nodeType *id(char *var_name);
 nodeType *con(int value);
 nodeType *charCon(char *value);
 nodeType *strCon(char *value);
@@ -17,20 +18,47 @@ void eop();
 int yylex(void);
 
 void yyerror(char *s);
-int sym[26];                    /* symbol table */
+
+// variable related
+char* sym[200]; //symbol table
+int var_count = 0; //variable count
+
+int inSYM(char *var_name);
+void insertSYM(char *var_name);
+int getSYMIdx(char *var_name);
+void emptySYM();
+void printsp();
+
+// function related
+char* func[200]; //function table
+int func_count = 0; //function count
+
+void insertFUNC(char *var_name);
+int getFUNCIdx(char *var_name);
+void emptyFUNC();
+
+
+// variable type related
+int vType[200]; //type table
+
+// expression type checking
+int checkExprType (nodeType* p);
+
+int argc = 0; // global variable for arguments count
+void init();
 %}
 
 %union {
     int iValue;                 /* integer value */
     char *sValue;		/* address of the string */
-    char sIndex;                /* symbol table index */
+    char *vName;                /* symbol table index */
     nodeType *nPtr;             /* node pointer */
 };
 
 %token <iValue> INTEGER 
 %token <sValue> STRING CHARACTER
-%token <sIndex> VARIABLE
-%token FOR WHILE IF PRINT READ BREAK CONTINUE OFFSET RVALUE
+%token <vName> VARIABLE 
+%token FOR WHILE IF PRINT READ BREAK CONTINUE RETURN
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -41,18 +69,28 @@ int sym[26];                    /* symbol table */
 %left '*' '/' '%'
 %nonassoc UMINUS
 
-%type <nPtr> stmt allexpr expr stmt_list vari
+%type <nPtr> stmt allexpr expr stmt_list vari function tree args
 
 %%
 
 program:
-        function                { eop(); exit(0); }
+        tree                { init($1); printsp(); ex($1, 998, 998); exit(0); }
+        ;
+
+tree:
+	  tree stmt		{ $$ = opr(MAIN, 2, $1, $2); }
+        | tree function         { $$ = opr(MAIN, 2, $1, $2); }
+        | /* NULL */
         ;
 
 function:
-          function stmt         { ex($2,998,998); freeNode($2); }
-        | /* NULL */
-        ;
+	vari '(' args ')' '{' stmt_list '}' 	{ $$ = createFunc($1, $3, $6, argc); argc = 0; }  // function definition
+	;
+
+args:     vari					{ argc++; $$ = $1; }
+	| args ',' vari				{ $$ = opr(',', 2, $1, $3); }
+	| /* NULL */				{ $$ = NULL; }
+	;
 
 stmt:
           ';'                                 { $$ = opr(';', 2, NULL, NULL); }
@@ -60,6 +98,7 @@ stmt:
         | PRINT allexpr ';'                   { $$ = opr(PRINT, 1, $2); }
         | READ vari ';'                       { $$ = opr(READ, 1, $2); }
         | vari '=' allexpr ';'                { $$ = opr('=', 2, $1, $3); }
+	| vari '(' args ')' ';'		      { $$ = opr(CALL, 2, $1, $3); } // function call
         | FOR '(' stmt stmt stmt ')' stmt     { $$ = opr(FOR, 4, $3, $4, $5, $7); }
         | WHILE '(' allexpr ')' stmt          { $$ = opr(WHILE, 2, $3, $5); }
         | IF '(' allexpr ')' stmt %prec IFX   { $$ = opr(IF, 2, $3, $5); }
@@ -85,9 +124,10 @@ allexpr:
 	;
 
 expr:
-          INTEGER               { $$ = con($1); }
+	  
+          vari                  { $$ = $1; }
+        | INTEGER               { $$ = con($1); }
 	| CHARACTER		{ $$ = charCon($1); }
-        | vari                  { $$ = $1; }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
         | expr '+' expr         { $$ = opr('+', 2, $1, $3); }
         | expr '-' expr         { $$ = opr('-', 2, $1, $3); }
@@ -156,7 +196,7 @@ nodeType *strCon(char *value) {
     return p;
 }
 
-nodeType *id(int i) {
+nodeType *id(char *name) {
     nodeType *p;
     size_t nodeSize;
 
@@ -165,9 +205,10 @@ nodeType *id(int i) {
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
 
-    /* copy information */
+    // get rid of rubbish memory for the name
+    
+    p->id.var_name = name;
     p->type = typeId;
-    p->id.i = i;
 
     return p;
 }
@@ -195,6 +236,25 @@ nodeType *opr(int oper, int nops, ...) {
     return p;
 }
 
+nodeType *createFunc(char *name, nodeType *arguments, nodeType *stmtlist, int coun) {
+    nodeType *p;
+    size_t nodeSize;
+
+    /* allocate node */
+    nodeSize = SIZEOF_NODETYPE + sizeof(funcNodeType);
+    if ((p = malloc(nodeSize)) == NULL)
+        yyerror("out of memory");
+
+    /* copy information */
+    p->func.argc = coun;
+    p->func.args = arguments;
+    p->func.name = name;
+    p->func.op = stmtlist;
+    p->type = typeFunc;
+
+    return p;
+}
+
 void freeNode(nodeType *p) {
     int i;
 
@@ -209,6 +269,7 @@ void freeNode(nodeType *p) {
 void yyerror(char *s) {
     fprintf(stdout, "%s\n", s);
 }
+
 
 int main(int argc, char **argv) {
 extern FILE* yyin;
