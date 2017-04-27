@@ -178,17 +178,17 @@ void emptySYM(int isGlobal)
   int i;
   if(isGlobal){
   for(i = 0; i < var_count; i++)
-  {
-    free(sym[i]);
-  }
-  var_count = 0;
+    {
+      free(sym[i]);
+    }
+    var_count = 0;
   }
   else{
-  for(i = 100; i < 100 + loc_var_count; i++)
-  {
-    free(sym[i]);
-  }
-  loc_var_count = 0;
+    for(i = 100; i < 100 + loc_var_count; i++)
+    {
+      free(sym[i]);
+    }
+    loc_var_count = 0;
   }
 }
 
@@ -330,7 +330,7 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
 	case RETURN:
 	    ex(p->opr.op[0], -1, -1, infunc);
             printf("\tret\n");
- 	    emptySYM(1);
+ 	    emptySYM(0);
 	    break;
         case BREAK:
             printf("\tjmp\tL%03d\n", blbl);
@@ -402,7 +402,8 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
                 int ind = getSYMIdx(p->opr.op[0]->id.var_name, p->opr.op[0]->id.isGlobal);
 		int thisT = checkExprType(p->opr.op[1]);
 		setType(ind, thisT);
-		
+		if (ind == -1) 
+		    insertSYM(p->opr.op[0]->id.var_name, p->opr.op[0]->id.isGlobal);
   		if (p->opr.op[0]->id.isGlobal)// for global
 		  printf("\tpop\tsb[%d]\n", getSYMIdx(p->opr.op[0]->id.var_name, p->opr.op[0]->id.isGlobal)); 
   		else // for local
