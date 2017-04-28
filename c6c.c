@@ -484,7 +484,7 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
 		ex(p->opr.op[0],blbl,clbl, infunc);
 	    	printf("\tputc_\n");		
 	    //}else{
-		yyerror("PUTC_ can not be used for non-character type.\n");
+		//yyerror("PUTC_ can not be used for non-character type.\n");
 	    //}
 	    }
 	    break;

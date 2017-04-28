@@ -1,0 +1,12 @@
+a = 123;
+b = 'x';
+c = "TEST";
+geti(d);
+getc(e);
+gets(f);
+puti_(a);
+puti(d);
+putc_(b);
+putc(e);
+puts_(c);
+puts(f);
