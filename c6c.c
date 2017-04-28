@@ -5,6 +5,7 @@
 extern int var_count, func_count, loc_var_count;
 extern int vType[200];
 extern char* func[200];
+extern int argTable[200];
 
 /*
 function to let nas know the number of global variables
@@ -22,6 +23,7 @@ void prepass(nodeType *p, int infunc){
     switch(p->type) {
 	case typeFunc:
 	    insertFUNC(p->func.name);
+	    insertArg(p->func.argc, getFUNCIdx(p->func.name));
 	    prepass(p->func.args, 1);
 	    prepass(p->func.op, 1);
 	    break;
@@ -287,6 +289,9 @@ void emptyFUNC()
   func_count = 0;
 }
 
+void insertArg(int argnum, int idx){
+  argTable[idx] = argnum;
+}
 
 /*
 function to set type for some variable
@@ -354,10 +359,13 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         break;
     }
     case typeFunc:
-	printf("L%03d:", 500 + getFUNCIdx(p->func.name));
+        printf("\tjmp\tL%03d\n", 501 + 2*getFUNCIdx(p->func.name));
+	printf("L%03d:\n", 500 + 2*getFUNCIdx(p->func.name));
 	prepass(p->func.args, 1);
 	prepass(p->func.op, 1);
 	ex(p->func.op, blbl, clbl, 1);
+        printf("\tjmp\tL%03d\n", 501 + 2*getFUNCIdx(p->func.name));
+	printf("L%03d:\n", 501 + 2*getFUNCIdx(p->func.name));
 	break;
     case typeOpr:
         switch(p->opr.oper) {
@@ -415,6 +423,11 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
             break;
 	case '@':
 	    ex(p->opr.op[0], blbl, clbl, infunc);
+	    break;
+	case CALL:
+	    ex(p->opr.op[1], blbl, clbl, infunc); 
+	    int funcIdx = getFUNCIdx(p->opr.op[0]->id.var_name);
+	    printf("\tcall\tL%03d, %d\n", 500+funcIdx, argTable[funcIdx]);
 	    break;
         case '=':
             ex(p->opr.op[1], blbl, clbl, infunc);

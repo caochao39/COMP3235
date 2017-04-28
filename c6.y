@@ -34,12 +34,13 @@ void printsp();
 // function related
 char* func[200]; //function table
 int func_count = 0; //function count
+int argTable[200];
 
 void insertFUNC(char *var_name);
 int getFUNCIdx(char *var_name);
 void emptyFUNC();
 
-
+void insertArg(int argnum, int idx);
 // variable type related
 int vType[200]; //type table
 
@@ -72,7 +73,7 @@ void prepass(nodeType *p, int infunc);
 %left '*' '/' '%'
 %nonassoc UMINUS
 
-%type <nPtr> stmt allexpr expr stmt_list vari function tree args
+%type <nPtr> stmt allexpr expr stmt_list vari function tree args para
 
 %%
 
@@ -95,12 +96,15 @@ args:   vari				      { argc++; $$ = $1; }
 	| vari ',' args		              { argc++; $$ = opr(',', 2, $1, $3); }
 	;
 
+para:   allexpr				      { $$ = $1; }	  
+	| allexpr ',' para		      { $$ = opr(',', 2, $1, $3); }
+	;
+
 stmt:
           ';'                                 { $$ = opr(';', 2, NULL, NULL); }
         | allexpr ';'                         { $$ = $1; }
         | RETURN allexpr ';'                  { $$ = opr(RETURN, 1, $2); }
         | vari '=' allexpr ';'                { $$ = opr('=', 2, $1, $3); }
-	| vari '(' args ')' ';'		      { $$ = opr(CALL, 2, $1, $3); } // function call
         | FOR '(' stmt stmt stmt ')' stmt     { $$ = opr(FOR, 4, $3, $4, $5, $7); }
         | WHILE '(' allexpr ')' stmt          { $$ = opr(WHILE, 2, $3, $5); }
         | IF '(' allexpr ')' stmt %prec IFX   { $$ = opr(IF, 2, $3, $5); }
@@ -137,6 +141,7 @@ allexpr:
 
 expr:
           vari                  { $$ = $1; }
+	| vari '(' para ')'     { $$ = opr(CALL, 2, $1, $3); } // function call
         | INTEGER               { $$ = con($1); }
 	| CHARACTER		{ $$ = charCon($1); }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
