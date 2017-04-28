@@ -359,10 +359,10 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         break;
     }
     case typeFunc:
-        printf("\tjmp\tL%03d\n", 501 + 2*getFUNCIdx(p->func.name));
-	printf("L%03d:\n", 500 + 2*getFUNCIdx(p->func.name));
 	prepass(p->func.args, 1);
 	prepass(p->func.op, 1);
+        printf("\tjmp\tL%03d\n", 501 + 2*getFUNCIdx(p->func.name));
+	printf("L%03d:\n", 500 + 2*getFUNCIdx(p->func.name));
 	ex(p->func.op, blbl, clbl, 1);
         printf("\tjmp\tL%03d\n", 501 + 2*getFUNCIdx(p->func.name));
 	printf("L%03d:\n", 501 + 2*getFUNCIdx(p->func.name));
