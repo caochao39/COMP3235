@@ -29,7 +29,6 @@ void prepass(nodeType *p, int infunc){
 	    if (infunc == 0){
 	      p->id.isGlobal=1;
  	    }
-	    printf("prepass var: %s\n", p->id.var_name);
 	    insertSYM(p->id.var_name, p->id.isGlobal);
 	    break;
 	case typeOpr:
@@ -67,7 +66,6 @@ void prepass(nodeType *p, int infunc){
 		case '@':
 		    if(p->opr.op[0]->type == typeId && infunc == 1) {
 		    	/* insert into symbol table */
-			p->opr.op[0]->id.isGlobal=1;
     		    	insertSYM(p->opr.op[0]->id.var_name, 1);
 		    }else{
 			yyerror("Wrong @ usage!");
@@ -327,6 +325,7 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
     case typeFunc:
 	printf("L%03d:", 500 + getFUNCIdx(p->func.name));
 	prepass(p->func.args, 1);
+	prepass(p->func.op, 1);
 	ex(p->func.op, blbl, clbl, 1);
 	break;
     case typeOpr:
@@ -456,10 +455,6 @@ void eop() {
     printf("\tjmp\tL999\n");
     printf("L998:\n");
     printf("\tpush\t999999\n");
-    printf("\tprint\n");
-    printf("\tpush\t999999\n");
-    printf("\tprint\n");
-    printf("\tpush\t999999\n");
-    printf("\tprint\n");
+    printf("\tputi\n");
     printf("L999:\n");
 }

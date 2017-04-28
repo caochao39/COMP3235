@@ -8,7 +8,7 @@
 /* prototypes */
 nodeType *createFunc(nodeType * funcNameId, nodeType *args, nodeType *stmtlist, int coun);
 nodeType *opr(int oper, int nops, ...);
-nodeType *id(char *var_name);
+nodeType *id(char *var_name, int isGlobal);
 nodeType *con(int value);
 nodeType *charCon(char *value);
 nodeType *strCon(char *value);
@@ -76,7 +76,7 @@ void prepass(nodeType *p, int infunc);
 %%
 
 program:
-        tree                { prepass($1, 0); printsp(); ex($1, 998, 998, 0); exit(0); }
+        tree                { prepass($1, 0); printsp(); ex($1, 998, 998, 0); eop(); exit(0); }
         ;
 
 tree:
@@ -90,9 +90,8 @@ function:
 	| vari '(' ')' '{' stmt_list '}' 	{ $$ = createFunc($1, NULL, $5, 0); argc = 0; } 
 	;
 
-args:     args ',' vari			      { argc++; $$ = addOperand($1, $3); }
-	| vari				      { argc++; $$ = $1; }	
-	| /* NULL */	
+args:   vari				      { argc++; $$ = $1; }	  
+	| vari ',' args		              { argc++; $$ = opr(',', 2, $1, $3); }
 	;
 
 stmt:
@@ -113,8 +112,8 @@ stmt:
         ;
 
 vari:
-          VARIABLE { $$ = id($1); }
-	| '@' VARIABLE { $$ = opr('@', 1, id($2)); }
+          VARIABLE { $$ = id($1, 0); }
+	| '@' VARIABLE { $$ = opr('@', 1, id($2, 1)); }
         ;
 
 
@@ -129,7 +128,6 @@ allexpr:
 	;
 
 expr:
-	  
           vari                  { $$ = $1; }
         | INTEGER               { $$ = con($1); }
 	| CHARACTER		{ $$ = charCon($1); }
@@ -221,7 +219,7 @@ nodeType *strCon(char *value) {
     return p;
 }
 
-nodeType *id(char *name) {
+nodeType *id(char *name, int isGlobal) {
     nodeType *p;
     size_t nodeSize;
 
@@ -230,6 +228,7 @@ nodeType *id(char *name) {
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
 
+    p->id.isGlobal = isGlobal;
     p->id.var_name = name;
     p->type = typeId;
 
