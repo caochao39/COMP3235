@@ -32,13 +32,20 @@ char text[500];
 "while"     return WHILE;
 "if"        return IF;
 "else"      return ELSE;
-"print"     return PRINT;
-"read"      return READ;
 "&&"        return AND;
 "||"        return OR;
 "break"     return BREAK;
 "continue"  return CONTINUE;
 "return"    return RETURN;
+"puti"      return PUTI;
+"puti_"     return PUTI_;
+"putc"      return PUTC;
+"putc_"     return PUTC_;
+"puts"      return PUTS;
+"puts_"     return PUTS_;
+"geti"      return GETI;
+"getc"      return GETC;
+"gets"      return GETS;
 
 \/\/.*\n    ;    /* skip comments */
 

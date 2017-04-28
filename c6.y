@@ -60,7 +60,8 @@ void prepass(nodeType *p, int infunc);
 %token <iValue> INTEGER 
 %token <sValue> STRING CHARACTER
 %token <vName> VARIABLE 
-%token FOR WHILE IF PRINT READ BREAK CONTINUE RETURN
+%token FOR WHILE IF BREAK CONTINUE RETURN
+%token PUTI PUTC PUTS PUTI_ PUTC_ PUTS_ GETI GETC GETS
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -98,8 +99,6 @@ stmt:
           ';'                                 { $$ = opr(';', 2, NULL, NULL); }
         | allexpr ';'                         { $$ = $1; }
         | RETURN allexpr ';'                  { $$ = opr(RETURN, 1, $2); }
-        | PRINT allexpr ';'                   { $$ = opr(PRINT, 1, $2); }
-        | READ vari ';'                       { $$ = opr(READ, 1, $2); }
         | vari '=' allexpr ';'                { $$ = opr('=', 2, $1, $3); }
 	| vari '(' args ')' ';'		      { $$ = opr(CALL, 2, $1, $3); } // function call
         | FOR '(' stmt stmt stmt ')' stmt     { $$ = opr(FOR, 4, $3, $4, $5, $7); }
@@ -109,6 +108,15 @@ stmt:
         | '{' stmt_list '}'                   { $$ = $2; }
         | BREAK ';'                           { $$ = opr(BREAK, 0); }
         | CONTINUE ';'                        { $$ = opr(CONTINUE, 0); }
+	| PUTI '(' allexpr ')'        	      { $$ = opr(PUTI, 1, $3); }
+	| PUTI_ '(' allexpr ')'        	      { $$ = opr(PUTI_, 1, $3); }
+	| PUTC '(' allexpr ')'        	      { $$ = opr(PUTC, 1, $3); }
+	| PUTC_ '(' allexpr ')'        	      { $$ = opr(PUTC_, 1, $3); }
+	| PUTS '(' allexpr ')'        	      { $$ = opr(PUTS, 1, $3); }
+	| PUTS_ '(' allexpr ')'        	      { $$ = opr(PUTS_, 1, $3); }
+	| GETI '(' allexpr ')'        	      { $$ = opr(GETI, 1, $3); }
+	| GETC '(' allexpr ')'        	      { $$ = opr(GETC, 1, $3); }
+	| GETS '(' allexpr ')'        	      { $$ = opr(GETS, 1, $3); }
         ;
 
 vari:

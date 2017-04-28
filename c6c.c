@@ -71,6 +71,24 @@ void prepass(nodeType *p, int infunc){
 			yyerror("Wrong @ usage!");
 			exit(0);
 		    }
+		case GETI:
+		    if(p->opr.op[0]->type == typeId) {
+		 	prepass(p->opr.op[0], infunc);
+   		    } else if(p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == '@'){
+			prepass(p->opr.op[0], infunc);
+		    }
+		case GETS:
+		    if(p->opr.op[0]->type == typeId) {
+		 	prepass(p->opr.op[0], infunc);
+   		    } else if(p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == '@'){
+			prepass(p->opr.op[0], infunc);
+		    }
+		case GETC:
+		    if(p->opr.op[0]->type == typeId) {
+		 	prepass(p->opr.op[0], infunc);
+   		    } else if(p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == '@'){
+			prepass(p->opr.op[0], infunc);
+		    }
 		default:
             	    prepass(p->opr.op[0], infunc);
             	    prepass(p->opr.op[1], infunc);
@@ -382,19 +400,6 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
                 printf("L%03d:\n", lblx);
             }
             break;
-        case READ:
-            printf("\tread\n");
-            if(p->opr.op[0]->type == typeId) {
-                printf("\tpop\t%s\n", p->opr.op[0]->id.var_name);
-            } else {
-                printf("\tpopi\t%c\n", ex(p->opr.op[0], blbl, clbl, infunc));
-            }
-            break;
-        case PRINT:
-            ex(p->opr.op[0], blbl, clbl, infunc);
-	    int type = checkExprType(p->opr.op[0]);
-            printStackTop(type);
-            break;
 	case '@':
 	    ex(p->opr.op[0], blbl, clbl, infunc);
 	    break;
@@ -426,6 +431,129 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
             ex(p->opr.op[0], blbl, clbl, infunc);
             printf("\tneg\n");
             break;
+	case PUTI:
+	    {
+	    int typeP = checkExprType(p->opr.op[0]);
+	    //if(typeP==1){
+		ex(p->opr.op[0],blbl, clbl, infunc);
+	    	printf("\tputi\n");		
+	    //}else{
+		//yyerror("PUTI can not be used for non-integer type.\n");
+	    //}
+	    }
+            break;
+	case PUTI_:
+	    {
+	    int typeP = checkExprType(p->opr.op[0]);
+	    //if(typeP==1){
+		ex(p->opr.op[0],blbl, clbl, infunc);
+	    	printf("\tputi_\n");		
+	    //}else{
+		//yyerror("PUTI_ can not be used for non-integer type.\n");
+	    //}
+	    }
+            break;
+	case PUTC:
+	    {
+	    int typeP = checkExprType(p->opr.op[0]);
+	    //if(typeP==3){
+		ex(p->opr.op[0],blbl,clbl, infunc);
+	    	printf("\tputc\n");		
+	    //}else{
+		//yyerror("PUTC can not be used for non-character type.\n");
+	    //}
+	    }
+	    break;
+	case PUTC_:
+	    {
+	    int typeP = checkExprType(p->opr.op[0]);
+	    //if(typeP==3){
+		ex(p->opr.op[0],blbl,clbl, infunc);
+	    	printf("\tputc_\n");		
+	    //}else{
+		yyerror("PUTC_ can not be used for non-character type.\n");
+	    //}
+	    }
+	    break;
+	case PUTS:
+	    {
+	    int typeP = checkExprType(p->opr.op[0]);
+	    //if(typeP==2){
+		ex(p->opr.op[0],blbl,clbl, infunc);
+	    	printf("\tputs\n");		
+	    //}else{
+		//yyerror("PUTS can not be used for non-string type.");
+	    //}
+	    }
+    	    break;
+	case PUTS_:
+	    {
+	    int typeP = checkExprType(p->opr.op[0]);
+	    //if(typeP==2){
+		ex(p->opr.op[0],blbl,clbl, infunc);
+	    	printf("\tputs_\n");		
+	    //}else{
+		//yyerror("PUTS_ can not be used for non-string type.\n");
+	    //}
+	    }
+	    break;
+	case GETI:
+	    {
+	    nodeType* tmp;
+	    if(p->opr.op[0]->type == typeId) {
+		tmp = p->opr.op[0];
+	    } else if (p->opr.op[0]->type == typeOpr){
+		tmp = p->opr.op[0]->opr.op[0];
+	    } else {
+		yyerror("error.\n");
+	    }
+	    int ind = getSYMIdx(tmp->id.var_name, tmp->id.isGlobal);
+	    setType(ind, 1);
+	    printf("\tgeti\n");
+	    if (tmp->id.isGlobal)
+	      	printf("\tpop\tsb[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal)); 
+	    else
+		printf("\tpop\tfp[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal)-100); 
+            break;
+	    }
+	case GETC:
+	    {
+	    nodeType* tmp;
+	    if(p->opr.op[0]->type == typeId) {
+		tmp = p->opr.op[0];
+	    } else if (p->opr.op[0]->type == typeOpr){
+		tmp = p->opr.op[0]->opr.op[0];
+	    } else {
+		yyerror("error.\n");
+	    }
+	    int ind = getSYMIdx(tmp->id.var_name, tmp->id.isGlobal);
+	    setType(ind, 3);
+	    printf("\tgetc\n");
+	    if (tmp->id.isGlobal)
+	      	printf("\tpop\tsb[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal)); 
+	    else
+		printf("\tpop\tfp[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal)-100); 
+            break;
+	    }
+	case GETS:
+	    {
+	    nodeType* tmp;
+	    if(p->opr.op[0]->type == typeId) {
+		tmp = p->opr.op[0];
+	    } else if (p->opr.op[0]->type == typeOpr){
+		tmp = p->opr.op[0]->opr.op[0];
+	    } else {
+		yyerror("error.\n");
+	    }
+	    int ind = getSYMIdx(tmp->id.var_name, tmp->id.isGlobal);
+	    setType(ind, 2);
+	    printf("\tgets\n");
+	    if (tmp->id.isGlobal)
+	      	printf("\tpop\tsb[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal)); 
+	    else
+		printf("\tpop\tfp[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal)-100);  
+            break;
+	    }
         default:
             ex(p->opr.op[0], blbl, clbl, infunc);
             ex(p->opr.op[1], blbl, clbl, infunc);
