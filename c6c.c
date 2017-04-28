@@ -52,8 +52,12 @@ void prepass(nodeType *p, int infunc){
 		    prepass(p->opr.op[0], infunc);
 		    prepass(p->opr.op[1], infunc);
 		    break;
-		case RETURN:
+		case RETURN: 
 		    prepass(p->opr.op[0], infunc);
+	   	    break;
+		case CONTINUE:
+		    break; 
+		case BREAK:
 		    break;
 		case IF:
 		    if (p->opr.nops > 2) {
@@ -87,30 +91,15 @@ void prepass(nodeType *p, int infunc){
 			yyerror("Wrong @ usage!");
 			exit(0);
 		    }
-		case GETI:		
-            	    prepass(p->opr.op[0], infunc);
-		    break; 
-		case GETS:		
-            	    prepass(p->opr.op[0], infunc);
-		    break; 
-		case GETC:		
-            	    prepass(p->opr.op[0], infunc);
-		    break; 
-		case PUTI:		
-            	    prepass(p->opr.op[0], infunc);
-		    break; 
-		case PUTI_:		
-            	    prepass(p->opr.op[0], infunc);
-		    break; 
-		case PUTC:		
-            	    prepass(p->opr.op[0], infunc);
-		    break; 
-		case PUTC_:		
-            	    prepass(p->opr.op[0], infunc);
-		    break; 
-		case PUTS:		
-            	    prepass(p->opr.op[0], infunc);
-		    break; 
+		    break;
+		case GETI:	
+		case GETS:	
+		case GETC:	
+		case PUTI:	
+		case PUTI_:	
+		case PUTC:	
+		case PUTC_:	
+		case PUTS:	
 		case PUTS_:		
             	    prepass(p->opr.op[0], infunc);
 		    break;
@@ -119,8 +108,8 @@ void prepass(nodeType *p, int infunc){
 			prepass(p->opr.op[1], infunc);
 		    break;
 		default:
-            	    prepass(p->opr.op[0], infunc);
-            	    prepass(p->opr.op[1], infunc);
+            	    prepass(p->opr.op[0],infunc);
+                    prepass(p->opr.op[1],infunc);
 		    break;
 	    }
 	default:
@@ -384,9 +373,9 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
 
 	printf("\tjmp\tL%03d\n", 501 + 2*getFUNCIdx(p->func.name));
 	printf("L%03d:\n", 500 + 2*getFUNCIdx(p->func.name));
+	//printf("loc_var_count: %d, argc: %d\n", loc_var_count, p->func.argc);
 	printsp(loc_var_count-argTable[funcIdx]);
 	ex(p->func.op, blbl, clbl, 1);
-	
 	// place to exit the function, check whether there is a return, 
 	if (hasreturn == 0){
             printf("\tpush\t0\n");

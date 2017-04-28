@@ -73,7 +73,7 @@ void prepass(nodeType *p, int infunc);
 %left '*' '/' '%'
 %nonassoc UMINUS
 
-%type <nPtr> stmt expr stmt_list vari function tree args para
+%type <nPtr> stmt expr stmt_list vari function tree para
 
 %%
 
@@ -92,7 +92,7 @@ function:
 	| vari '(' ')' '{' stmt_list '}' 	{ $$ = createFunc($1, NULL, $5, 0); argc = 0; } 
 	;
 
-para:   expr				      	{ argc++; $$ = $1; }	  
+para:   expr				      	{ argc=1; $$ = $1; }	  
 	| expr ',' para		      		{ argc++; $$ = opr(',', 2, $1, $3); }
 	;
 

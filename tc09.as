@@ -1,5 +1,5 @@
 	push	sp
-	push	4
+	push	3
 	add
 	pop	sp
 	jmp	L501
@@ -16,7 +16,6 @@ L500:
 	add
 	mul
 	ret
-	jmp	L501
 L501:
 	push	10
 	pop	sb[0]

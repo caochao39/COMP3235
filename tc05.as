@@ -8,13 +8,35 @@
 	pop	sb[1]
 	push	200
 	pop	sb[2]
+	push	sb[0]
+	push	sb[1]
+	compGE
+	j0	L000
+	push	"a>b"
+	puts
+	push	sb[0]
+	push	sb[1]
+	compEQ
+	j0	L001
+	push	"a==b"
+	puts
+L001:
+	jmp	L002
+L000:
+	push	"a<b"
+	puts
+L002:
 	push	sb[2]
 	push	sb[0]
 	compLT
-	j0	L000
+	j0	L003
 	push	"c<a"
 	puts
-L000:
+	jmp	L004
+L003:
+	push	"c>=a"
+	puts
+L004:
 	jmp	L999
 L998:
 	push	999999

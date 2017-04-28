@@ -1,5 +1,5 @@
 	push	sp
-	push	2
+	push	1
 	add
 	pop	sp
 	jmp	L501
@@ -12,7 +12,6 @@ L500:
 	puti
 	push	0
 	ret
-	jmp	L501
 L501:
 	push	999
 	pop	sb[0]

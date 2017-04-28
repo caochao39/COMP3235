@@ -1,11 +1,11 @@
 	push	sp
-	push	2
+	push	1
 	add
 	pop	sp
 	jmp	L501
 L500:
 	push	sp
-	push	1
+	push	0
 	add
 	pop	sp
 	push	fp[-4]
@@ -22,7 +22,6 @@ L000:
 	call	L500, 1
 	mul
 	ret
-	jmp	L501
 L501:
 	push	"Please enter a +ve int <= 12: "
 	puts_

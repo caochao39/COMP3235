@@ -1,0 +1,11 @@
+./nas tc01.as;
+./nas tc02.as;
+./nas tc03.as;
+./nas tc04.as;
+./nas tc05.as;
+./nas tc06.as;
+./nas tc07.as;
+./nas tc08.as;
+./nas tc09.as;
+./nas tc10.as;
+./nas tc11.as;
