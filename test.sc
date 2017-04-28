@@ -1,1 +1,4 @@
-puts("asdf\nasdf");
+puts("a");
+puts("bb");
+puts("ccc");
+

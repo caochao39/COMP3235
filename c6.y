@@ -29,7 +29,7 @@ int inSYM(char *var_name);
 void insertSYM(char *var_name, int isGlobal);
 int getSYMIdx(char *var_name, int isGlobal);
 void emptySYM(int isGlobal);
-void printsp();
+void printsp(int coun);
 
 // function related
 char* func[200]; //function table
@@ -78,7 +78,7 @@ void prepass(nodeType *p, int infunc);
 %%
 
 program:
-        tree                { prepass($1, 0); printsp(); ex($1, 998, 998, 0); eop(); exit(0); }
+        tree                { prepass($1, 0); printsp(var_count); ex($1, 998, 998, 0); eop(); exit(0); }
         ;
 
 tree:
@@ -226,8 +226,14 @@ nodeType *strCon(char *value) {
         yyerror("out of memory");
 
     /* copy information */
+    p->strCon.value = (char *)malloc(sizeof(char) * 200);
+    int i=0;
+    while(value[i]!='\0'){
+        p->strCon.value[i] = value[i];
+        i++;
+    }
     p->type = typeStrCon;
-    p->strCon.value = value;
+    //p->strCon.value = value;
 
     return p;
 }

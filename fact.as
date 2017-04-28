@@ -2,45 +2,46 @@
 	push	2
 	add
 	pop	sp
+	push	"Please enter an int <= 12: "
+	puts_
 	geti
 	pop	sb[0]
-	push	sb[0]
-	push	0
-	compEQ
+	jmp	L501
+L500:
+	push	sp
+	push	1
+	add
+	pop	sp
+	push	fp[-4]
+	push	1
+	compLT
 	j0	L000
 	push	1
-	puti
-	jmp	L001
+	ret
 L000:
-	push	sb[0]
+	push	fp[-4]
+	push	fp[-4]
 	push	1
-	compGE
+	sub
+	call	L500, 1
+	mul
+	ret
+	jmp	L501
+L501:
 	push	sb[0]
 	push	12
 	compLE
-	and
-	j0	L002
-	push	1
-	pop	sb[1]
-L003:
+	j0	L001
 	push	sb[0]
-	push	1
-	compGT
-	j0	L004
-	push	sb[1]
-	push	sb[0]
-	mul
-	pop	sb[1]
-	push	sb[0]
-	push	1
-	sub
-	pop	sb[0]
-	jmp	L003
-L004:
-	push	sb[1]
+	call	L500, 1
 	puti
-L002:
+	jmp	L002
 L001:
+	push	sb[0]
+	puti_
+	push	" >> 12!!"
+	puts
+L002:
 	jmp	L999
 L998:
 	push	999999
