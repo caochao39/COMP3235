@@ -73,7 +73,7 @@ void prepass(nodeType *p, int infunc);
 %left '*' '/' '%'
 %nonassoc UMINUS
 
-%type <nPtr> stmt allexpr expr stmt_list vari function tree args para
+%type <nPtr> stmt expr stmt_list vari function tree args para
 
 %%
 
@@ -88,39 +88,35 @@ tree:
         ;
 
 function:
-	vari '(' args ')' '{' stmt_list '}' 	{ $$ = createFunc($1, $3, $6, argc); argc = 0; }  // function definition
+	vari '(' para ')' '{' stmt_list '}' 	{ $$ = createFunc($1, $3, $6, argc); argc = 0; }  // function definition
 	| vari '(' ')' '{' stmt_list '}' 	{ $$ = createFunc($1, NULL, $5, 0); argc = 0; } 
 	;
 
-args:   vari				      { argc++; $$ = $1; }	  
-	| vari ',' args		              { argc++; $$ = opr(',', 2, $1, $3); }
-	;
-
-para:   allexpr				      { $$ = $1; }	  
-	| allexpr ',' para		      { $$ = opr(',', 2, $1, $3); }
+para:   expr				      	{ argc++; $$ = $1; }	  
+	| expr ',' para		      		{ argc++; $$ = opr(',', 2, $1, $3); }
 	;
 
 stmt:
           ';'                                 { $$ = opr(';', 2, NULL, NULL); }
-        | allexpr ';'                         { $$ = $1; }
-        | RETURN allexpr ';'                  { $$ = opr(RETURN, 1, $2); }
-        | vari '=' allexpr ';'                { $$ = opr('=', 2, $1, $3); }
+        | vari '=' expr ';'                   { $$ = opr('=', 2, $1, $3); }
         | FOR '(' stmt stmt stmt ')' stmt     { $$ = opr(FOR, 4, $3, $4, $5, $7); }
-        | WHILE '(' allexpr ')' stmt          { $$ = opr(WHILE, 2, $3, $5); }
-        | IF '(' allexpr ')' stmt %prec IFX   { $$ = opr(IF, 2, $3, $5); }
-        | IF '(' allexpr ')' stmt ELSE stmt   { $$ = opr(IF, 3, $3, $5, $7); }
+        | WHILE '(' expr ')' stmt             { $$ = opr(WHILE, 2, $3, $5); }
+        | IF '(' expr ')' stmt %prec IFX      { $$ = opr(IF, 2, $3, $5); }
+        | IF '(' expr ')' stmt ELSE stmt      { $$ = opr(IF, 3, $3, $5, $7); }
         | '{' stmt_list '}'                   { $$ = $2; }
         | BREAK ';'                           { $$ = opr(BREAK, 0); }
         | CONTINUE ';'                        { $$ = opr(CONTINUE, 0); }
-	| PUTI '(' allexpr ')'        	      { $$ = opr(PUTI, 1, $3); }
-	| PUTI_ '(' allexpr ')'        	      { $$ = opr(PUTI_, 1, $3); }
-	| PUTC '(' allexpr ')'        	      { $$ = opr(PUTC, 1, $3); }
-	| PUTC_ '(' allexpr ')'        	      { $$ = opr(PUTC_, 1, $3); }
-	| PUTS '(' allexpr ')'        	      { $$ = opr(PUTS, 1, $3); }
-	| PUTS_ '(' allexpr ')'        	      { $$ = opr(PUTS_, 1, $3); }
-	| GETI '(' allexpr ')'        	      { $$ = opr(GETI, 1, $3); }
-	| GETC '(' allexpr ')'        	      { $$ = opr(GETC, 1, $3); }
-	| GETS '(' allexpr ')'        	      { $$ = opr(GETS, 1, $3); }
+        | GETI '(' vari ')' ';'               { $$ = opr(GETI, 1, $3);}
+        | PUTI '(' expr ')' ';'               { $$ = opr(PUTI, 1, $3);}
+        | PUTI_ '(' expr ')' ';'              { $$ = opr(PUTI_, 1, $3);}
+        | GETC '(' vari ')' ';'               { $$ = opr(GETC, 1, $3);}
+        | PUTC '(' expr ')' ';'               { $$ = opr(PUTC, 1, $3);}
+        | PUTC_ '(' expr ')' ';'              { $$ = opr(PUTC_, 1, $3);}
+        | GETS '(' vari ')' ';'               { $$ = opr(GETS, 1, $3);}
+        | PUTS '(' expr ')' ';'               { $$ = opr(PUTS, 1, $3);}
+        | PUTS_ '(' expr ')' ';'              { $$ = opr(PUTS_, 1, $3);}
+        | RETURN expr ';'                     { $$ = opr(RETURN,1,$2);}
+        | expr ';'                            { $$ = $1; }
         ;
 
 vari:
@@ -134,16 +130,10 @@ stmt_list:
         | stmt_list stmt        { $$ = opr(';', 2, $1, $2); }
         ;
 
-allexpr:
-	  expr			{ $$ = $1; }
-	| STRING		{ $$ = strCon($1); }
-	;
-
 expr:
-          vari                  { $$ = $1; }
-	| vari '(' para ')'     { $$ = opr(CALL, 2, $1, $3); } // function call
-        | INTEGER               { $$ = con($1); }
+          INTEGER               { $$ = con($1); }
 	| CHARACTER		{ $$ = charCon($1); }
+	| STRING		{ $$ = strCon($1); }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
         | expr '+' expr         { $$ = opr('+', 2, $1, $3); }
         | expr '-' expr         { $$ = opr('-', 2, $1, $3); }
@@ -159,6 +149,9 @@ expr:
         | expr AND expr         { $$ = opr(AND, 2, $1, $3); }
         | expr OR expr          { $$ = opr(OR, 2, $1, $3); }
         | '(' expr ')'          { $$ = $2; }
+	| vari '(' para ')'     { $$ = opr(CALL, 2, $1, $3); } // function call
+	| vari '(' ')'     	{ $$ = opr(CALL, 2, $1, NULL); } // function call
+	| vari                  { $$ = $1; }
         ;
 
 %%

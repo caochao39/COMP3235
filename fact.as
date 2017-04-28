@@ -2,10 +2,6 @@
 	push	2
 	add
 	pop	sp
-	push	"Please enter an int <= 12: "
-	puts_
-	geti
-	pop	sb[0]
 	jmp	L501
 L500:
 	push	sp
@@ -28,6 +24,10 @@ L000:
 	ret
 	jmp	L501
 L501:
+	push	"Please enter a +ve int <= 12: "
+	puts_
+	geti
+	pop	sb[0]
 	push	sb[0]
 	push	12
 	compLE
@@ -39,7 +39,7 @@ L501:
 L001:
 	push	sb[0]
 	puti_
-	push	" >> 12!!"
+	push	" > 12!!"
 	puts
 L002:
 	jmp	L999

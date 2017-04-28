@@ -7,7 +7,9 @@ extern int vType[200];
 extern char* func[200];
 extern int argTable[200];
 int funcIdx = -1;
+int hasreturn = 0;
 
+static int lbl;
 /*
 function to let nas know the number of global variables
 */
@@ -36,6 +38,10 @@ void prepass(nodeType *p, int infunc){
 	    break;
 	case typeOpr:
             switch(p->opr.oper) {
+		case MAIN:
+                    prepass(p->opr.op[0], infunc);
+                    prepass(p->opr.op[1], infunc);
+                    break;
 		case FOR:
 		    prepass(p->opr.op[0], infunc);
 		    prepass(p->opr.op[1], infunc);
@@ -107,6 +113,10 @@ void prepass(nodeType *p, int infunc){
 		    break; 
 		case PUTS_:		
             	    prepass(p->opr.op[0], infunc);
+		    break;
+		case CALL:
+		    if (p->opr.op[1]!=NULL)
+			prepass(p->opr.op[1], infunc);
 		    break;
 		default:
             	    prepass(p->opr.op[0], infunc);
@@ -333,7 +343,6 @@ int checkExprType (nodeType* p){
     }
 }
 
-static int lbl;
 int ex(nodeType *p, int blbl, int clbl, int infunc) {
     int lblx, lbly, lblz;
 
@@ -372,19 +381,34 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
 	funcIdx = getFUNCIdx(p->func.name);
 	prepass(p->func.args, 1);
 	prepass(p->func.op, 1);
-        printf("\tjmp\tL%03d\n", 501 + 2*getFUNCIdx(p->func.name));
+
+	printf("\tjmp\tL%03d\n", 501 + 2*getFUNCIdx(p->func.name));
 	printf("L%03d:\n", 500 + 2*getFUNCIdx(p->func.name));
 	printsp(loc_var_count-argTable[funcIdx]);
 	ex(p->func.op, blbl, clbl, 1);
-        printf("\tjmp\tL%03d\n", 501 + 2*getFUNCIdx(p->func.name));
+	
+	// place to exit the function, check whether there is a return, 
+	if (hasreturn == 0){
+            printf("\tpush\t0\n");
+            printf("\tret\n");
+ 	    emptySYM(0);
+        } else {
+          hasreturn=0;
+        }
+	
 	printf("L%03d:\n", 501 + 2*getFUNCIdx(p->func.name));
 	break;
     case typeOpr:
         switch(p->opr.oper) {
 	case RETURN:
+	    hasreturn=1;
 	    ex(p->opr.op[0], -1, -1, infunc);
             printf("\tret\n");
  	    emptySYM(0);
+	    break;
+	case MAIN:                   
+            ex(p->opr.op[0], blbl, clbl, infunc);
+            ex(p->opr.op[1], blbl, clbl, infunc);
 	    break;
         case BREAK:
             printf("\tjmp\tL%03d\n", blbl);
@@ -439,7 +463,7 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
 	case CALL:
 	    ex(p->opr.op[1], blbl, clbl, infunc); 
 	    int funcIdx = getFUNCIdx(p->opr.op[0]->id.var_name);
-	    printf("\tcall\tL%03d, %d\n", 500+funcIdx, argTable[funcIdx]);
+	    printf("\tcall\tL%03d, %d\n", 500+2 * funcIdx, argTable[funcIdx]);
 	    break;
         case '=':
             ex(p->opr.op[1], blbl, clbl, infunc);
