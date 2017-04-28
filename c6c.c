@@ -40,15 +40,18 @@ void prepass(nodeType *p, int infunc){
 		    prepass(p->opr.op[2], infunc);
 		    break;
 		case WHILE:
+		    prepass(p->opr.op[0], infunc);
 		    prepass(p->opr.op[1], infunc);
 		    break;
 		case IF:
 		    if (p->opr.nops > 2) {
 		    /* if else then */
+			prepass(p->opr.op[0], infunc);
 			prepass(p->opr.op[1], infunc);
 			prepass(p->opr.op[2], infunc);
 		    } else {
 		    /* if else */
+			prepass(p->opr.op[0], infunc);
 			prepass(p->opr.op[1], infunc);
 		    }
 		    break;
@@ -57,11 +60,12 @@ void prepass(nodeType *p, int infunc){
 		    	/* insert into symbol table */
 			if (infunc == 0){
 			    p->opr.op[0]->id.isGlobal=1;
- 			}
+ 			}			
     		    	insertSYM(p->opr.op[0]->id.var_name, p->opr.op[0]->id.isGlobal);
 		    }else if(p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == '@'){
 			prepass(p->opr.op[0], infunc);
 		    }
+		    prepass(p->opr.op[1], infunc);
 		    break;
 		case '@':
 		    if(p->opr.op[0]->type == typeId && infunc == 1) {
@@ -71,24 +75,33 @@ void prepass(nodeType *p, int infunc){
 			yyerror("Wrong @ usage!");
 			exit(0);
 		    }
-		case GETI:
-		    if(p->opr.op[0]->type == typeId) {
-		 	prepass(p->opr.op[0], infunc);
-   		    } else if(p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == '@'){
-			prepass(p->opr.op[0], infunc);
-		    }
-		case GETS:
-		    if(p->opr.op[0]->type == typeId) {
-		 	prepass(p->opr.op[0], infunc);
-   		    } else if(p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == '@'){
-			prepass(p->opr.op[0], infunc);
-		    }
-		case GETC:
-		    if(p->opr.op[0]->type == typeId) {
-		 	prepass(p->opr.op[0], infunc);
-   		    } else if(p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == '@'){
-			prepass(p->opr.op[0], infunc);
-		    }
+		case GETI:		
+            	    prepass(p->opr.op[0], infunc);
+		    break; 
+		case GETS:		
+            	    prepass(p->opr.op[0], infunc);
+		    break; 
+		case GETC:		
+            	    prepass(p->opr.op[0], infunc);
+		    break; 
+		case PUTI:		
+            	    prepass(p->opr.op[0], infunc);
+		    break; 
+		case PUTI_:		
+            	    prepass(p->opr.op[0], infunc);
+		    break; 
+		case PUTC:		
+            	    prepass(p->opr.op[0], infunc);
+		    break; 
+		case PUTC_:		
+            	    prepass(p->opr.op[0], infunc);
+		    break; 
+		case PUTS:		
+            	    prepass(p->opr.op[0], infunc);
+		    break; 
+		case PUTS_:		
+            	    prepass(p->opr.op[0], infunc);
+		    break;
 		default:
             	    prepass(p->opr.op[0], infunc);
             	    prepass(p->opr.op[1], infunc);
