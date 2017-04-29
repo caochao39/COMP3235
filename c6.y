@@ -43,6 +43,9 @@ void insertArg(int argnum, int idx);
 void setType (int index, int t);
 int checkExprType (nodeType* p);
 
+//helper functions
+void printSYM();
+
 // function related
 char* func[200]; //function table
 int func_count = 0; //function count
@@ -60,6 +63,10 @@ int vType[200]; //type table
 int checkExprType (nodeType* p);
 
 int argc = 0; // global variable for arguments count
+
+int in_func = 0; // global variable for checking if variables are declared inside functions
+
+
 void prepass(nodeType *p, int infunc);
 %}
 
@@ -91,18 +98,18 @@ void prepass(nodeType *p, int infunc);
 %%
 
 program:
-        tree                { prepass($1, 0); printsp(var_count); ex($1, 998, 998, 0); eop(); exit(0); }
+        tree                { prepass($1, 0); printsp(var_count); printSYM(); ex($1, 998, 998, 0); eop(); exit(0); }
         ;
 
 tree:
-	  tree stmt		{ $$ = opr(MAIN, 2, $1, $2); }
-        | tree function         { $$ = opr(MAIN, 2, $1, $2); }
-        | /* NULL */		{ $$ = NULL; }
-        ;
+	  tree stmt		{ $$ = opr(MAIN, 2, $1, $2); in_func = 0; }
+    | tree function         { $$ = opr(MAIN, 2, $1, $2); }
+    | /* NULL */		{ $$ = NULL; }
+    ;
 
 function:
-	vari '(' para ')' '{' stmt_list '}' 	{ $$ = createFunc($1, $3, $6, argc); argc = 0; }  // function definition
-	| vari '(' ')' '{' stmt_list '}' 	{ $$ = createFunc($1, NULL, $5, 0); argc = 0; }
+	vari '(' para ')' '{' stmt_list '}' 	{ $$ = createFunc($1, $3, $6, argc); argc = 0; in_func = 1;}  // function definition
+	| vari '(' ')' '{' stmt_list '}' 	{ $$ = createFunc($1, NULL, $5, 0); argc = 0; in_func = 1;}
 	;
 
 para:   expr				      	{ argc=1; $$ = $1; }

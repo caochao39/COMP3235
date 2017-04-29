@@ -32,7 +32,23 @@ void insertArg(int argnum, int idx);
 void setType (int index, int t);
 int checkExprType (nodeType* p);
 
+// helper functions
+void printSYM();
 
+
+/*
+ function to print the symbol table
+*/
+void printSYM()
+{
+  printf("[DEBUG]\t\tBegin printing SYM:\n");
+  int i;
+  for(i = 0; i < var_count; i++)
+  {
+    printf("[DEBUG]\t\tidx: %d\tvar_name:\t%s\n", i, sym[i]);
+  }
+  printf("[DEBUG]\t\tEnd printing SYM:\n");
+}
 
 /*
 function to let nas know the number of global variables
@@ -44,7 +60,13 @@ void printsp(int coun){
   printf("\tpop\tsp\n");
 }
 
-/* prepass the whole tree */
+/*
+function for prepassing the whole tree
+  p: node
+  infunc:
+    0: outside functions
+    1: inside functions
+*/
 void prepass(nodeType *p, int infunc){
   if (!p) return;
   switch(p->type) {
@@ -215,6 +237,7 @@ is_global: if the array is declared globally
 */
 void insertArraySYM(char * array_name, int array_size, int is_global)
 {
+  printf("[DEBUG]\tInserting array into sym\n");
   // check for resource availability
   if(var_count > 200)
   {
