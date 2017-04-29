@@ -14,110 +14,110 @@ static int lbl;
 function to let nas know the number of global variables
 */
 void printsp(int coun){
-    printf("\tpush\tsp\n");
-    printf("\tpush\t%d\n", coun);
-    printf("\tadd\n");
-    printf("\tpop\tsp\n");
+  printf("\tpush\tsp\n");
+  printf("\tpush\t%d\n", coun);
+  printf("\tadd\n");
+  printf("\tpop\tsp\n");
 }
 
 /* prepass the whole tree */
 void prepass(nodeType *p, int infunc){
-    if (!p) return;
-    switch(p->type) {
-	case typeFunc:
-	    insertFUNC(p->func.name);
-	    insertArg(p->func.argc, getFUNCIdx(p->func.name));
-	    prepass(p->func.args, 1);
-	    prepass(p->func.op, 1);
-	    break;
-	case typeId:
-	    if (infunc == 0){
-	      p->id.isGlobal=1;
- 	    }
-	    insertSYM(p->id.var_name, p->id.isGlobal);
-	    break;
-	case typeOpr:
-            switch(p->opr.oper) {
-		case MAIN:
-                    prepass(p->opr.op[0], infunc);
-                    prepass(p->opr.op[1], infunc);
-                    break;
-		case FOR:
-		    prepass(p->opr.op[0], infunc);
-		    prepass(p->opr.op[1], infunc);
-		    prepass(p->opr.op[3], infunc);
-		    prepass(p->opr.op[2], infunc);
-		    break;
-		case WHILE:
-		    prepass(p->opr.op[0], infunc);
-		    prepass(p->opr.op[1], infunc);
-		    break;
-		case RETURN:
-		    prepass(p->opr.op[0], infunc);
-	   	    break;
-		case CONTINUE:
-		    break;
-		case BREAK:
-		    break;
-		case IF:
-		    if (p->opr.nops > 2) {
-		    /* if else then */
-			prepass(p->opr.op[0], infunc);
-			prepass(p->opr.op[1], infunc);
-			prepass(p->opr.op[2], infunc);
-		    } else {
-		    /* if else */
-			prepass(p->opr.op[0], infunc);
-			prepass(p->opr.op[1], infunc);
-		    }
-		    break;
-		case '=':
-		    if(p->opr.op[0]->type == typeId) {
-		    	/* insert into symbol table */
-			if (infunc == 0){
-			    p->opr.op[0]->id.isGlobal=1;
- 			}
-    		    	insertSYM(p->opr.op[0]->id.var_name, p->opr.op[0]->id.isGlobal);
-		    }else if(p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == '@'){
-			prepass(p->opr.op[0], infunc);
-		    }
-		    prepass(p->opr.op[1], infunc);
-		    break;
-		case '@':
-		    if(p->opr.op[0]->type == typeId && infunc == 1) {
-		    	/* insert into symbol table */
-    		    	insertSYM(p->opr.op[0]->id.var_name, 1);
-		    }else{
-			yyerror("Wrong @ usage!");
-			exit(0);
-		    }
-		    break;
-		case GETI:
-		case GETS:
-		case GETC:
-		case PUTI:
-		case PUTI_:
-		case PUTC:
-		case PUTC_:
-		case PUTS:
-		case PUTS_:
-            	    prepass(p->opr.op[0], infunc);
-		    break;
-		case CALL:
-		    prepass(p->opr.op[1], infunc);
-		    break;
-		case ';':
-            	    prepass(p->opr.op[0],infunc);
-		    prepass(p->opr.op[1],infunc);
-		    break;
-		default:
-            	    prepass(p->opr.op[0],infunc);
-		    prepass(p->opr.op[1],infunc);
-		    break;
-	    }
-	default:
-	    break;
+  if (!p) return;
+  switch(p->type) {
+    case typeFunc:
+    insertFUNC(p->func.name);
+    insertArg(p->func.argc, getFUNCIdx(p->func.name));
+    prepass(p->func.args, 1);
+    prepass(p->func.op, 1);
+    break;
+    case typeId:
+    if (infunc == 0){
+      p->id.isGlobal=1;
     }
+    insertSYM(p->id.var_name, p->id.isGlobal);
+    break;
+    case typeOpr:
+    switch(p->opr.oper) {
+      case MAIN:
+      prepass(p->opr.op[0], infunc);
+      prepass(p->opr.op[1], infunc);
+      break;
+      case FOR:
+      prepass(p->opr.op[0], infunc);
+      prepass(p->opr.op[1], infunc);
+      prepass(p->opr.op[3], infunc);
+      prepass(p->opr.op[2], infunc);
+      break;
+      case WHILE:
+      prepass(p->opr.op[0], infunc);
+      prepass(p->opr.op[1], infunc);
+      break;
+      case RETURN:
+      prepass(p->opr.op[0], infunc);
+      break;
+      case CONTINUE:
+      break;
+      case BREAK:
+      break;
+      case IF:
+      if (p->opr.nops > 2) {
+        /* if else then */
+        prepass(p->opr.op[0], infunc);
+        prepass(p->opr.op[1], infunc);
+        prepass(p->opr.op[2], infunc);
+      } else {
+        /* if else */
+        prepass(p->opr.op[0], infunc);
+        prepass(p->opr.op[1], infunc);
+      }
+      break;
+      case '=':
+      if(p->opr.op[0]->type == typeId) {
+        /* insert into symbol table */
+        if (infunc == 0){
+          p->opr.op[0]->id.isGlobal=1;
+        }
+        insertSYM(p->opr.op[0]->id.var_name, p->opr.op[0]->id.isGlobal);
+      }else if(p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == '@'){
+        prepass(p->opr.op[0], infunc);
+      }
+      prepass(p->opr.op[1], infunc);
+      break;
+      case '@':
+      if(p->opr.op[0]->type == typeId && infunc == 1) {
+        /* insert into symbol table */
+        insertSYM(p->opr.op[0]->id.var_name, 1);
+      }else{
+        yyerror("Wrong @ usage!");
+        exit(0);
+      }
+      break;
+      case GETI:
+      case GETS:
+      case GETC:
+      case PUTI:
+      case PUTI_:
+      case PUTC:
+      case PUTC_:
+      case PUTS:
+      case PUTS_:
+      prepass(p->opr.op[0], infunc);
+      break;
+      case CALL:
+      prepass(p->opr.op[1], infunc);
+      break;
+      case ';':
+      prepass(p->opr.op[0],infunc);
+      prepass(p->opr.op[1],infunc);
+      break;
+      default:
+      prepass(p->opr.op[0],infunc);
+      prepass(p->opr.op[1],infunc);
+      break;
+    }
+    default:
+    break;
+  }
 }
 
 /*
@@ -125,21 +125,21 @@ function to deal with printing for different type
 */
 void printStackTop(int type){
 
-    if(type == 1){
-        printf("\tputi\n");
-    }else if(type == 2){
-        printf("\tputs\n");
-    }else if(type == 3){
-        printf("\tputc\n");
-    }else{
-        // unknown type
-	yyerror("unknown type for printing");
-    }
+  if(type == 1){
+    printf("\tputi\n");
+  }else if(type == 2){
+    printf("\tputs\n");
+  }else if(type == 3){
+    printf("\tputc\n");
+  }else{
+    // unknown type
+    yyerror("unknown type for printing");
+  }
 }
 
 /*
 function for checking existance of a variable in the symbol table
-  var_name: variable name
+var_name: variable name
 */
 int inSYM(char * var_name)
 {
@@ -156,7 +156,7 @@ int inSYM(char * var_name)
 
 /*
 function for adding variables to symbol table
-  var_name: variable name
+var_name: variable name
 */
 void insertSYM(char * var_name, int isGlobal)
 {
@@ -185,10 +185,10 @@ void insertSYM(char * var_name, int isGlobal)
 }
 
 /* function for inserting an array name into the SYM
-  array_name: Name of the array
-  array_size: Size of the array
-  is_global: if the array is declared globally
- */
+array_name: Name of the array
+array_size: Size of the array
+is_global: if the array is declared globally
+*/
 void insertArraySYM(char * array_name, int array_size, int is_global)
 {
   // check for resource availability
@@ -234,21 +234,21 @@ int getSYMIdx(char * var_name, int isGlobal)
 {
   int i;
   if (isGlobal == 1){ // for global variable
-  for(i = 0; i < var_count; i++)
-  {
-    if(strcmp(sym[i], var_name) == 0)
+    for(i = 0; i < var_count; i++)
     {
-      return i;
+      if(strcmp(sym[i], var_name) == 0)
+      {
+        return i;
+      }
     }
-  }
   }else{ // for local variable
-  for(i = 100; i < 100 + loc_var_count; i++)
-  {
-    if(strcmp(sym[i], var_name) == 0)
+    for(i = 100; i < 100 + loc_var_count; i++)
     {
-      return i;
+      if(strcmp(sym[i], var_name) == 0)
+      {
+        return i;
+      }
     }
-  }
   }
   return -1; // not found
 }
@@ -260,7 +260,7 @@ void emptySYM(int isGlobal)
 {
   int i;
   if(isGlobal){
-  for(i = 0; i < var_count; i++)
+    for(i = 0; i < var_count; i++)
     {
       free(sym[i]);
     }
@@ -280,12 +280,12 @@ function to get type for stored variable
 */
 int checkType (int index)
 {
-    return vType[index];
+  return vType[index];
 }
 
 /*
 function for adding functions to func table
-  func_name: function name
+func_name: function name
 */
 void insertFUNC(char * func_name)
 {
@@ -347,416 +347,428 @@ function to set type for some variable
 */
 void setType (int index, int t)
 {
-    vType[index] = t;
-    return;
+  vType[index] = t;
+  return;
 }
 
 /*
 function for checking type for an expression
 */
 int checkExprType (nodeType* p){
-    switch(p->type) {
-        case typeId:{
-            char *str = p->id.var_name;
-            int index = getSYMIdx(str, p->id.isGlobal);
-            int type = checkType(index);
-            return type;
-	}
-        case typeCon:
-            return 1;
-        case typeStrCon:
-            return 2;
-        case typeCharCon:
-            return 3;
-        case typeOpr:
-            switch(p->opr.oper) {
-                case UMINUS:
-                    return 1;
-                default:
-                    return 1;
-            }
+  switch(p->type) {
+    case typeId:{
+      char *str = p->id.var_name;
+      int index = getSYMIdx(str, p->id.isGlobal);
+      int type = checkType(index);
+      return type;
     }
+    case typeCon:
+    return 1;
+    case typeStrCon:
+    return 2;
+    case typeCharCon:
+    return 3;
+    case typeOpr:
+    switch(p->opr.oper) {
+      case UMINUS:
+      return 1;
+      default:
+      return 1;
+    }
+  }
 }
 
 int ex(nodeType *p, int blbl, int clbl, int infunc) {
-    int lblx, lbly, lblz;
+  int lblx, lbly, lblz;
 
-    if (!p) return 0;
-    switch(p->type) {
-      case typeCon:
-        printf("\tpush\t%d\n", p->con.value);
-        break;
-      case typeCharCon:
-        printf("\tpush\t%s\n", p->charCon.value);
-        break;
-      case typeStrCon:
-	      printf("\tpush\t\"%s\"\n", p->strCon.value);
-        break;
-      case typeId:{
-        char *str = p->id.var_name;
-        int index = getSYMIdx(str, p->id.isGlobal);
-        if (index==-1)
-        {
-            printf("\tError: Variable \"%s\" uninitialized\n", str);
-            exit(0);
-        }
-      	if (p->id.isGlobal == 1)
-      	    printf("\tpush\tsb[%d]\n", index);
-      	else { // for local
-      	    index = index-100;
-      	    if (index >= argTable[funcIdx]) // for parameter
-      	        printf("\tpush\tfp[%d]\n",  index - argTable[funcIdx]);
-      	    else // for local variable
-      		printf("\tpush\tfp[%d]\n",  -3 - argTable[funcIdx] + index);
-      	}
-        break;
+  if (!p) return 0;
+  switch(p->type) {
+    case typeCon:
+    {
+      printf("\tpush\t%d\n", p->con.value);
+      break;
+    }
+    case typeCharCon:
+    {
+      printf("\tpush\t%s\n", p->charCon.value);
+      break;
+    }
+    case typeStrCon:
+    {
+      printf("\tpush\t\"%s\"\n", p->strCon.value);
+      break;
+    }
+    case typeId:
+    {
+      char *str = p->id.var_name;
+      int index = getSYMIdx(str, p->id.isGlobal);
+      if (index==-1)
+      {
+        printf("\tError: Variable \"%s\" uninitialized\n", str);
+        exit(0);
       }
-      case typeFunc:
-        funcIdx = getFUNCIdx(p->func.name);
-    	  prepass(p->func.args, 1);
-    	  prepass(p->func.op, 1);
+      if (p->id.isGlobal == 1)
+      {
+        printf("\tpush\tsb[%d]\n", index);
+      }
+      else { // for local
+        index = index-100;
+        if (index >= argTable[funcIdx]) // for parameter
+        printf("\tpush\tfp[%d]\n",  index - argTable[funcIdx]);
+        else // for local variable
+        printf("\tpush\tfp[%d]\n",  -3 - argTable[funcIdx] + index);
+      }
+      break;
+    }
+    case typeFunc:
+    {
+      funcIdx = getFUNCIdx(p->func.name);
+      prepass(p->func.args, 1);
+      prepass(p->func.op, 1);
 
-      	printf("\tjmp\tL%03d\n", 501 + 2*getFUNCIdx(p->func.name));
-      	printf("L%03d:\n", 500 + 2*getFUNCIdx(p->func.name));
-      	//printf("loc_var_count: %d, argc: %d\n", loc_var_count, p->func.argc);
-      	printsp(loc_var_count-argTable[funcIdx]);
-      	ex(p->func.op, blbl, clbl, 1);
-      	// place to exit the function, check whether there is a return,
-      	if (hasreturn == 0){
-                  printf("\tpush\t0\n");
-                  printf("\tret\n");
-              } else {
-                  hasreturn=0;
-              }
-      	emptySYM(0);
-      	printf("L%03d:\n", 501 + 2*getFUNCIdx(p->func.name));
-      	break;
-     case typeOneDArray:
-     {
-       char * array_name = p->onedarray.name->id.var_name;
-       int index = getSYMIdx(array_name, p->onedarray.name->id.isGlobal);
-       if (index==-1)
-       {
-           printf("\tError: Array \"%s\" Undeclared\n", array_name);
-           exit(0);
-       }
-       //TODO check array index outofbound
+      printf("\tjmp\tL%03d\n", 501 + 2*getFUNCIdx(p->func.name));
+      printf("L%03d:\n", 500 + 2*getFUNCIdx(p->func.name));
+      //printf("loc_var_count: %d, argc: %d\n", loc_var_count, p->func.argc);
+      printsp(loc_var_count-argTable[funcIdx]);
+      ex(p->func.op, blbl, clbl, 1);
+      // place to exit the function, check whether there is a return,
+      if (hasreturn == 0){
+        printf("\tpush\t0\n");
+        printf("\tret\n");
+      } else {
+        hasreturn=0;
+      }
+      emptySYM(0);
+      printf("L%03d:\n", 501 + 2*getFUNCIdx(p->func.name));
+      break;
+    }
+    case typeOneDArray:
+    {
+      char * array_name = p->onedarray.name->id.var_name;
+      int index = getSYMIdx(array_name, p->onedarray.name->id.isGlobal);
+      if (index==-1)
+      {
+        printf("\tError: Array \"%s\" Undeclared\n", array_name);
+        exit(0);
+      }
+      //TODO check array index outofbound
 
-       // evaluate the expression to get index
-       ex(p->onedarray.index, -1, -1, infunc);
+      // evaluate the expression to get index
+      ex(p->onedarray.index, -1, -1, infunc);
 
-       // get array index offset
-       // check if the array is global
-       if (p->onedarray.name->id.isGlobal == 1)
-       {
-         // global
-         printf("\tpush\t%d\n", index);
-       }
-       else
-       { // for local
-         printf("\tpush\t%d\n", index-100);
-       }
+      // get array index offset
+      // check if the array is global
+      if (p->onedarray.name->id.isGlobal == 1)
+      {
+        // global
+        printf("\tpush\t%d\n", index);
+      }
+      else
+      { // for local
+        printf("\tpush\t%d\n", index-100);
+      }
 
-       // add up offset and the index
-       printf("\tadd\n");
+      // add up offset and the index
+      printf("\tadd\n");
 
-       // pop the index to the in register
-       printf("\tpop\tin\n");
+      // pop the index to the in register
+      printf("\tpop\tin\n");
 
-       if(p->onedarray.name->id.isGlobal == 1)
-       {
-         // global
-         printf("\tpush\tsb[in]\n");
-       }
-       else
-       {
-         // local
-         printf("\tpush\tfp[in]\n");
-       }
-       break;
-     }
-
-    case typeOpr:
-        switch(p->opr.oper) {
-	         case RETURN:
-              hasreturn=1;
-        	    ex(p->opr.op[0], -1, -1, infunc);
-              printf("\tret\n");
-	            break;
-            case BREAK:
-                printf("\tjmp\tL%03d\n", blbl);
-                break;
-            case CONTINUE:
-                printf("\tjmp\tL%03d\n", clbl);
-                break;
-            case FOR:
-                lblx = lbl++;
-                lbly = lbl++;
-                lblz = lbl++;
-                ex(p->opr.op[0], blbl, clbl, infunc);
-                printf("L%03d:\n", lblx);
-                ex(p->opr.op[1], blbl, clbl, infunc);
-                printf("\tj0\tL%03d\n", lbly);
-                ex(p->opr.op[3], lbly, lblz, infunc);
-                printf("L%03d:\n", lblz);
-                ex(p->opr.op[2], blbl, clbl, infunc);
-                printf("\tjmp\tL%03d\n", lblx);
-                printf("L%03d:\n", lbly);
-                break;
-            case WHILE:
-                lblx = lbl++;
-                lbly = lbl++;
-                printf("L%03d:\n", lblx);
-                ex(p->opr.op[0], blbl, clbl, infunc);
-                printf("\tj0\tL%03d\n", lbly);
-                ex(p->opr.op[1], lbly, lblx, infunc);
-                printf("\tjmp\tL%03d\n", lblx);
-                printf("L%03d:\n", lbly);
-                break;
-            case IF:
-                ex(p->opr.op[0], blbl, clbl, infunc);
-                if (p->opr.nops > 2) {
-                    /* if else */
-                    printf("\tj0\tL%03d\n", lblx = lbl++);
-                    ex(p->opr.op[1], blbl, clbl, infunc);
-                    printf("\tjmp\tL%03d\n", lbly = lbl++);
-                    printf("L%03d:\n", lblx);
-                    ex(p->opr.op[2], blbl, clbl, infunc);
-                    printf("L%03d:\n", lbly);
-                } else {
-                    /* if */
-                    printf("\tj0\tL%03d\n", lblx = lbl++);
-                    ex(p->opr.op[1], blbl, clbl, infunc);
-                    printf("L%03d:\n", lblx);
-                }
-                break;
-          	case '@':
-          	    ex(p->opr.op[0], blbl, clbl, infunc);
-          	    break;
-          	case CALL:
-          	    ex(p->opr.op[1], blbl, clbl, infunc);
-          	    int thisfuncIdx = getFUNCIdx(p->opr.op[0]->id.var_name);
-          	    printf("\tcall\tL%03d, %d\n", 500+2*thisfuncIdx, argTable[thisfuncIdx]);
-          	    break;
-            case ARRAY_DECLARE:
-            {
-              char * array_name = p->opr.op[0]->id.var_name;
-              int is_global = p->opr.op[0]->id.isGlobal;
-              int array_size = p->opr.op[1]->con.value;
-
-              if(is_global)
-              {
-                // global
-                printf("\tpush\tsp\n");
-                printf("\tpush\t%d\n", array_size);
-                printf("\tadd\n");
-                printf("\tpop\tsp\n");
-                insertArraySYM(array_name, array_size, is_global);
-              }
-              else
-              {
-                // local
-                // initialize the array to all zeros
-                int i;
-                for(i = 0; i < array_size; i++)
-                {
-                  printf("\tpush\t0\n");
-                }
-
-                // update the fp pointer
-                printf("\tpush\tfp\n");
-                printf("\tpush\t%d\n", array_size);
-                printf("\tadd\n");
-                printf("\tpop\tfp\n");
-                insertArraySYM(array_name, array_size, is_global);
-              }
-
-
-            }
-            case '=':
-                  ex(p->opr.op[1], blbl, clbl, infunc);
-          	       if(p->opr.op[0]->type == typeId) {
-          	    /* examine type */
-                      int index = getSYMIdx(p->opr.op[0]->id.var_name, p->opr.op[0]->id.isGlobal);
-          	    int thisT = checkExprType(p->opr.op[1]);
-          	    setType(index, thisT);
-          	    if (index == -1)
-          		insertSYM(p->opr.op[0]->id.var_name, p->opr.op[0]->id.isGlobal);
-            	    if (p->opr.op[0]->id.isGlobal)// for global
-          		printf("\tpop\tsb[%d]\n", index);
-            	    else{ // for local
-          	        index = index-100;
-          	        if (index >= argTable[funcIdx]) // for parameter
-          	            printf("\tpop\tfp[%d]\n",  index - argTable[funcIdx]);
-          	        else // for local variable
-          		     printf("\tpop\tfp[%d]\n",  -3 - argTable[funcIdx] + index);
-          	    }
-          	} else if (p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == '@') { /* @ for global variable */
-          	    nodeType* tmp = p->opr.op[0]->opr.op[0];
-          	    int index = getSYMIdx(tmp->id.var_name, tmp->id.isGlobal);
-          	    int thisT = checkExprType(p->opr.op[1]);
-          	    setType(index, thisT);
-
-            	    if (tmp->id.isGlobal)// for global
-          	        printf("\tpop\tsb[%d]\n", index);
-          	}
-                  break;
-        case UMINUS:
-            ex(p->opr.op[0], blbl, clbl, infunc);
-            printf("\tneg\n");
-            break;
-    	case PUTI:
-    	    {
-    	    int typeP = checkExprType(p->opr.op[0]);
-    	    //if(typeP==1){
-    		ex(p->opr.op[0],blbl, clbl, infunc);
-    	    	printf("\tputi\n");
-    	    //}else{
-    		//yyerror("PUTI can not be used for non-integer type.\n");
-    	    //}
-    	    }
-            break;
-	case PUTI_:
-	    {
-	    int typeP = checkExprType(p->opr.op[0]);
-	    //if(typeP==1){
-		ex(p->opr.op[0],blbl, clbl, infunc);
-	    	printf("\tputi_\n");
-	    //}else{
-		//yyerror("PUTI_ can not be used for non-integer type.\n");
-	    //}
-	    }
-            break;
-	case PUTC:
-	    {
-	    int typeP = checkExprType(p->opr.op[0]);
-	    //if(typeP==3){
-		ex(p->opr.op[0],blbl,clbl, infunc);
-	    	printf("\tputc\n");
-	    //}else{
-		//yyerror("PUTC can not be used for non-character type.\n");
-	    //}
-	    }
-	    break;
-	case PUTC_:
-	    {
-	    int typeP = checkExprType(p->opr.op[0]);
-	    //if(typeP==3){
-		ex(p->opr.op[0],blbl,clbl, infunc);
-	    	printf("\tputc_\n");
-	    //}else{
-		//yyerror("PUTC_ can not be used for non-character type.\n");
-	    //}
-	    }
-	    break;
-	case PUTS:
-	    {
-	    int typeP = checkExprType(p->opr.op[0]);
-	    //if(typeP==2){
-		ex(p->opr.op[0],blbl,clbl, infunc);
-	    	printf("\tputs\n");
-	    //}else{
-		//yyerror("PUTS can not be used for non-string type.");
-	    //}
-	    }
-    	    break;
-	case PUTS_:
-	    {
-	    int typeP = checkExprType(p->opr.op[0]);
-	    //if(typeP==2){
-		ex(p->opr.op[0],blbl,clbl, infunc);
-	    	printf("\tputs_\n");
-	    //}else{
-		//yyerror("PUTS_ can not be used for non-string type.\n");
-	    //}
-	    }
-	    break;
-	case GETI:
-	    {
-	    nodeType* tmp;
-	    if(p->opr.op[0]->type == typeId) {
-		tmp = p->opr.op[0];
-	    } else if (p->opr.op[0]->type == typeOpr){
-		tmp = p->opr.op[0]->opr.op[0];
-	    } else {
-		yyerror("error.\n");
-	    }
-	    int ind = getSYMIdx(tmp->id.var_name, tmp->id.isGlobal);
-	    setType(ind, 1);
-	    printf("\tgeti\n");
-	    if (tmp->id.isGlobal)
-	      	printf("\tpop\tsb[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal));
-	    else
-		printf("\tpop\tfp[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal)-100);
-            break;
-	    }
-	case GETC:
-	    {
-	    nodeType* tmp;
-	    if(p->opr.op[0]->type == typeId) {
-		tmp = p->opr.op[0];
-	    } else if (p->opr.op[0]->type == typeOpr){
-		tmp = p->opr.op[0]->opr.op[0];
-	    } else {
-		yyerror("error.\n");
-	    }
-	    int ind = getSYMIdx(tmp->id.var_name, tmp->id.isGlobal);
-	    setType(ind, 3);
-	    printf("\tgetc\n");
-	    if (tmp->id.isGlobal)
-	      	printf("\tpop\tsb[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal));
-	    else
-		printf("\tpop\tfp[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal)-100);
-            break;
-	    }
-	case GETS:
-	    {
-	    nodeType* tmp;
-	    if(p->opr.op[0]->type == typeId) {
-		tmp = p->opr.op[0];
-	    } else if (p->opr.op[0]->type == typeOpr){
-		tmp = p->opr.op[0]->opr.op[0];
-	    } else {
-		yyerror("error.\n");
-	    }
-	    int ind = getSYMIdx(tmp->id.var_name, tmp->id.isGlobal);
-	    setType(ind, 2);
-	    printf("\tgets\n");
-	    if (tmp->id.isGlobal)
-	      	printf("\tpop\tsb[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal));
-	    else
-		printf("\tpop\tfp[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal)-100);
-            break;
-	    }
-        default:
-            ex(p->opr.op[0], blbl, clbl, infunc);
-            ex(p->opr.op[1], blbl, clbl, infunc);
-            switch(p->opr.oper) {
-                case '+':   printf("\tadd\n"); break;
-                case '-':   printf("\tsub\n"); break;
-                case '*':   printf("\tmul\n"); break;
-                case '/':   printf("\tdiv\n"); break;
-                case '%':   printf("\tmod\n"); break;
-                case '<':   printf("\tcompLT\n"); break;
-                case '>':   printf("\tcompGT\n"); break;
-                case GE:    printf("\tcompGE\n"); break;
-                case LE:    printf("\tcompLE\n"); break;
-                case NE:    printf("\tcompNE\n"); break;
-                case EQ:    printf("\tcompEQ\n"); break;
-                case AND:   printf("\tand\n"); break;
-                case OR:    printf("\tor\n"); break;
-            }
-        }
+      if(p->onedarray.name->id.isGlobal == 1)
+      {
+        // global
+        printf("\tpush\tsb[in]\n");
+      }
+      else
+      {
+        // local
+        printf("\tpush\tfp[in]\n");
+      }
+      break;
     }
 
-    return 0;
+    case typeOpr:
+    switch(p->opr.oper) {
+      case RETURN:
+      {
+        hasreturn=1;
+        ex(p->opr.op[0], -1, -1, infunc);
+        printf("\tret\n");
+        break;
+      }
+      case BREAK:
+      {
+        printf("\tjmp\tL%03d\n", blbl);
+        break;
+      }
+      case CONTINUE:
+      {
+        printf("\tjmp\tL%03d\n", clbl);
+        break;
+      }
+      case FOR:
+      {
+        lblx = lbl++;
+        lbly = lbl++;
+        lblz = lbl++;
+        ex(p->opr.op[0], blbl, clbl, infunc);
+        printf("L%03d:\n", lblx);
+        ex(p->opr.op[1], blbl, clbl, infunc);
+        printf("\tj0\tL%03d\n", lbly);
+        ex(p->opr.op[3], lbly, lblz, infunc);
+        printf("L%03d:\n", lblz);
+        ex(p->opr.op[2], blbl, clbl, infunc);
+        printf("\tjmp\tL%03d\n", lblx);
+        printf("L%03d:\n", lbly);
+        break;
+      }
+      case WHILE:
+      {
+        lblx = lbl++;
+        lbly = lbl++;
+        printf("L%03d:\n", lblx);
+        ex(p->opr.op[0], blbl, clbl, infunc);
+        printf("\tj0\tL%03d\n", lbly);
+        ex(p->opr.op[1], lbly, lblx, infunc);
+        printf("\tjmp\tL%03d\n", lblx);
+        printf("L%03d:\n", lbly);
+        break;
+      }
+      case IF:
+      {
+        ex(p->opr.op[0], blbl, clbl, infunc);
+        if (p->opr.nops > 2) {
+          /* if else */
+          printf("\tj0\tL%03d\n", lblx = lbl++);
+          ex(p->opr.op[1], blbl, clbl, infunc);
+          printf("\tjmp\tL%03d\n", lbly = lbl++);
+          printf("L%03d:\n", lblx);
+          ex(p->opr.op[2], blbl, clbl, infunc);
+          printf("L%03d:\n", lbly);
+        } else {
+          /* if */
+          printf("\tj0\tL%03d\n", lblx = lbl++);
+          ex(p->opr.op[1], blbl, clbl, infunc);
+          printf("L%03d:\n", lblx);
+        }
+        break;
+      }
+      case '@':
+      {
+        ex(p->opr.op[0], blbl, clbl, infunc);
+        break;
+      }
+      case CALL:
+      {
+        ex(p->opr.op[1], blbl, clbl, infunc);
+        int thisfuncIdx = getFUNCIdx(p->opr.op[0]->id.var_name);
+        printf("\tcall\tL%03d, %d\n", 500+2*thisfuncIdx, argTable[thisfuncIdx]);
+        break;
+      }
+      case ARRAY_DECLARE:
+      {
+        char * array_name = p->opr.op[0]->id.var_name;
+        int is_global = p->opr.op[0]->id.isGlobal;
+        int array_size = p->opr.op[1]->con.value;
+
+        if(is_global)
+        {
+          // global
+          printf("\tpush\tsp\n");
+          printf("\tpush\t%d\n", array_size);
+          printf("\tadd\n");
+          printf("\tpop\tsp\n");
+          insertArraySYM(array_name, array_size, is_global);
+        }
+        else
+        {
+          // local
+          // initialize the array to all zeros
+          int i;
+          for(i = 0; i < array_size; i++)
+          {
+            printf("\tpush\t0\n");
+          }
+
+          // update the fp pointer
+          printf("\tpush\tfp\n");
+          printf("\tpush\t%d\n", array_size);
+          printf("\tadd\n");
+          printf("\tpop\tfp\n");
+          insertArraySYM(array_name, array_size, is_global);
+        }
+
+        break;
+      }
+      case '=':
+      {
+        ex(p->opr.op[1], blbl, clbl, infunc);
+        if(p->opr.op[0]->type == typeId) {
+          /* examine type */
+          int index = getSYMIdx(p->opr.op[0]->id.var_name, p->opr.op[0]->id.isGlobal);
+          int thisT = checkExprType(p->opr.op[1]);
+          setType(index, thisT);
+          if (index == -1)
+          insertSYM(p->opr.op[0]->id.var_name, p->opr.op[0]->id.isGlobal);
+          if (p->opr.op[0]->id.isGlobal)// for global
+          {
+            printf("\tpop\tsb[%d]\n", index);
+          }
+          else{ // for local
+            index = index-100;
+            if (index >= argTable[funcIdx]) // for parameter
+            printf("\tpop\tfp[%d]\n",  index - argTable[funcIdx]);
+            else // for local variable
+            printf("\tpop\tfp[%d]\n",  -3 - argTable[funcIdx] + index);
+          }
+        } else if (p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == '@') { /* @ for global variable */
+          nodeType* tmp = p->opr.op[0]->opr.op[0];
+          int index = getSYMIdx(tmp->id.var_name, tmp->id.isGlobal);
+          int thisT = checkExprType(p->opr.op[1]);
+          setType(index, thisT);
+
+          if (tmp->id.isGlobal)// for global
+          printf("\tpop\tsb[%d]\n", index);
+        }
+        break;
+      }
+
+      case UMINUS:
+      {
+        ex(p->opr.op[0], blbl, clbl, infunc);
+        printf("\tneg\n");
+        break;
+      }
+      case PUTI:
+      {
+        int typeP = checkExprType(p->opr.op[0]);
+        ex(p->opr.op[0],blbl, clbl, infunc);
+        printf("\tputi\n");
+        break;
+      }
+      case PUTI_:
+      {
+        int typeP = checkExprType(p->opr.op[0]);
+        ex(p->opr.op[0],blbl, clbl, infunc);
+        printf("\tputi_\n");
+
+        break;
+      }
+      case PUTC:
+      {
+        int typeP = checkExprType(p->opr.op[0]);
+        ex(p->opr.op[0],blbl,clbl, infunc);
+        printf("\tputc\n");
+        break;
+      }
+      case PUTC_:
+      {
+        int typeP = checkExprType(p->opr.op[0]);
+        ex(p->opr.op[0],blbl,clbl, infunc);
+        printf("\tputc_\n");
+
+        break;
+      }
+      case PUTS:
+      {
+        int typeP = checkExprType(p->opr.op[0]);
+        ex(p->opr.op[0],blbl,clbl, infunc);
+        printf("\tputs\n");
+        break;
+      }
+      case PUTS_:
+      {
+        int typeP = checkExprType(p->opr.op[0]);
+        ex(p->opr.op[0],blbl,clbl, infunc);
+        printf("\tputs_\n");
+        break;
+      }
+      case GETI:
+      {
+        nodeType* tmp;
+        if(p->opr.op[0]->type == typeId) {
+          tmp = p->opr.op[0];
+        } else if (p->opr.op[0]->type == typeOpr){
+          tmp = p->opr.op[0]->opr.op[0];
+        } else {
+          yyerror("error.\n");
+        }
+        int ind = getSYMIdx(tmp->id.var_name, tmp->id.isGlobal);
+        setType(ind, 1);
+        printf("\tgeti\n");
+        if (tmp->id.isGlobal)
+        printf("\tpop\tsb[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal));
+        else
+        printf("\tpop\tfp[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal)-100);
+        break;
+      }
+      case GETC:
+      {
+        nodeType* tmp;
+        if(p->opr.op[0]->type == typeId) {
+          tmp = p->opr.op[0];
+        } else if (p->opr.op[0]->type == typeOpr){
+          tmp = p->opr.op[0]->opr.op[0];
+        } else {
+          yyerror("error.\n");
+        }
+        int ind = getSYMIdx(tmp->id.var_name, tmp->id.isGlobal);
+        setType(ind, 3);
+        printf("\tgetc\n");
+        if (tmp->id.isGlobal)
+        printf("\tpop\tsb[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal));
+        else
+        printf("\tpop\tfp[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal)-100);
+        break;
+      }
+      case GETS:
+      {
+        nodeType* tmp;
+        if(p->opr.op[0]->type == typeId) {
+          tmp = p->opr.op[0];
+        } else if (p->opr.op[0]->type == typeOpr){
+          tmp = p->opr.op[0]->opr.op[0];
+        } else {
+          yyerror("error.\n");
+        }
+        int ind = getSYMIdx(tmp->id.var_name, tmp->id.isGlobal);
+        setType(ind, 2);
+        printf("\tgets\n");
+        if (tmp->id.isGlobal)
+        printf("\tpop\tsb[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal));
+        else
+        printf("\tpop\tfp[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal)-100);
+        break;
+      }
+      default:
+      ex(p->opr.op[0], blbl, clbl, infunc);
+      ex(p->opr.op[1], blbl, clbl, infunc);
+      switch(p->opr.oper) {
+        case '+':   printf("\tadd\n"); break;
+        case '-':   printf("\tsub\n"); break;
+        case '*':   printf("\tmul\n"); break;
+        case '/':   printf("\tdiv\n"); break;
+        case '%':   printf("\tmod\n"); break;
+        case '<':   printf("\tcompLT\n"); break;
+        case '>':   printf("\tcompGT\n"); break;
+        case GE:    printf("\tcompGE\n"); break;
+        case LE:    printf("\tcompLE\n"); break;
+        case NE:    printf("\tcompNE\n"); break;
+        case EQ:    printf("\tcompEQ\n"); break;
+        case AND:   printf("\tand\n"); break;
+        case OR:    printf("\tor\n"); break;
+      }
+    }
+  }
+
+  return 0;
 }
 
 void eop() {
-    // add end of program label
-    printf("\tjmp\tL999\n");
-    printf("L998:\n");
-    printf("\tpush\t999999\n");
-    printf("\tputi\n");
-    printf("L999:\n");
+  // add end of program label
+  printf("\tjmp\tL999\n");
+  printf("L998:\n");
+  printf("\tpush\t999999\n");
+  printf("\tputi\n");
+  printf("L999:\n");
 }
