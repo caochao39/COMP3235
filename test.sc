@@ -1,6 +1,7 @@
-j=5;
-while(j > 0) {
-  j = j / 2;
-  if(j == 1)
-    break;
+func(){
+    return 1;
+}
+
+if(func()){
+    puts("OK");
 }

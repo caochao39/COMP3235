@@ -9,3 +9,4 @@
 ./c6c tc09.sc>tc09.as;
 ./c6c tc10.sc>tc10.as;
 ./c6c tc11.sc>tc11.as;
+./c6c fact.sc>fact.as
