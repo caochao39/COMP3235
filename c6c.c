@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include "calc3.h"
 #include "y.tab.h"
+#include <stdlib.h>
+#include <string.h>
+
+
 
 extern int var_count, func_count, loc_var_count;
 extern int vType[200];
@@ -10,6 +14,26 @@ int funcIdx = -1;
 int hasreturn = 0;
 
 static int lbl;
+
+// function declaration
+int inSYM(char *var_name);
+void insertSYM(char * var_name, int isGlobal);
+int getSYMIdx(char *var_name, int isGlobal);
+void emptySYM(int isGlobal);
+void printsp(int coun);
+void prepass(nodeType *p, int infunc);
+void printStackTop(int type);
+void insertArraySYM(char * array_name, int array_size, int is_global);
+int checkType (int index);
+void insertFUNC(char * func_name);
+int getFUNCIdx(char * func_name);
+void emptyFUNC();
+void insertArg(int argnum, int idx);
+void setType (int index, int t);
+int checkExprType (nodeType* p);
+
+
+
 /*
 function to let nas know the number of global variables
 */
@@ -338,7 +362,8 @@ void emptyFUNC()
   func_count = 0;
 }
 
-void insertArg(int argnum, int idx){
+void insertArg(int argnum, int idx)
+{
   argTable[idx] = argnum;
 }
 

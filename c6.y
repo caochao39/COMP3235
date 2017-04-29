@@ -26,11 +26,22 @@ char* sym[200]; //symbol table
 int var_count = 0; //variable count
 int loc_var_count = 0;//count for local variable
 
+
 int inSYM(char *var_name);
-void insertSYM(char *var_name, int isGlobal);
+void insertSYM(char * var_name, int isGlobal);
 int getSYMIdx(char *var_name, int isGlobal);
 void emptySYM(int isGlobal);
 void printsp(int coun);
+void prepass(nodeType *p, int infunc);
+void printStackTop(int type);
+void insertArraySYM(char * array_name, int array_size, int is_global);
+int checkType (int index);
+void insertFUNC(char * func_name);
+int getFUNCIdx(char * func_name);
+void emptyFUNC();
+void insertArg(int argnum, int idx);
+void setType (int index, int t);
+int checkExprType (nodeType* p);
 
 // function related
 char* func[200]; //function table
