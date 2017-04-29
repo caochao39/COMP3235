@@ -1,0 +1,1 @@
+array arr[5];

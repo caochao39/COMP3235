@@ -46,6 +46,7 @@ char text[500];
 "geti"      return GETI;
 "getc"      return GETC;
 "gets"      return GETS;
+"array"     return ARRAY;
 
 \/\/.*\n    ;    /* skip comments */
 
@@ -63,7 +64,7 @@ char text[500];
 '\\t'		{ yylval.sValue = "\'\\t\'"; return CHARACTER; }
 '\\''		{ yylval.sValue = "\'\\'\'"; return CHARACTER; }
 ''		{ yylval.sValue = "\'\'"; return CHARACTER; }
-'.'		{ yylval.sValue = (char *) malloc(yyleng * sizeof(char)); 
+'.'		{ yylval.sValue = (char *) malloc(yyleng * sizeof(char));
 		  memcpy(yylval.sValue, yytext, yyleng);
 		  return CHARACTER; }
 
@@ -76,6 +77,7 @@ char text[500];
 		yylval.vName[yyleng] = '\0';
                 return VARIABLE;
 	    }
+
 
 .           yyerror("Unknown character");
 

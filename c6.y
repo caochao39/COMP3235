@@ -13,6 +13,7 @@ nodeType *con(int value);
 nodeType *charCon(char *value);
 nodeType *strCon(char *value);
 nodeType* addOperand(nodeType* p1,nodeType* p2);
+nodeType * OneDArray(nodeType * name, nodeType * index);
 void freeNode(nodeType *p);
 int ex(nodeType *p, int, int, int);
 void eop();
@@ -58,11 +59,12 @@ void prepass(nodeType *p, int infunc);
     nodeType *nPtr;             /* node pointer */
 };
 
-%token <iValue> INTEGER 
+%token <iValue> INTEGER
 %token <sValue> STRING CHARACTER
-%token <vName> VARIABLE 
+%token <vName> VARIABLE
 %token FOR WHILE IF BREAK CONTINUE RETURN
 %token PUTI PUTC PUTS PUTI_ PUTC_ PUTS_ GETI GETC GETS
+%token ARRAY ARRAY_DECLARE
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -84,15 +86,15 @@ program:
 tree:
 	  tree stmt		{ $$ = opr(MAIN, 2, $1, $2); }
         | tree function         { $$ = opr(MAIN, 2, $1, $2); }
-        | /* NULL */		{ $$ = NULL; } 
+        | /* NULL */		{ $$ = NULL; }
         ;
 
 function:
 	vari '(' para ')' '{' stmt_list '}' 	{ $$ = createFunc($1, $3, $6, argc); argc = 0; }  // function definition
-	| vari '(' ')' '{' stmt_list '}' 	{ $$ = createFunc($1, NULL, $5, 0); argc = 0; } 
+	| vari '(' ')' '{' stmt_list '}' 	{ $$ = createFunc($1, NULL, $5, 0); argc = 0; }
 	;
 
-para:   expr				      	{ argc=1; $$ = $1; }	  
+para:   expr				      	{ argc=1; $$ = $1; }
 	| expr ',' para		      		{ argc++; $$ = opr(',', 2, $1, $3); }
 	;
 
@@ -117,11 +119,12 @@ stmt:
         | PUTS_ '(' expr ')' ';'              { $$ = opr(PUTS_, 1, $3);}
         | RETURN expr ';'                     { $$ = opr(RETURN,1,$2);}
         | expr ';'                            { $$ = $1; }
+        | ARRAY vari '[' INTEGER ']' ';'      { $$ = opr(ARRAY_DECLARE, 2, $2, con($4));}
         ;
 
 vari:
           VARIABLE { $$ = id($1, 0); }
-	| '@' VARIABLE { $$ = opr('@', 1, id($2, 1)); }
+	      | '@' VARIABLE { $$ = opr('@', 1, id($2, 1)); }
         ;
 
 
@@ -132,8 +135,8 @@ stmt_list:
 
 expr:
           INTEGER               { $$ = con($1); }
-	| CHARACTER		{ $$ = charCon($1); }
-	| STRING		{ $$ = strCon($1); }
+	      | CHARACTER		{ $$ = charCon($1); }
+	      | STRING		{ $$ = strCon($1); }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
         | expr '+' expr         { $$ = opr('+', 2, $1, $3); }
         | expr '-' expr         { $$ = opr('-', 2, $1, $3); }
@@ -149,9 +152,10 @@ expr:
         | expr AND expr         { $$ = opr(AND, 2, $1, $3); }
         | expr OR expr          { $$ = opr(OR, 2, $1, $3); }
         | '(' expr ')'          { $$ = $2; }
-	| vari '(' para ')'     { $$ = opr(CALL, 2, $1, $3); } // function call
-	| vari '(' ')'     	{ $$ = opr(CALL, 2, $1, NULL); } // function call
-	| vari                  { $$ = $1; }
+	      | vari '(' para ')'     { $$ = opr(CALL, 2, $1, $3); } // function call
+	      | vari '(' ')'     	{ $$ = opr(CALL, 2, $1, NULL); } // function call
+	      | vari                  { $$ = $1; }
+        | vari '[' expr ']'     { $$ = OneDArray($1, $3);}
         ;
 
 %%
@@ -206,7 +210,7 @@ nodeType* addOperand(nodeType* p1,nodeType* p2){
     for (i=0;i<p1->opr.nops;i++)
         p->opr.op[i] = p1->opr.op[i];
     p->opr.op[i] = p2;
-    return p; 
+    return p;
 }
 
 nodeType *strCon(char *value) {
@@ -270,7 +274,7 @@ nodeType *opr(int oper, int nops, ...) {
     return p;
 }
 
-/* 
+/*
 funcNameId: function name id node
 arguments: function arguments
 stmtlist: content of the function
@@ -292,6 +296,25 @@ nodeType *createFunc(nodeType* funcNameId, nodeType *arguments, nodeType *stmtli
     p->type = typeFunc;
 
     return p;
+}
+
+/* OneD Array construction function*/
+nodeType * OneDArray(nodeType * name, nodeType * index)
+{
+  nodeType *p;
+  size_t nodeSize;
+  /* allocate node*/
+  nodeSize = SIZEOF_NODETYPE + sizeof(OneDArrayNodeType);
+  if((p = malloc(nodeSize)) == NULL)
+  {
+    yyerror("out of memory");
+  }
+  /* copy information */
+  p->type = typeOneDArray;
+  p->onedarray.name = name;
+  p->onedarray.index = index;
+
+  return p;
 }
 
 void freeNode(nodeType *p) {
