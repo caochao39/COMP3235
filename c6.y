@@ -138,11 +138,12 @@ stmt:
         | RETURN expr ';'                     { $$ = opr(RETURN,1,$2);}
         | expr ';'                            { $$ = $1; }
         | ARRAY vari '[' INTEGER ']' ';'      { $$ = opr(ARRAY_DECLARE, 2, $2, con($4));}
+        | vari '[' expr ']' '=' expr ';'      { $$ = opr('=', 3, $1, $3, $6);}
         ;
 
 vari:
           VARIABLE { $$ = id($1, 0); }
-	      | '@' VARIABLE { $$ = opr('@', 1, id($2, 1)); }
+	      | '@' VARIABLE { $$ = id($2, 1); }
         ;
 
 

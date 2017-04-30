@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// for debugging
+// #define DEBUG
 
 
 extern int var_count, func_count, loc_var_count;
@@ -41,13 +43,21 @@ void printSYM();
 */
 void printSYM()
 {
-  printf("[DEBUG]\t\tBegin printing SYM:\n");
+#ifdef DEBUG
+  printf("[DEBUG]\t\tGlobal SYM begin:\n");
   int i;
   for(i = 0; i < var_count; i++)
   {
     printf("[DEBUG]\t\tidx: %d\tvar_name:\t%s\n", i, sym[i]);
   }
-  printf("[DEBUG]\t\tEnd printing SYM:\n");
+  printf("[DEBUG]\t\tGlobal SYM end\n");
+  printf("[DEBUG]\t\tLocal SYM begin:\n");
+  for(i = 0; i < loc_var_count; i++)
+  {
+    printf("[DEBUG]\t\tidx: %d\tvar_name:\t%s\n", i, sym[i + 100]);
+  }
+  printf("[DEBUG]\t\tLocal SYM end\n");
+#endif
 }
 
 /*
@@ -129,15 +139,59 @@ void prepass(nodeType *p, int infunc){
       }
       prepass(p->opr.op[1], infunc);
       break;
-      case '@':
-      if(p->opr.op[0]->type == typeId && infunc == 1) {
-        /* insert into symbol table */
-        insertSYM(p->opr.op[0]->id.var_name, 1);
-      }else{
-        yyerror("Wrong @ usage!");
-        exit(0);
-      }
+      // case '@':
+      // if(p->opr.op[0]->type == typeId && infunc == 1) {
+      //   /* insert into symbol table */
+      //   insertSYM(p->opr.op[0]->id.var_name, 1);
+      // }else{
+      //   yyerror("Wrong @ usage!");
+      //   exit(0);
+      // }
       break;
+      case ARRAY_DECLARE:
+      {
+// #ifdef DEBUG
+//         printf("[DEBUG]\tprepass func, array declaration\n");
+// #endif
+        char * array_name = p->opr.op[0]->id.var_name;
+        // int is_global = p->opr.op[0]->id.isGlobal;
+        int array_size = p->opr.op[1]->con.value;
+
+        // if outside function then the array is global, the reverse is not true
+        if (infunc == 0){
+          p->opr.op[0]->id.isGlobal = 1;
+        }
+
+        insertArraySYM(array_name, array_size, p->opr.op[0]->id.isGlobal);
+        // if(is_global)
+        // {
+        //   // global
+        //   // printf("\tpush\tsp\n");
+        //   // printf("\tpush\t%d\n", array_size);
+        //   // printf("\tadd\n");
+        //   // printf("\tpop\tsp\n");
+        //   insertArraySYM(array_name, array_size, is_global);
+        // }
+        // else
+        // {
+        //   // local
+        //   // initialize the array to all zeros
+        //   // int i;
+        //   // for(i = 0; i < array_size; i++)
+        //   // {
+        //   //   printf("\tpush\t0\n");
+        //   // }
+        //   //
+        //   // // update the fp pointer
+        //   // printf("\tpush\tfp\n");
+        //   // printf("\tpush\t%d\n", array_size);
+        //   // printf("\tadd\n");
+        //   // printf("\tpop\tfp\n");
+        //   insertArraySYM(array_name, array_size, is_global);
+        // }
+
+        break;
+      }
       case GETI:
       case GETS:
       case GETC:
@@ -237,7 +291,9 @@ is_global: if the array is declared globally
 */
 void insertArraySYM(char * array_name, int array_size, int is_global)
 {
-  printf("[DEBUG]\tInserting array into sym\n");
+// #ifdef DEBUG
+//   printf("[DEBUG]\tinsertArraySYM func: Inserting array into sym\n");
+// #endif
   // check for resource availability
   if(var_count > 200)
   {
@@ -245,14 +301,25 @@ void insertArraySYM(char * array_name, int array_size, int is_global)
     return;
   }
 
+// #ifdef DEBUG
+//         printf("[DEBUG]\t insertArraySYM func: array %s size is ok\n", array_name);
+// #endif
+
   if(getSYMIdx(array_name, is_global) < 0)//not in sym
   {
+// #ifdef DEBUG
+//         printf("[DEBUG]\tinsertArraySYM func: got array index\n");
+// #endif
+
     if(is_global == 1)
     {
       // global
       int i;
       for(i = 0; i < array_size; i++)
       {
+// #ifdef DEBUG
+//         printf("[DEBUG]\tinsertArraySYM func: Inserted one element\n");
+// #endif
         sym[var_count] = (char *) malloc (strlen(array_name));
         strcpy(sym[var_count], array_name);
         var_count ++;
@@ -264,6 +331,9 @@ void insertArraySYM(char * array_name, int array_size, int is_global)
       int i;
       for(i = 0; i < array_size; i++)
       {
+// #ifdef DEBUG
+//         printf("[DEBUG]\tLocal: Inserted one element\n");
+// #endif
         sym[loc_var_count+100] = (char *) malloc (strlen(array_name));
         strcpy(sym[loc_var_count+100], array_name);
         loc_var_count ++;
@@ -281,6 +351,9 @@ int getSYMIdx(char * var_name, int isGlobal)
 {
   int i;
   if (isGlobal == 1){ // for global variable
+// #ifdef DEBUG
+//         printf("[DEBUG]\t getSYMIdx func: global == 1\n");
+// #endif
     for(i = 0; i < var_count; i++)
     {
       if(strcmp(sym[i], var_name) == 0)
@@ -297,6 +370,10 @@ int getSYMIdx(char * var_name, int isGlobal)
       }
     }
   }
+
+// #ifdef DEBUG
+//   printf("[DEBUG] getSYMIdx func: return -1\n");
+// #endif
   return -1; // not found
 }
 
@@ -601,11 +678,11 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         }
         break;
       }
-      case '@':
-      {
-        ex(p->opr.op[0], blbl, clbl, infunc);
-        break;
-      }
+      // case '@':
+      // {
+      //   ex(p->opr.op[0], blbl, clbl, infunc);
+      //   break;
+      // }
       case CALL:
       {
         ex(p->opr.op[1], blbl, clbl, infunc);
@@ -615,68 +692,120 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       }
       case ARRAY_DECLARE:
       {
-        char * array_name = p->opr.op[0]->id.var_name;
-        int is_global = p->opr.op[0]->id.isGlobal;
-        int array_size = p->opr.op[1]->con.value;
-
-        if(is_global)
+        break;
+      }
+      // {
+      //   char * array_name = p->opr.op[0]->id.var_name;
+      //   int is_global = p->opr.op[0]->id.isGlobal;
+      //   int array_size = p->opr.op[1]->con.value;
+      //
+      //   if(is_global)
+      //   {
+      //     // global
+      //     printf("\tpush\tsp\n");
+      //     printf("\tpush\t%d\n", array_size);
+      //     printf("\tadd\n");
+      //     printf("\tpop\tsp\n");
+      //     insertArraySYM(array_name, array_size, is_global);
+      //   }
+      //   else
+      //   {
+      //     // local
+      //     // initialize the array to all zeros
+      //     int i;
+      //     for(i = 0; i < array_size; i++)
+      //     {
+      //       printf("\tpush\t0\n");
+      //     }
+      //
+      //     // update the fp pointer
+      //     printf("\tpush\tfp\n");
+      //     printf("\tpush\t%d\n", array_size);
+      //     printf("\tadd\n");
+      //     printf("\tpop\tfp\n");
+      //     insertArraySYM(array_name, array_size, is_global);
+      //   }
+      //
+      //   break;
+      // }
+      case '=':
+      {
+        if(p->opr.nops == 2)// Variable assignment:  vari = expr
         {
-          // global
-          printf("\tpush\tsp\n");
-          printf("\tpush\t%d\n", array_size);
+          ex(p->opr.op[1], blbl, clbl, infunc);
+          if(p->opr.op[0]->type == typeId) {
+            /* examine type */
+            int index = getSYMIdx(p->opr.op[0]->id.var_name, p->opr.op[0]->id.isGlobal);
+            int thisT = checkExprType(p->opr.op[1]);
+            setType(index, thisT);
+            if (index == -1)
+            insertSYM(p->opr.op[0]->id.var_name, p->opr.op[0]->id.isGlobal);
+            if (p->opr.op[0]->id.isGlobal)// for global
+            {
+              printf("\tpop\tsb[%d]\n", index);
+            }
+            else{ // for local
+              index = index-100;
+              if (index >= argTable[funcIdx]) // for parameter
+              printf("\tpop\tfp[%d]\n",  index - argTable[funcIdx]);
+              else // for local variable
+              printf("\tpop\tfp[%d]\n",  -3 - argTable[funcIdx] + index);
+            }
+          } else if (p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == '@') { /* @ for global variable */
+            nodeType* tmp = p->opr.op[0]->opr.op[0];
+            int index = getSYMIdx(tmp->id.var_name, tmp->id.isGlobal);
+            int thisT = checkExprType(p->opr.op[1]);
+            setType(index, thisT);
+
+            if (tmp->id.isGlobal)// for global
+            printf("\tpop\tsb[%d]\n", index);
+          }
+
+        }
+        else if(p->opr.nops == 3) // Array element assignment: vari [exper] = expr
+        {
+          char * array_name = p->opr.op[0]->id.var_name;
+          int is_global = p->opr.op[0]->id.isGlobal;
+          int index = getSYMIdx(array_name, is_global);
+          if(index == -1)
+          {
+            printf("\tError: Array %s used before declared!\n", array_name);
+          }
+
+          // evaluate the expression to get the value to be assigned
+          ex(p->opr.op[2], blbl, clbl, infunc);
+
+          // evaluate the index
+          ex(p->opr.op[1], blbl, clbl, infunc);
+
+          //TODO check for array index outofbound
+
+          // push the index offset on the stack
+          if(is_global)
+          {
+            printf("\tpush\t%d\n", index);
+          }
+          else
+          {
+            printf("\tpush\t%d\n", index - 100);
+          }
+
+          // add up the index and the offset and store it in "in" register
           printf("\tadd\n");
-          printf("\tpop\tsp\n");
-          insertArraySYM(array_name, array_size, is_global);
+          printf("\tpop\tin\n");
+
+          if(is_global)
+          {
+            printf("\tpop\tsb[in]\n");
+          }
+          else
+          {
+            printf("\tpop\tfp[in]\n");
+          }
         }
         else
         {
-          // local
-          // initialize the array to all zeros
-          int i;
-          for(i = 0; i < array_size; i++)
-          {
-            printf("\tpush\t0\n");
-          }
-
-          // update the fp pointer
-          printf("\tpush\tfp\n");
-          printf("\tpush\t%d\n", array_size);
-          printf("\tadd\n");
-          printf("\tpop\tfp\n");
-          insertArraySYM(array_name, array_size, is_global);
-        }
-
-        break;
-      }
-      case '=':
-      {
-        ex(p->opr.op[1], blbl, clbl, infunc);
-        if(p->opr.op[0]->type == typeId) {
-          /* examine type */
-          int index = getSYMIdx(p->opr.op[0]->id.var_name, p->opr.op[0]->id.isGlobal);
-          int thisT = checkExprType(p->opr.op[1]);
-          setType(index, thisT);
-          if (index == -1)
-          insertSYM(p->opr.op[0]->id.var_name, p->opr.op[0]->id.isGlobal);
-          if (p->opr.op[0]->id.isGlobal)// for global
-          {
-            printf("\tpop\tsb[%d]\n", index);
-          }
-          else{ // for local
-            index = index-100;
-            if (index >= argTable[funcIdx]) // for parameter
-            printf("\tpop\tfp[%d]\n",  index - argTable[funcIdx]);
-            else // for local variable
-            printf("\tpop\tfp[%d]\n",  -3 - argTable[funcIdx] + index);
-          }
-        } else if (p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == '@') { /* @ for global variable */
-          nodeType* tmp = p->opr.op[0]->opr.op[0];
-          int index = getSYMIdx(tmp->id.var_name, tmp->id.isGlobal);
-          int thisT = checkExprType(p->opr.op[1]);
-          setType(index, thisT);
-
-          if (tmp->id.isGlobal)// for global
-          printf("\tpop\tsb[%d]\n", index);
+          yyerror("Error assignment operation: wrong number of operands\n");
         }
         break;
       }
