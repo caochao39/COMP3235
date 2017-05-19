@@ -92,6 +92,14 @@ void prepass(nodeType *p, int infunc){
     }
     insertSYM(p->id.var_name, p->id.isGlobal);
     break;
+    case typeOneDArray:
+    {
+      if(infunc == 0)
+      {
+        p->onedarray.name->id.isGlobal = 1;
+      }
+      break;
+    }
     case typeOpr:
     switch(p->opr.oper) {
       case MAIN:
@@ -538,10 +546,14 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       }
       else { // for local
         index = index-100;
-        if (index >= argTable[funcIdx]) // for parameter
-        printf("\tpush\tfp[%d]\n",  index - argTable[funcIdx]);
-        else // for local variable
-        printf("\tpush\tfp[%d]\n",  -3 - argTable[funcIdx] + index);
+        if (index >= argTable[funcIdx]) // for parameter ? local variable????
+        {
+          printf("\tpush\tfp[%d]\n",  index - argTable[funcIdx]);
+        }
+        else // for local variable ? parameter???
+        {
+          printf("\tpush\tfp[%d]\n",  -3 - argTable[funcIdx] + index); //3 is accounted for the saved caller's pc, fp, sp
+        }
       }
       break;
     }
@@ -573,6 +585,7 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       int index = getSYMIdx(array_name, p->onedarray.name->id.isGlobal);
       if (index==-1)
       {
+        printf("\t[Debug]: Array name %s, is global: %d\n", array_name, p->onedarray.name->id.isGlobal);
         printf("\tError: Array \"%s\" Undeclared\n", array_name);
         exit(0);
       }
@@ -870,13 +883,25 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         } else {
           yyerror("error.\n");
         }
-        int ind = getSYMIdx(tmp->id.var_name, tmp->id.isGlobal);
-        setType(ind, 1);
+        int index = getSYMIdx(tmp->id.var_name, tmp->id.isGlobal);
+        setType(index, 1);
         printf("\tgeti\n");
         if (tmp->id.isGlobal)
-        printf("\tpop\tsb[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal));
+        {
+          printf("\tpop\tsb[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal));
+        }
         else
-        printf("\tpop\tfp[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal)-100);
+        {
+          index = index - 100;
+          if (index >= argTable[funcIdx]) // for parameter ? local variable????
+          {
+            printf("\tpop\tfp[%d]\n",  index - argTable[funcIdx]);
+          }
+          else // for local variable ? parameter???
+          {
+            printf("\tpop\tfp[%d]\n",  -3 - argTable[funcIdx] + index); //3 is accounted for the saved caller's pc, fp, sp
+          }
+        }
         break;
       }
       case GETC:
@@ -889,13 +914,25 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         } else {
           yyerror("error.\n");
         }
-        int ind = getSYMIdx(tmp->id.var_name, tmp->id.isGlobal);
-        setType(ind, 3);
+        int index = getSYMIdx(tmp->id.var_name, tmp->id.isGlobal);
+        setType(index, 3);
         printf("\tgetc\n");
         if (tmp->id.isGlobal)
-        printf("\tpop\tsb[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal));
+        {
+          printf("\tpop\tsb[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal));
+        }
         else
-        printf("\tpop\tfp[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal)-100);
+        {
+          index = index - 100;
+          if (index >= argTable[funcIdx]) // for parameter ? local variable????
+          {
+            printf("\tpop\tfp[%d]\n",  index - argTable[funcIdx]);
+          }
+          else // for local variable ? parameter???
+          {
+            printf("\tpop\tfp[%d]\n",  -3 - argTable[funcIdx] + index); //3 is accounted for the saved caller's pc, fp, sp
+          }
+        }
         break;
       }
       case GETS:
@@ -908,13 +945,25 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         } else {
           yyerror("error.\n");
         }
-        int ind = getSYMIdx(tmp->id.var_name, tmp->id.isGlobal);
-        setType(ind, 2);
+        int index = getSYMIdx(tmp->id.var_name, tmp->id.isGlobal);
+        setType(index, 2);
         printf("\tgets\n");
         if (tmp->id.isGlobal)
-        printf("\tpop\tsb[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal));
+        {
+          printf("\tpop\tsb[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal));
+        }
         else
-        printf("\tpop\tfp[%d]\n", getSYMIdx(tmp->id.var_name, tmp->id.isGlobal)-100);
+        {
+          index = index - 100;
+          if (index >= argTable[funcIdx]) // for parameter ? local variable????
+          {
+            printf("\tpop\tfp[%d]\n",  index - argTable[funcIdx]);
+          }
+          else // for local variable ? parameter???
+          {
+            printf("\tpop\tfp[%d]\n",  -3 - argTable[funcIdx] + index); //3 is accounted for the saved caller's pc, fp, sp
+          }
+        }
         break;
       }
       default:
