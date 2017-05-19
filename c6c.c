@@ -171,33 +171,6 @@ void prepass(nodeType *p, int infunc){
         }
 
         insertArraySYM(array_name, array_size, p->opr.op[0]->id.isGlobal);
-        // if(is_global)
-        // {
-        //   // global
-        //   // printf("\tpush\tsp\n");
-        //   // printf("\tpush\t%d\n", array_size);
-        //   // printf("\tadd\n");
-        //   // printf("\tpop\tsp\n");
-        //   insertArraySYM(array_name, array_size, is_global);
-        // }
-        // else
-        // {
-        //   // local
-        //   // initialize the array to all zeros
-        //   // int i;
-        //   // for(i = 0; i < array_size; i++)
-        //   // {
-        //   //   printf("\tpush\t0\n");
-        //   // }
-        //   //
-        //   // // update the fp pointer
-        //   // printf("\tpush\tfp\n");
-        //   // printf("\tpush\t%d\n", array_size);
-        //   // printf("\tadd\n");
-        //   // printf("\tpop\tfp\n");
-        //   insertArraySYM(array_name, array_size, is_global);
-        // }
-
         break;
       }
       case GETI:
@@ -707,40 +680,6 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       {
         break;
       }
-      // {
-      //   char * array_name = p->opr.op[0]->id.var_name;
-      //   int is_global = p->opr.op[0]->id.isGlobal;
-      //   int array_size = p->opr.op[1]->con.value;
-      //
-      //   if(is_global)
-      //   {
-      //     // global
-      //     printf("\tpush\tsp\n");
-      //     printf("\tpush\t%d\n", array_size);
-      //     printf("\tadd\n");
-      //     printf("\tpop\tsp\n");
-      //     insertArraySYM(array_name, array_size, is_global);
-      //   }
-      //   else
-      //   {
-      //     // local
-      //     // initialize the array to all zeros
-      //     int i;
-      //     for(i = 0; i < array_size; i++)
-      //     {
-      //       printf("\tpush\t0\n");
-      //     }
-      //
-      //     // update the fp pointer
-      //     printf("\tpush\tfp\n");
-      //     printf("\tpush\t%d\n", array_size);
-      //     printf("\tadd\n");
-      //     printf("\tpop\tfp\n");
-      //     insertArraySYM(array_name, array_size, is_global);
-      //   }
-      //
-      //   break;
-      // }
       case '=':
       {
         if(p->opr.nops == 2)// Variable assignment:  vari = expr

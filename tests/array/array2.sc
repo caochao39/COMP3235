@@ -1,10 +1,7 @@
-a = 10;
-f(b)
+array arr[4];
+arr[1] = 10;
+f(a)
 {
-  @a = 1;
-  c = 2;
-  array @arr1[4];
-  @arr1[1] = 4;
-  return @a + b + c + @arr1[1];
+  return a + 1;
 }
-puti(f(a));
+puti(f(arr[1]));
