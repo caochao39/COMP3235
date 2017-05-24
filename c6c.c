@@ -5,13 +5,16 @@
 #include <string.h>
 
 // for debugging
-// #define DEBUG
+//#define DEBUG
+
+// for sym table size
+#define TABLE_SIZE 4000
 
 
 extern int var_count, func_count, loc_var_count;
-extern int vType[200];
-extern char* func[200];
-extern int argTable[200];
+extern int vType[TABLE_SIZE];
+extern char* func[TABLE_SIZE];
+extern int argTable[TABLE_SIZE];
 int funcIdx = -1;
 int hasreturn = 0;
 
@@ -48,13 +51,13 @@ void printSYM()
   int i;
   for(i = 0; i < var_count; i++)
   {
-    printf("[DEBUG]\t\tidx: %d\tvar_name:\t%s\n", i, sym[i]);
+    printf("[DEBUG]\t\tidx: %d\tvar_name:\t%s\tvar_typr:%d\n", i, sym[i], vType[i]);
   }
   printf("[DEBUG]\t\tGlobal SYM end\n");
   printf("[DEBUG]\t\tLocal SYM begin:\n");
   for(i = 0; i < loc_var_count; i++)
   {
-    printf("[DEBUG]\t\tidx: %d\tvar_name:\t%s\n", i, sym[i + 100]);
+    printf("[DEBUG]\t\tidx: %d\tvar_name:\t%s\tvar_typr:%d\n", i, sym[i + TABLE_SIZE/2], vType[i]);
   }
   printf("[DEBUG]\t\tLocal SYM end\n");
 #endif
@@ -171,6 +174,8 @@ void prepass(nodeType *p, int infunc){
         }
 
         insertArraySYM(array_name, array_size, p->opr.op[0]->id.isGlobal);
+        int index = getSYMIdx(array_name, p->opr.op[0]->id.isGlobal);
+        setType(index, 4);
         break;
       }
       case GETI:
@@ -241,7 +246,7 @@ var_name: variable name
 */
 void insertSYM(char * var_name, int isGlobal)
 {
-  if(var_count >= 200)
+  if(var_count >= TABLE_SIZE)
   {
     printf("\tNumber of variables exceeds the limit!\n");
     return;
@@ -253,8 +258,8 @@ void insertSYM(char * var_name, int isGlobal)
       strcpy(sym[var_count], var_name);
       var_count ++;
     } else {
-      sym[loc_var_count+100] = (char *) malloc (strlen(var_name));
-      strcpy(sym[loc_var_count+100], var_name);
+      sym[loc_var_count+TABLE_SIZE/2] = (char *) malloc (strlen(var_name));
+      strcpy(sym[loc_var_count+TABLE_SIZE/2], var_name);
       loc_var_count ++;
     }
   }
@@ -276,7 +281,7 @@ void insertArraySYM(char * array_name, int array_size, int is_global)
 //   printf("[DEBUG]\tinsertArraySYM func: Inserting array into sym\n");
 // #endif
   // check for resource availability
-  if(var_count > 200)
+  if(var_count > TABLE_SIZE)
   {
     printf("\t Size of the array: %s exceeds the memory limit!\n", array_name);
     return;
@@ -315,8 +320,8 @@ void insertArraySYM(char * array_name, int array_size, int is_global)
 // #ifdef DEBUG
 //         printf("[DEBUG]\tLocal: Inserted one element\n");
 // #endif
-        sym[loc_var_count+100] = (char *) malloc (strlen(array_name));
-        strcpy(sym[loc_var_count+100], array_name);
+        sym[loc_var_count+TABLE_SIZE/2] = (char *) malloc (strlen(array_name));
+        strcpy(sym[loc_var_count+TABLE_SIZE/2], array_name);
         loc_var_count ++;
       }
 
@@ -343,7 +348,7 @@ int getSYMIdx(char * var_name, int isGlobal)
       }
     }
   }else{ // for local variable
-    for(i = 100; i < 100 + loc_var_count; i++)
+    for(i = TABLE_SIZE/2; i < TABLE_SIZE/2 + loc_var_count; i++)
     {
       if(strcmp(sym[i], var_name) == 0)
       {
@@ -372,7 +377,7 @@ void emptySYM(int isGlobal)
     var_count = 0;
   }
   else{
-    for(i = 100; i < 100 + loc_var_count; i++)
+    for(i = TABLE_SIZE/2; i < TABLE_SIZE/2 + loc_var_count; i++)
     {
       free(sym[i]);
     }
@@ -394,7 +399,7 @@ func_name: function name
 */
 void insertFUNC(char * func_name)
 {
-  if(func_count >= 200)
+  if(func_count >= TABLE_SIZE)
   {
     printf("\tNumber of variables exceeds the limit!\n");
     return;
@@ -459,6 +464,10 @@ void setType (int index, int t)
 
 /*
 function for checking type for an expression
+1 for int
+2 for string
+3 for char
+4 for array
 */
 int checkExprType (nodeType* p){
   switch(p->type) {
@@ -474,6 +483,8 @@ int checkExprType (nodeType* p){
     return 2;
     case typeCharCon:
     return 3;
+    case typeOneDArray:
+    return 4;
     case typeOpr:
     switch(p->opr.oper) {
       case UMINUS:
@@ -515,15 +526,21 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       }
       if (p->id.isGlobal == 1)
       {
-        printf("\tpush\tsb[%d]\n", index);
+        int thisT = checkType(index);
+        if (thisT == 4){
+          printf("\tpush\t%d\n", index); // if it is an array parameter in a function call, directly push index inside  
+        }
+        else{
+          printf("\tpush\tsb[%d]\n", index);      
+        }
       }
       else { // for local
-        index = index-100;
-        if (index >= argTable[funcIdx]) // for parameter ? local variable????
+        index = index-TABLE_SIZE/2;
+        if (index >= argTable[funcIdx]) // for local variable
         {
           printf("\tpush\tfp[%d]\n",  index - argTable[funcIdx]);
         }
-        else // for local variable ? parameter???
+        else // for parameter
         {
           printf("\tpush\tfp[%d]\n",  -3 - argTable[funcIdx] + index); //3 is accounted for the saved caller's pc, fp, sp
         }
@@ -576,7 +593,15 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       }
       else
       { // for local
-        printf("\tpush\t%d\n", index-100);
+        int locIdx = index-TABLE_SIZE/2;
+        //printf("[DEBUG] idx: %d, argc:%d", locIdx, argTable[funcIdx]);
+        if (locIdx >= argTable[funcIdx]) // for local variable
+        {
+          printf("\tpush\t%d\n", locIdx);
+        } else { // for parameter
+          // if the array is a parameter, we get reference
+          printf("\tpush\tfp[%d]\n", -3 - argTable[funcIdx] + locIdx);
+        }
       }
 
       // add up offset and the index
@@ -593,7 +618,13 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       else
       {
         // local
-        printf("\tpush\tfp[in]\n");
+        int locIdx = index-TABLE_SIZE/2;
+        if (locIdx >= argTable[funcIdx]) // for local variable
+        {
+          printf("\tpush\tfp[in]\n");
+        } else { // for variable
+          printf("\tpush\tsb[in]\n");
+        }
       }
       break;
     }
@@ -697,10 +728,10 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
               printf("\tpop\tsb[%d]\n", index);
             }
             else{ // for local
-              index = index-100;
-              if (index >= argTable[funcIdx]) // for parameter
+              index = index-TABLE_SIZE/2;
+              if (index >= argTable[funcIdx]) // for local variable
               printf("\tpop\tfp[%d]\n",  index - argTable[funcIdx]);
-              else // for local variable
+              else // for parameter
               printf("\tpop\tfp[%d]\n",  -3 - argTable[funcIdx] + index);
             }
           } else if (p->opr.op[0]->type == typeOpr && p->opr.op[0]->opr.oper == '@') { /* @ for global variable */
@@ -739,7 +770,12 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
           }
           else
           {
-            printf("\tpush\t%d\n", index - 100);
+            int locIdx = index - TABLE_SIZE/2;
+            if (locIdx>argTable[funcIdx]){ // for local array
+              printf("\tpush\t%d\n", locIdx);
+            } else { // for array parameter
+              printf("\tpush\tfp[%d]\n", -3 - argTable[funcIdx] + locIdx);
+            }
           }
 
           // add up the index and the offset and store it in "in" register
@@ -752,7 +788,12 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
           }
           else
           {
-            printf("\tpop\tfp[in]\n");
+            int locIdx = index - TABLE_SIZE/2;
+            if (locIdx>argTable[funcIdx]){ // for local array
+              printf("\tpop\tfp[in]\n");
+            } else { // for array parameter
+              printf("\tpop\tsb[in]\n");
+            }
           }
         }
         else
@@ -831,7 +872,7 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         }
         else
         {
-          index = index - 100;
+          index = index - TABLE_SIZE/2;
           if (index >= argTable[funcIdx]) // for parameter ? local variable????
           {
             printf("\tpop\tfp[%d]\n",  index - argTable[funcIdx]);
@@ -862,7 +903,7 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         }
         else
         {
-          index = index - 100;
+          index = index - TABLE_SIZE/2;
           if (index >= argTable[funcIdx]) // for parameter ? local variable????
           {
             printf("\tpop\tfp[%d]\n",  index - argTable[funcIdx]);
@@ -893,7 +934,7 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         }
         else
         {
-          index = index - 100;
+          index = index - TABLE_SIZE/2;
           if (index >= argTable[funcIdx]) // for parameter ? local variable????
           {
             printf("\tpop\tfp[%d]\n",  index - argTable[funcIdx]);

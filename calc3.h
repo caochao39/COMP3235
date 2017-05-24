@@ -1,3 +1,4 @@
+#define TABLE_SIZE 4000
 typedef enum { typeCon, typeStrCon, typeCharCon, typeId, typeOpr, typeFunc, typeOneDArray} nodeEnum;
 
 /* constants */
@@ -39,7 +40,7 @@ typedef struct {
 /* 1D Array */
 typedef struct {
   struct nodeTypeTag * name;           /* name of the array, it is a nodetype because the "global" info needs to be stored */
-  struct nodeTypeTag * index;              /* index of a an array element */
+  struct nodeTypeTag * index;          /* index of a an array element */
 } OneDArrayNodeType;
 
 typedef struct nodeTypeTag {
@@ -48,17 +49,17 @@ typedef struct nodeTypeTag {
     /* union must be last entry in nodeType */
     /* because operNodeType may dynamically increase */
     union {
-        conNodeType con;        /* constants */
-	charConNodeType charCon; /* character constants */
-	strConNodeType strCon;	/* string constants */
-        idNodeType id;          /* identifiers */
-        oprNodeType opr;        /* operators */
-	funcNodeType func;	/* functions */
-  OneDArrayNodeType onedarray; /* 1D Array */
+      conNodeType con;        /* constants */
+	    charConNodeType charCon; /* character constants */
+	    strConNodeType strCon;	/* string constants */
+      idNodeType id;          /* identifiers */
+      oprNodeType opr;        /* operators */
+	    funcNodeType func;	/* functions */
+      OneDArrayNodeType onedarray; /* 1D Array */
     };
 } nodeType;
 
-extern char* sym[200];
+extern char* sym[TABLE_SIZE];
 
 #define MAIN 997
 #define CALL 996
