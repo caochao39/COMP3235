@@ -15,6 +15,7 @@ nodeType *strCon(char *value);
 nodeType* addOperand(nodeType* p1,nodeType* p2);
 nodeType * OneDArray(nodeType * name, nodeType * index);
 nodeType * TwoDArray(nodeType * name, nodeType * fst_index, nodeType * scd_index);
+nodeType * ThreeDArray(nodeType * name, nodeType * fst_index, nodeType * scd_index, nodeType * thd_index);
 void freeNode(nodeType *p);
 int ex(nodeType *p, int, int, int);
 void eop();
@@ -140,8 +141,10 @@ stmt:
         | expr ';'                            { $$ = $1; }
         | ARRAY vari '[' INTEGER ']' ';'      { $$ = opr(ARRAY_DECLARE, 2, $2, con($4));}
         | ARRAY vari '[' INTEGER ']' '[' INTEGER ']' ';' { $$ = opr(ARRAY_DECLARE, 3, $2, con($4), con($7));}
+        | ARRAY vari '[' INTEGER ']' '[' INTEGER ']' '[' INTEGER ']' ';' { $$ = opr(ARRAY_DECLARE, 4, $2, con($4), con($7), con($10));}
         | vari '[' expr ']' '=' expr ';'      { $$ = opr('=', 3, $1, $3, $6);}
         | vari '[' expr ']' '[' expr ']' '=' expr ';' { $$ = opr('=', 4, $1, $3, $6, $9); }
+        | vari '[' expr ']' '[' expr ']' '[' expr ']' '=' expr ';' { $$ = opr('=', 5, $1, $3, $6, $9, $12); }
         ;
 
 vari:
@@ -179,6 +182,7 @@ expr:
 	      | vari                  { $$ = $1; }
         | vari '[' expr ']'     { $$ = OneDArray($1, $3);}
         | vari '[' expr ']' '[' expr ']'     { $$ = TwoDArray($1, $3, $6);}
+        | vari '[' expr ']' '[' expr ']' '[' expr ']'    { $$ = ThreeDArray($1, $3, $6, $9);}
         ;
 
 %%
@@ -357,6 +361,26 @@ nodeType * TwoDArray(nodeType * name, nodeType * fst_index, nodeType * scd_index
   p->twodarray.fst_index = fst_index;
   p->twodarray.scd_index = scd_index;
 
+  return p;
+}
+
+/* Three D Array construction function*/
+nodeType * ThreeDArray(nodeType * name, nodeType * fst_index, nodeType * scd_index, nodeType * thd_index)
+{
+  nodeType *p;
+  size_t nodeSize;
+  /* allocate node*/
+  nodeSize = SIZEOF_NODETYPE + sizeof(ThreeDArrayNodeType);
+  if((p = malloc(nodeSize)) == NULL)
+  {
+    yyerror("out of memory");
+  }
+  /* copy information */
+  p->type = typeThreeDArray;
+  p->threedarray.name = name;
+  p->threedarray.fst_index = fst_index;
+  p->threedarray.scd_index = scd_index;
+  p->threedarray.thd_index = thd_index;
   return p;
 }
 
