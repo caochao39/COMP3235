@@ -14,6 +14,7 @@ nodeType *charCon(char *value);
 nodeType *strCon(char *value);
 nodeType* addOperand(nodeType* p1,nodeType* p2);
 nodeType * OneDArray(nodeType * name, nodeType * index);
+nodeType * TwoDArray(nodeType * name, nodeType * fst_index, nodeType * scd_index);
 void freeNode(nodeType *p);
 int ex(nodeType *p, int, int, int);
 void eop();
@@ -138,7 +139,9 @@ stmt:
         | RETURN expr ';'                     { $$ = opr(RETURN,1,$2);}
         | expr ';'                            { $$ = $1; }
         | ARRAY vari '[' INTEGER ']' ';'      { $$ = opr(ARRAY_DECLARE, 2, $2, con($4));}
+        | ARRAY vari '[' INTEGER ']' '[' INTEGER ']' ';' { $$ = opr(ARRAY_DECLARE, 3, $2, con($4), con($7));}
         | vari '[' expr ']' '=' expr ';'      { $$ = opr('=', 3, $1, $3, $6);}
+        | vari '[' expr ']' '[' expr ']' '=' expr ';' { $$ = opr('=', 4, $1, $3, $6, $9); }
         ;
 
 vari:
@@ -175,6 +178,7 @@ expr:
 	      | vari '(' ')'     	{ $$ = opr(CALL, 2, $1, NULL); } // function call
 	      | vari                  { $$ = $1; }
         | vari '[' expr ']'     { $$ = OneDArray($1, $3);}
+        | vari '[' expr ']' '[' expr ']'     { $$ = TwoDArray($1, $3, $6);}
         ;
 
 %%
@@ -332,6 +336,26 @@ nodeType * OneDArray(nodeType * name, nodeType * index)
   p->type = typeOneDArray;
   p->onedarray.name = name;
   p->onedarray.index = index;
+
+  return p;
+}
+
+/* TwoD Array construction function*/
+nodeType * TwoDArray(nodeType * name, nodeType * fst_index, nodeType * scd_index)
+{
+  nodeType *p;
+  size_t nodeSize;
+  /* allocate node*/
+  nodeSize = SIZEOF_NODETYPE + sizeof(TwoDArrayNodeType);
+  if((p = malloc(nodeSize)) == NULL)
+  {
+    yyerror("out of memory");
+  }
+  /* copy information */
+  p->type = typeTwoDArray;
+  p->twodarray.name = name;
+  p->twodarray.fst_index = fst_index;
+  p->twodarray.scd_index = scd_index;
 
   return p;
 }

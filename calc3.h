@@ -1,4 +1,4 @@
-typedef enum { typeCon, typeStrCon, typeCharCon, typeId, typeOpr, typeFunc, typeOneDArray} nodeEnum;
+typedef enum { typeCon, typeStrCon, typeCharCon, typeId, typeOpr, typeFunc, typeOneDArray, typeTwoDArray} nodeEnum;
 
 /* constants */
 typedef struct {
@@ -42,6 +42,13 @@ typedef struct {
   struct nodeTypeTag * index;              /* index of a an array element */
 } OneDArrayNodeType;
 
+/* 2D Array */
+typedef struct {
+  struct nodeTypeTag * name;           /* name of the array, it is a nodetype because the "global" info needs to be stored */
+  struct nodeTypeTag * fst_index;              /* first index of a 2D array */
+  struct nodeTypeTag * scd_index;              /* second index of a 2D array */
+} TwoDArrayNodeType;
+
 typedef struct nodeTypeTag {
     nodeEnum type;              /* type of node */
 
@@ -55,6 +62,7 @@ typedef struct nodeTypeTag {
         oprNodeType opr;        /* operators */
 	funcNodeType func;	/* functions */
   OneDArrayNodeType onedarray; /* 1D Array */
+  TwoDArrayNodeType twodarray; /* 2D Array */
     };
 } nodeType;
 

@@ -17,22 +17,57 @@ int hasreturn = 0;
 
 static int lbl;
 
+//structs for array
+typedef struct
+{
+  char* name;
+  int size;
+} oneDArray;
+
+typedef struct
+{
+  char* name;
+  int row_size;
+  int col_size;
+} twoDArray;
+
+oneDArray* onedarray_list[50];
+twoDArray* twodarray_list[50];
+
+int onedarray_count = 0;
+int twodarray_count = 0;
+
+
 // function declaration
+//sym related
 int inSYM(char *var_name);
 void insertSYM(char * var_name, int isGlobal);
 int getSYMIdx(char *var_name, int isGlobal);
 void emptySYM(int isGlobal);
-void printsp(int coun);
-void prepass(nodeType *p, int infunc);
-void printStackTop(int type);
 void insertArraySYM(char * array_name, int array_size, int is_global);
-int checkType (int index);
+void insert2DArraySYM(char * array_name, int array_fst_size, int array_scd_size, int is_global);
+
+void printsp(int coun);
+
+void prepass(nodeType *p, int infunc);
+
+void printStackTop(int type);
+
+// array list related
+void insertOneDArrayList(char* name, int size);
+void insertTwoDArrayList(char* name, int row_size, int col_size);
+oneDArray* getOneDArray(char* name);
+twoDArray* getTwoDArray(char* name);
+
+//function related
 void insertFUNC(char * func_name);
 int getFUNCIdx(char * func_name);
 void emptyFUNC();
 void insertArg(int argnum, int idx);
 void setType (int index, int t);
+
 int checkExprType (nodeType* p);
+int checkType (int index);
 
 // helper functions
 void printSYM();
@@ -100,6 +135,13 @@ void prepass(nodeType *p, int infunc){
       }
       break;
     }
+    case typeTwoDArray:
+    {
+      if(infunc == 0)
+      {
+        p->twodarray.name->id.isGlobal = 1;
+      }
+    }
     case typeOpr:
     switch(p->opr.oper) {
       case MAIN:
@@ -163,14 +205,24 @@ void prepass(nodeType *p, int infunc){
 // #endif
         char * array_name = p->opr.op[0]->id.var_name;
         // int is_global = p->opr.op[0]->id.isGlobal;
-        int array_size = p->opr.op[1]->con.value;
+        int array_fst_size = p->opr.op[1]->con.value;
 
         // if outside function then the array is global, the reverse is not true
         if (infunc == 0){
           p->opr.op[0]->id.isGlobal = 1;
         }
 
-        insertArraySYM(array_name, array_size, p->opr.op[0]->id.isGlobal);
+        if(p->opr.nops == 2)//1D Array
+        {
+          insertArraySYM(array_name, array_fst_size, p->opr.op[0]->id.isGlobal);
+          insertOneDArrayList(array_name, array_fst_size);
+        }
+        if(p->opr.nops == 3)//2D Array
+        {
+          int array_scd_size = p->opr.op[2]->con.value;
+          insert2DArraySYM(array_name, array_fst_size, array_scd_size, p->opr.op[0]->id.isGlobal);
+          insertTwoDArrayList(array_name, array_fst_size, array_scd_size);
+        }
         break;
       }
       case GETI:
@@ -282,10 +334,6 @@ void insertArraySYM(char * array_name, int array_size, int is_global)
     return;
   }
 
-// #ifdef DEBUG
-//         printf("[DEBUG]\t insertArraySYM func: array %s size is ok\n", array_name);
-// #endif
-
   if(getSYMIdx(array_name, is_global) < 0)//not in sym
   {
 // #ifdef DEBUG
@@ -322,8 +370,162 @@ void insertArraySYM(char * array_name, int array_size, int is_global)
 
     }
   }
+}
+
+/* function for inserting an array name into the SYM
+array_name: Name of the array
+array_size: Size of the array
+is_global: if the array is declared globally
+*/
+void insert2DArraySYM(char * array_name, int array_fst_size, int array_scd_size, int is_global)
+{
+// #ifdef DEBUG
+//   printf("[DEBUG]\tinsertArraySYM func: Inserting array into sym\n");
+// #endif
+  // check for resource availability
+  if(var_count > 200)
+  {
+    printf("\t Size of the array: %s exceeds the memory limit!\n", array_name);
+    return;
+  }
+
+  if(getSYMIdx(array_name, is_global) < 0)//not in sym
+  {
+// #ifdef DEBUG
+//         printf("[DEBUG]\tinsertArraySYM func: got array index\n");
+// #endif
+
+    if(is_global == 1)
+    {
+      // global
+      int i;
+      for(i = 0; i < array_fst_size; i++)
+      {
+        int j;
+        for(j = 0; j < array_scd_size; j++)
+        {
+          sym[var_count] = (char *) malloc (strlen(array_name));
+          strcpy(sym[var_count], array_name);
+          var_count ++;
+        }
+      }
+    }
+    else
+    {
+      // local
+      int i;
+      for(i = 0; i < array_fst_size; i++)
+      {
+        int j;
+        for(j = 0; j < array_scd_size; j++)
+        {
+          sym[loc_var_count+100] = (char *) malloc (strlen(array_name));
+          strcpy(sym[loc_var_count+100], array_name);
+          loc_var_count ++;
+        }
+      }
+
+    }
+  }
 
 }
+
+
+/*
+Insert an 1D array into the list
+name: Array name
+size: Array size
+*/
+void insertOneDArrayList(char* name, int size)
+{
+  if(onedarray_count < 50)
+  {
+    oneDArray* array;
+    int nodeSize;
+    nodeSize = sizeof(array);
+    if((array = malloc(nodeSize)) == NULL)
+    {
+      yyerror("Error: not enough memory for allocating 1D array list\n");
+      return;
+    }
+
+    array->name = name;
+    array->size = size;
+
+    onedarray_list[onedarray_count] = array;
+    onedarray_count++;
+  }
+  else
+  {
+    printf("Number of arrays exceeds limit: %d at most\n", 50);
+  }
+}
+
+/*
+Insert a 2D Array into the list
+name: Array name
+row: row size
+col: column size
+*/
+void insertTwoDArrayList(char* name, int row_size, int col_size)
+{
+  if(twodarray_count < 50)
+  {
+    twoDArray* array;
+    int nodeSize;
+    nodeSize = sizeof(array);
+    if((array = malloc(nodeSize)) == NULL)
+    {
+      yyerror("Error: not enough memory for allocating 2D array list\n");
+      return;
+    }
+
+    array->name = name;
+    array->row_size = row_size;
+    array->col_size = col_size;
+
+    twodarray_list[twodarray_count] = array;
+    twodarray_count++;
+  }
+  else
+  {
+    printf("Number of arrays exceeds limit: %d at most\n", 50);
+  }
+}
+
+
+/*
+get the settings of an 1D array
+*/
+oneDArray* getOneDArray(char* name)
+{
+  int i;
+  for(i = 0; i < onedarray_count; i++)
+  {
+    if(strcmp(onedarray_list[i]->name, name) == 0)
+    {
+      return onedarray_list[i];
+    }
+  }
+  return NULL;
+}
+
+/*
+get the settings of a 2D array
+*/
+twoDArray* getTwoDArray(char* name)
+{
+  int i;
+  for(i = 0; i < twodarray_count; i++)
+  {
+    if(strcmp(twodarray_list[i]->name, name) == 0)
+    {
+      return twodarray_list[i];
+    }
+  }
+  return NULL;
+}
+
 
 /*
 function for getting index of a variable in sym
@@ -598,6 +800,60 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       break;
     }
 
+    case typeTwoDArray:
+    {
+      char * array_name = p->twodarray.name->id.var_name;
+      int index = getSYMIdx(array_name, p->twodarray.name->id.isGlobal);
+      if (index==-1)
+      {
+        printf("\t[Debug]: Array name %s, is global: %d\n", array_name, p->twodarray.name->id.isGlobal);
+        printf("\tError: Array \"%s\" Undeclared\n", array_name);
+        exit(0);
+      }
+
+      twoDArray* array = getTwoDArray(array_name);
+      int col_size = array->col_size;
+      int row_size = array->row_size;
+
+      // evaluate the expression to get index
+      ex(p->twodarray.scd_index, -1, -1, infunc);
+      ex(p->twodarray.fst_index, -1, -1, infunc);
+
+      //TODO check array index outofbound
+      printf("\tpush\t%d\n", col_size);
+      printf("\tmul\n");
+      printf("\tadd\n");
+
+      // get array index offset
+      // check if the array is global
+      if (p->twodarray.name->id.isGlobal == 1)
+      {
+        // global
+        printf("\tpush\t%d\n", index);
+      }
+      else
+      { // for local
+        printf("\tpush\t%d\n", index-100);
+      }
+
+      // add up offset and the index
+      printf("\tadd\n");
+
+      // pop the index to the in register
+      printf("\tpop\tin\n");
+
+      if(p->twodarray.name->id.isGlobal == 1)
+      {
+        // global
+        printf("\tpush\tsb[in]\n");
+      }
+      else
+      {
+        // local
+        printf("\tpush\tfp[in]\n");
+      }
+      break;
+    }
     case typeOpr:
     switch(p->opr.oper) {
       case RETURN:
@@ -731,6 +987,57 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
           ex(p->opr.op[1], blbl, clbl, infunc);
 
           //TODO check for array index outofbound
+
+          // push the index offset on the stack
+          if(is_global)
+          {
+            printf("\tpush\t%d\n", index);
+          }
+          else
+          {
+            printf("\tpush\t%d\n", index - 100);
+          }
+
+          // add up the index and the offset and store it in "in" register
+          printf("\tadd\n");
+          printf("\tpop\tin\n");
+
+          if(is_global)
+          {
+            printf("\tpop\tsb[in]\n");
+          }
+          else
+          {
+            printf("\tpop\tfp[in]\n");
+          }
+        }
+        else if(p->opr.nops == 4) // 2D Array element assignment: vari [exper][expr] = expr
+        {
+          char * array_name = p->opr.op[0]->id.var_name;
+          int is_global = p->opr.op[0]->id.isGlobal;
+          int index = getSYMIdx(array_name, is_global);
+
+          if(index == -1)
+          {
+            printf("\tError: Array %s used before declared!\n", array_name);
+          }
+
+          // evaluate the expression to get the value to be assigned
+          ex(p->opr.op[3], blbl, clbl, infunc);
+
+          // evaluate the index
+          ex(p->opr.op[2], blbl, clbl, infunc);
+          ex(p->opr.op[1], blbl, clbl, infunc);
+
+          twoDArray* array = getTwoDArray(array_name);
+          int col_size = array->col_size;
+          int row_size = array->row_size;
+
+          //TODO check for index out of bound
+
+          printf("\tpush\t%d\n", col_size);
+          printf("\tmul\n");
+          printf("\tadd\n");
 
           // push the index offset on the stack
           if(is_global)
