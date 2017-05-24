@@ -524,9 +524,9 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         printf("\tError: Variable \"%s\" uninitialized\n", str);
         exit(0);
       }
+      int thisT = checkType(index);
       if (p->id.isGlobal == 1)
       {
-        int thisT = checkType(index);
         if (thisT == 4){
           printf("\tpush\t%d\n", index); // if it is an array parameter in a function call, directly push index inside  
         }
@@ -536,13 +536,18 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       }
       else { // for local
         index = index-TABLE_SIZE/2;
-        if (index >= argTable[funcIdx]) // for local variable
-        {
-          printf("\tpush\tfp[%d]\n",  index - argTable[funcIdx]);
+        if (thisT == 4){
+          printf("\tpush\t%d\n", index); // if it is an array parameter in a function call, directly push index inside  
         }
-        else // for parameter
-        {
-          printf("\tpush\tfp[%d]\n",  -3 - argTable[funcIdx] + index); //3 is accounted for the saved caller's pc, fp, sp
+        else{
+          if (index >= argTable[funcIdx]) // for local variable
+          {
+            printf("\tpush\tfp[%d]\n",  index - argTable[funcIdx]);
+          }
+          else // for parameter
+          {
+            printf("\tpush\tfp[%d]\n",  -3 - argTable[funcIdx] + index); //3 is accounted for the saved caller's pc, fp, sp
+          }
         }
       }
       break;
@@ -601,6 +606,7 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         } else { // for parameter
           // if the array is a parameter, we get reference
           printf("\tpush\tfp[%d]\n", -3 - argTable[funcIdx] + locIdx);
+          //printf("\tpush\tfp[-2]\n");
         }
       }
 
@@ -622,8 +628,13 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         if (locIdx >= argTable[funcIdx]) // for local variable
         {
           printf("\tpush\tfp[in]\n");
-        } else { // for variable
+        } else { // for parameter
+          printf("\tpush\tin\n");
+          printf("\tpush\tfp[-2]\n");
+          printf("\tadd\n");
+          printf("\tpop\tin\n");
           printf("\tpush\tsb[in]\n");
+          //printf("\tpush\tfp[in]\n");
         }
       }
       break;
@@ -792,7 +803,12 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
             if (locIdx>argTable[funcIdx]){ // for local array
               printf("\tpop\tfp[in]\n");
             } else { // for array parameter
+              printf("\tpush\tin\n");
+              printf("\tpush\tfp[-2]\n");
+              printf("\tadd\n");
+              printf("\tpop\tin\n");
               printf("\tpop\tsb[in]\n");
+              //printf("\tpop\tfp[in]\n");
             }
           }
         }
