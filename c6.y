@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include "calc3.h"
 
+#define TABLE_SIZE 4000
 
 /* prototypes */
 nodeType *createFunc(nodeType * funcNameId, nodeType *args, nodeType *stmtlist, int coun);
@@ -24,7 +25,7 @@ int yylex(void);
 void yyerror(char *s);
 
 // variable related
-char* sym[200]; //symbol table
+char* sym[TABLE_SIZE]; //symbol table
 int var_count = 0; //variable count
 int loc_var_count = 0;//count for local variable
 
@@ -48,9 +49,9 @@ int checkExprType (nodeType* p);
 //helper functions
 void printSYM();
 // function related
-char* func[200]; //function table
+char* func[TABLE_SIZE]; //function table
 int func_count = 0; //function count
-int argTable[200];
+int argTable[TABLE_SIZE];
 
 void insertFUNC(char *var_name);
 int getFUNCIdx(char *var_name);
@@ -58,7 +59,7 @@ void emptyFUNC();
 
 void insertArg(int argnum, int idx);
 // variable type related
-int vType[200]; //type table
+int vType[TABLE_SIZE]; //type table
 
 // expression type checking
 int checkExprType (nodeType* p);
