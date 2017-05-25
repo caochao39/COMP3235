@@ -114,7 +114,7 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 74 "c6.y" /* yacc.c:1909  */
+#line 75 "c6.y" /* yacc.c:1909  */
 
     int iValue;                 /* integer value */
     char *sValue;		/* address of the string */

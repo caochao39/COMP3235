@@ -4,7 +4,6 @@
 #include <stdarg.h>
 #include "calc3.h"
 
-#define TABLE_SIZE 4000
 
 /* prototypes */
 nodeType *createFunc(nodeType * funcNameId, nodeType *args, nodeType *stmtlist, int coun);
@@ -15,6 +14,8 @@ nodeType *charCon(char *value);
 nodeType *strCon(char *value);
 nodeType* addOperand(nodeType* p1,nodeType* p2);
 nodeType * OneDArray(nodeType * name, nodeType * index);
+nodeType * TwoDArray(nodeType * name, nodeType * fst_index, nodeType * scd_index);
+nodeType * ThreeDArray(nodeType * name, nodeType * fst_index, nodeType * scd_index, nodeType * thd_index);
 void freeNode(nodeType *p);
 int ex(nodeType *p, int, int, int);
 void eop();
@@ -23,7 +24,7 @@ int yylex(void);
 void yyerror(char *s);
 
 // variable related
-char* sym[TABLE_SIZE]; //symbol table
+char* sym[200]; //symbol table
 int var_count = 0; //variable count
 int loc_var_count = 0;//count for local variable
 
@@ -48,9 +49,9 @@ int checkExprType (nodeType* p);
 void printSYM();
 
 // function related
-char* func[TABLE_SIZE]; //function table
+char* func[200]; //function table
 int func_count = 0; //function count
-int argTable[TABLE_SIZE];
+int argTable[200];
 
 void insertFUNC(char *var_name);
 int getFUNCIdx(char *var_name);
@@ -58,7 +59,7 @@ void emptyFUNC();
 
 void insertArg(int argnum, int idx);
 // variable type related
-int vType[TABLE_SIZE]; //type table
+int vType[200]; //type table
 
 // expression type checking
 int checkExprType (nodeType* p);
@@ -109,12 +110,12 @@ tree:
     ;
 
 function:
-	vari '(' para ')' '{' stmt_list '}' 	{ $$ = createFunc($1, $3, $6, argc); argc = 0; in_func = 1;}  // function definition
-	| vari '(' ')' '{' stmt_list '}' 	{ $$ = createFunc($1, NULL, $5, 0); argc = 0; in_func = 1;}
+	vari '(' para ')' '{' stmt_list '}' 	{ $$ = createFunc($1, $3, $6, argc); in_func = 1;}  // function definition
+	| vari '(' ')' '{' stmt_list '}' 	{ $$ = createFunc($1, NULL, $5, 0); in_func = 1;}
 	;
 
-para:   expr				      	{ argc=1; $$ = $1; }
-	| expr ',' para		      		{ argc++; $$ = opr(',', 2, $1, $3); }
+para:   expr				      	{ $$ = $1; }
+	| expr ',' para		      		{ $$ = opr(',', 2, $1, $3); }
 	;
 
 stmt:
@@ -139,7 +140,11 @@ stmt:
         | RETURN expr ';'                     { $$ = opr(RETURN,1,$2);}
         | expr ';'                            { $$ = $1; }
         | ARRAY vari '[' INTEGER ']' ';'      { $$ = opr(ARRAY_DECLARE, 2, $2, con($4));}
+        | ARRAY vari '[' INTEGER ']' '[' INTEGER ']' ';' { $$ = opr(ARRAY_DECLARE, 3, $2, con($4), con($7));}
+        | ARRAY vari '[' INTEGER ']' '[' INTEGER ']' '[' INTEGER ']' ';' { $$ = opr(ARRAY_DECLARE, 4, $2, con($4), con($7), con($10));}
         | vari '[' expr ']' '=' expr ';'      { $$ = opr('=', 3, $1, $3, $6);}
+        | vari '[' expr ']' '[' expr ']' '=' expr ';' { $$ = opr('=', 4, $1, $3, $6, $9); }
+        | vari '[' expr ']' '[' expr ']' '[' expr ']' '=' expr ';' { $$ = opr('=', 5, $1, $3, $6, $9, $12); }
         ;
 
 vari:
@@ -176,6 +181,8 @@ expr:
 	      | vari '(' ')'     	{ $$ = opr(CALL, 2, $1, NULL); } // function call
 	      | vari                  { $$ = $1; }
         | vari '[' expr ']'     { $$ = OneDArray($1, $3);}
+        | vari '[' expr ']' '[' expr ']'     { $$ = TwoDArray($1, $3, $6);}
+        | vari '[' expr ']' '[' expr ']' '[' expr ']'    { $$ = ThreeDArray($1, $3, $6, $9);}
         ;
 
 %%
@@ -306,16 +313,31 @@ nodeType *createFunc(nodeType* funcNameId, nodeType *arguments, nodeType *stmtli
     size_t nodeSize;
     /* allocate node */
     nodeSize = SIZEOF_NODETYPE + sizeof(funcNodeType);
+  
+    
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
     /* copy information */
-    p->func.argc = coun;
+    p->func.argc = countArgc(arguments);
     p->func.args = arguments;
     p->func.name = funcNameId->id.var_name;
     p->func.op = stmtlist;
     p->type = typeFunc;
 
+    //printf("name:%s, argc: %d\n", funcNameId->id.var_name, p->func.argc); 
     return p;
+}
+
+int countArgc(nodeType *arguments){
+    if (arguments!=NULL){
+      if (arguments->type == typeOpr && arguments->opr.oper == ','){
+        return 1+countArgc(arguments->opr.op[1]);
+      } else {
+        return 1;      
+      }
+    }else{
+      return 0;
+    }
 }
 
 /* OneD Array construction function*/
@@ -334,6 +356,46 @@ nodeType * OneDArray(nodeType * name, nodeType * index)
   p->onedarray.name = name;
   p->onedarray.index = index;
 
+  return p;
+}
+
+/* TwoD Array construction function*/
+nodeType * TwoDArray(nodeType * name, nodeType * fst_index, nodeType * scd_index)
+{
+  nodeType *p;
+  size_t nodeSize;
+  /* allocate node*/
+  nodeSize = SIZEOF_NODETYPE + sizeof(TwoDArrayNodeType);
+  if((p = malloc(nodeSize)) == NULL)
+  {
+    yyerror("out of memory");
+  }
+  /* copy information */
+  p->type = typeTwoDArray;
+  p->twodarray.name = name;
+  p->twodarray.fst_index = fst_index;
+  p->twodarray.scd_index = scd_index;
+
+  return p;
+}
+
+/* Three D Array construction function*/
+nodeType * ThreeDArray(nodeType * name, nodeType * fst_index, nodeType * scd_index, nodeType * thd_index)
+{
+  nodeType *p;
+  size_t nodeSize;
+  /* allocate node*/
+  nodeSize = SIZEOF_NODETYPE + sizeof(ThreeDArrayNodeType);
+  if((p = malloc(nodeSize)) == NULL)
+  {
+    yyerror("out of memory");
+  }
+  /* copy information */
+  p->type = typeThreeDArray;
+  p->threedarray.name = name;
+  p->threedarray.fst_index = fst_index;
+  p->threedarray.scd_index = scd_index;
+  p->threedarray.thd_index = thd_index;
   return p;
 }
 

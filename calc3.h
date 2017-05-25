@@ -1,5 +1,4 @@
-#define TABLE_SIZE 4000
-typedef enum { typeCon, typeStrCon, typeCharCon, typeId, typeOpr, typeFunc, typeOneDArray} nodeEnum;
+typedef enum { typeCon, typeStrCon, typeCharCon, typeId, typeOpr, typeFunc, typeOneDArray, typeTwoDArray, typeThreeDArray} nodeEnum;
 
 /* constants */
 typedef struct {
@@ -40,8 +39,23 @@ typedef struct {
 /* 1D Array */
 typedef struct {
   struct nodeTypeTag * name;           /* name of the array, it is a nodetype because the "global" info needs to be stored */
-  struct nodeTypeTag * index;          /* index of a an array element */
+  struct nodeTypeTag * index;              /* index of a an array element */
 } OneDArrayNodeType;
+
+/* 2D Array */
+typedef struct {
+  struct nodeTypeTag * name;           /* name of the array, it is a nodetype because the "global" info needs to be stored */
+  struct nodeTypeTag * fst_index;              /* first index of a 2D array */
+  struct nodeTypeTag * scd_index;              /* second index of a 2D array */
+} TwoDArrayNodeType;
+
+/* 3D Array */
+typedef struct {
+  struct nodeTypeTag * name;           /* name of the array, it is a nodetype because the "global" info needs to be stored */
+  struct nodeTypeTag * fst_index;              /* first index of a 3D array */
+  struct nodeTypeTag * scd_index;              /* second index of a 3D array */
+  struct nodeTypeTag * thd_index;              /* third index of a 3D array */
+} ThreeDArrayNodeType;
 
 typedef struct nodeTypeTag {
     nodeEnum type;              /* type of node */
@@ -49,17 +63,19 @@ typedef struct nodeTypeTag {
     /* union must be last entry in nodeType */
     /* because operNodeType may dynamically increase */
     union {
-      conNodeType con;        /* constants */
-	    charConNodeType charCon; /* character constants */
-	    strConNodeType strCon;	/* string constants */
-      idNodeType id;          /* identifiers */
-      oprNodeType opr;        /* operators */
-	    funcNodeType func;	/* functions */
-      OneDArrayNodeType onedarray; /* 1D Array */
+        conNodeType con;        /* constants */
+	charConNodeType charCon; /* character constants */
+	strConNodeType strCon;	/* string constants */
+        idNodeType id;          /* identifiers */
+        oprNodeType opr;        /* operators */
+	funcNodeType func;	/* functions */
+  OneDArrayNodeType onedarray; /* 1D Array */
+  TwoDArrayNodeType twodarray; /* 2D Array */
+  ThreeDArrayNodeType threedarray; /* 3D Array */
     };
 } nodeType;
 
-extern char* sym[TABLE_SIZE];
+extern char* sym[200];
 
 #define MAIN 997
 #define CALL 996
