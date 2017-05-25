@@ -5,8 +5,8 @@
 #include <string.h>
 
 // for debugging
-// #define DEBUG
-// #define RTDEBUG
+//#define DEBUG
+//#define RTDEBUG
 
 extern int var_count, func_count, loc_var_count;
 extern int vType[200];
@@ -138,6 +138,7 @@ function for prepassing the whole tree
     1: inside functions
 */
 void prepass(nodeType *p, int infunc){
+
   if (!p) return;
   switch(p->type) {
     case typeFunc:
@@ -146,6 +147,7 @@ void prepass(nodeType *p, int infunc){
     insertArg(p->func.argc, getFUNCIdx(p->func.name));
     prepass(p->func.args, 1);
     prepass(p->func.op, 1);
+    emptySYM(0);
     break;
     case typeId:
     if (infunc == 0){
@@ -350,6 +352,7 @@ void insertSYM(char * var_name, int isGlobal)
       sym[loc_var_count+100] = (char *) malloc (strlen(var_name));
       strcpy(sym[loc_var_count+100], var_name);
       loc_var_count ++;
+      //printf("var_name: %s, loc_count: %d\n", var_name, loc_var_count);
     }
   }
   else
@@ -1019,10 +1022,14 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         printf("\tpush\t%d\n", index);
       }
       else
-      { // for local
-        printf("\tpush\t%d\n", index-100);
+      { 
+        int locIdx = index-100;
+        //printf("name: %s, locIdx: %d, argc: %d\n", array_name, locIdx, argTable[funcIdx]);
+        if (locIdx >= argTable[funcIdx]) // for local
+          printf("\tpush\t%d\n",  locIdx - argTable[funcIdx]);
+        else // for parameter
+          printf("\tpush\tfp[%d]\n",  -3 - argTable[funcIdx] + locIdx);
       }
-
       // add up offset and the index
       printf("\tadd\n");
 
@@ -1036,8 +1043,11 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       }
       else
       {
-        // local
-        printf("\tpush\tfp[in]\n");
+        int locIdx = index-100;
+        if (locIdx >= argTable[funcIdx]) // for local
+          printf("\tpush\tfp[in]\n");
+        else // for parameter
+          printf("\tpush\tsb[in]\n");
       }
       break;
     }
@@ -1079,8 +1089,13 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         printf("\tpush\t%d\n", index);
       }
       else
-      { // for local
-        printf("\tpush\t%d\n", index-100);
+      { 
+        int locIdx = index-100;
+        //printf("name: %s, locIdx: %d, argc: %d\n", array_name, locIdx, argTable[funcIdx]);
+        if (locIdx >= argTable[funcIdx]) // for local
+          printf("\tpush\t%d\n",  locIdx - argTable[funcIdx]);
+        else // for parameter
+          printf("\tpush\tfp[%d]\n",  -3 - argTable[funcIdx] + locIdx);
       }
 
       // add up offset and the index
@@ -1096,8 +1111,11 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       }
       else
       {
-        // local
-        printf("\tpush\tfp[in]\n");
+        int locIdx = index-100;
+        if (locIdx >= argTable[funcIdx]) // for local
+          printf("\tpush\tfp[in]\n");
+        else // for parameter
+          printf("\tpush\tsb[in]\n");
       }
       break;
     }
@@ -1189,6 +1207,7 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         if(p->opr.nops == 2)// Variable assignment:  vari = expr
         {
           ex(p->opr.op[1], blbl, clbl, infunc);
+
           if(p->opr.op[0]->type == typeId) {
             /* examine type */
             int index = getSYMIdx(p->opr.op[0]->id.var_name, p->opr.op[0]->id.isGlobal);
@@ -1275,7 +1294,6 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
           char * array_name = p->opr.op[0]->id.var_name;
           int is_global = p->opr.op[0]->id.isGlobal;
           int index = getSYMIdx(array_name, is_global);
-
           if(index == -1)
           {
             printf("\tError: Array %s used before declared!\n", array_name);
@@ -1295,6 +1313,7 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
           //TODO check for index out of bound
 
           printf("\tpush\t%d\n", scd_size);
+          //printf("\tpush\t%d\n", 5);
           printf("\tmul\n");
           printf("\tadd\n");
 

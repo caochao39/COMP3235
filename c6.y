@@ -47,7 +47,7 @@ int checkExprType (nodeType* p);
 
 //helper functions
 void printSYM();
-
+int matSize=0;
 // function related
 char* func[200]; //function table
 int func_count = 0; //function count
@@ -100,7 +100,7 @@ void prepass(nodeType *p, int infunc);
 %%
 
 program:
-        tree                { prepass($1, 0); printsp(var_count); printSYM(); ex($1, 998, 998, 0); eop(); exit(0); }
+        tree                { emptySYM(1); prepass($1, 0); printsp(var_count); printSYM(); ex($1, 998, 998, 0); eop(); exit(0); }
         ;
 
 tree:
@@ -115,7 +115,9 @@ function:
 	;
 
 para:   expr				      	{ $$ = $1; }
-	| expr ',' para		      		{ $$ = opr(',', 2, $1, $3); }
+  | ARRAY vari '[' INTEGER ']' '[' INTEGER ']' { matSize+=$4*$7-1; $$ = opr(ARRAY_DECLARE, 3, $2, con($4), con($7));}
+  | ARRAY vari '[' INTEGER ']' '[' INTEGER ']' '[' INTEGER ']' { matSize+=$4*$7*$10-1; $$ = opr(ARRAY_DECLARE, 4, $2, con($4), con($7), con($10));}
+	| expr ',' para		      	{ $$ = opr(',', 2, $1, $3); }
 	;
 
 stmt:
@@ -318,7 +320,8 @@ nodeType *createFunc(nodeType* funcNameId, nodeType *arguments, nodeType *stmtli
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
     /* copy information */
-    p->func.argc = countArgc(arguments);
+    p->func.argc = countArgc(arguments)+matSize;
+    matSize=0;
     p->func.args = arguments;
     p->func.name = funcNameId->id.var_name;
     p->func.op = stmtlist;
