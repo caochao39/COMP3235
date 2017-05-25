@@ -85,6 +85,7 @@ void prepass(nodeType *p, int infunc);
 %token FOR WHILE IF BREAK CONTINUE RETURN
 %token PUTI PUTC PUTS PUTI_ PUTC_ PUTS_ GETI GETC GETS
 %token ARRAY ARRAY_DECLARE PARAM_ARRAY_DECLARE
+%token STRING_ARRAY_DECLARE
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -147,6 +148,7 @@ stmt:
         | vari '[' expr ']' '=' expr ';'      { $$ = opr('=', 3, $1, $3, $6);}
         | vari '[' expr ']' '[' expr ']' '=' expr ';' { $$ = opr('=', 4, $1, $3, $6, $9); }
         | vari '[' expr ']' '[' expr ']' '[' expr ']' '=' expr ';' { $$ = opr('=', 5, $1, $3, $6, $9, $12); }
+        | ARRAY vari '[' INTEGER ']' '=' STRING ';'      { $$ = opr(STRING_ARRAY_DECLARE, 3, $2, con($4), strCon($7)); }
         ;
 
 vari:

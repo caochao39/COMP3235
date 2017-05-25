@@ -264,6 +264,19 @@ void prepass(nodeType *p, int infunc){
         }
         break;
       }
+      case STRING_ARRAY_DECLARE:
+      {
+        char * array_name = p->opr.op[0]->id.var_name;
+        int array_fst_size = p->opr.op[1]->con.value;
+        char * array_str_content = p->opr.op[2]->strCon.value;
+        // if outside function then the array is global, the reverse is not true
+        if (infunc == 0){
+          p->opr.op[0]->id.isGlobal = 1;
+        }
+        insert1DArraySYM(array_name, array_fst_size, p->opr.op[0]->id.isGlobal);
+        insert1DArrayList(array_name, array_fst_size);
+        break;
+      }
       case ARRAY_DECLARE:
       {
         char * array_name = p->opr.op[0]->id.var_name;
@@ -1228,6 +1241,63 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         ex(p->opr.op[1], blbl, clbl, infunc);
         printf("\tcall\tL%03d, %d\n", 500+2*thisfuncIdx, argTable[thisfuncIdx]);
         break;
+      }
+      case STRING_ARRAY_DECLARE:
+      {
+        char * array_name = p->opr.op[0]->id.var_name;
+        int is_global = p->opr.op[0]->id.isGlobal;
+        int index = getSYMIdx(array_name, is_global);
+
+        if(index == -1)
+        {
+          printf("\tError: Array %s used before declared!\n", array_name);
+        }
+
+        char * array_str_content = p->opr.op[2]->strCon.value;
+        int array_str_len = strlen(array_str_content);
+
+        int i;
+        for(i = 0; i < array_str_len; i++)
+        {
+          printf("\tpush\t\'%c\'\n", array_str_content[i]);
+          printf("\tpush\t%d\n", i);
+
+          //TODO check for array index outofbound
+
+          // push the index offset on the stack
+          if(is_global)
+          {
+            printf("\tpush\t%d\n", index);
+          }
+          else
+          {
+            int locIdx = index - TABLE_SIZE/2;
+            if (locIdx >= argTable[funcIdx]){ // for local array
+              printf("\tpush\t%d\n", locIdx - argTable[funcIdx]);
+            } else { // for array parameter
+              printf("\tpush\tfp[%d]\n", -3 - argTable[funcIdx] + locIdx);
+            }
+          }
+
+          // add up the index and the offset and store it in "in" register
+          printf("\tadd\n");
+          printf("\tpop\tin\n");
+
+          if(is_global)
+          {
+            printf("\tpop\tsb[in]\n");
+          }
+          else
+          {
+            int locIdx = index - TABLE_SIZE/2;
+            if (locIdx>=argTable[funcIdx]){ // for local array
+              printf("\tpop\tfp[in]\n");
+            } else { // for array parameter
+              printIN();
+              printf("\tpop\tsb[in]\n");
+            }
+          }//end if
+        }//end for
       }
       case ARRAY_DECLARE:
       {
