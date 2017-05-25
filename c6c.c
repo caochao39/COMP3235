@@ -6,13 +6,14 @@
 
 // for debugging
 // #define DEBUG
-
+// #define RTDEBUG
 
 extern int var_count, func_count, loc_var_count;
 extern int vType[200];
 extern char* func[200];
 extern int argTable[200];
 int funcIdx = -1;
+int thisArgc = -1;
 int hasreturn = 0;
 
 static int lbl;
@@ -83,7 +84,7 @@ int checkType (int index);
 
 // helper functions
 void printSYM();
-
+void printIN();
 
 /*
  function to print the symbol table
@@ -105,6 +106,18 @@ void printSYM()
   }
   printf("[DEBUG]\t\tLocal SYM end\n");
 #endif
+}
+
+/*
+ function to print the computed offset
+*/
+void printIN(){
+  #ifdef RTDEBUG
+  printf("\tpush\t\"in: \"\n");
+  printf("\tputs_\n");
+  printf("\tpush\tin\n");
+  printf("\tputi\n");
+  #endif
 }
 
 /*
@@ -863,19 +876,36 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         printf("\tError: Variable \"%s\" uninitialized\n", str);
         exit(0);
       }
+      int thisT = checkType(index);
       if (p->id.isGlobal == 1)
-      {
-        printf("\tpush\tsb[%d]\n", index);
+      { 
+        if (thisT == 4){ // this is an array paramter
+          printf("\tpush\t%d\n", index); 
+        }else{
+          printf("\tpush\tsb[%d]\n", index);
+        }
       }
       else { // for local
         index = index-100;
-        if (index >= argTable[funcIdx]) // for parameter ? local variable????
+        int trueIdx = -1;
+        if (index >= argTable[funcIdx]) // for local variable
         {
-          printf("\tpush\tfp[%d]\n",  index - argTable[funcIdx]);
+          trueIdx = index - argTable[funcIdx];
         }
-        else // for local variable ? parameter???
+        else // for parameter
         {
-          printf("\tpush\tfp[%d]\n",  -3 - argTable[funcIdx] + index); //3 is accounted for the saved caller's pc, fp, sp
+          trueIdx = -3 - argTable[funcIdx] + index; //3 is accounted for the saved caller's pc, fp, sp
+        }
+        
+        if (thisT == 4){ // this is an array paramter
+          //printf("idx: %d, argc: %d\n", trueIdx, argTable[funcIdx]);
+          printf("\tpush\t%d\n", trueIdx);  // pass the reference
+          printf("\tpush\t%d\n", 3+argTable[funcIdx]);
+          printf("\tpush\tfp[-3]\n"); // compute the absolute position
+          printf("\tadd\n");
+          printf("\tadd\n"); 
+        }else{
+          printf("\tpush\tfp[%d]\n", trueIdx);
         }
       }
       break;
@@ -926,7 +956,12 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       }
       else
       { // for local
-        printf("\tpush\t%d\n", index-100);
+        int locIdx = index-100;
+        //printf("name: %s, locIdx: %d, argc: %d\n", array_name, locIdx, argTable[funcIdx]);
+        if (locIdx >= argTable[funcIdx]) // for local
+          printf("\tpush\t%d\n",  locIdx - argTable[funcIdx]);
+        else // for parameter
+          printf("\tpush\tfp[%d]\n",  -3 - argTable[funcIdx] + locIdx);
       }
 
       // add up offset and the index
@@ -943,7 +978,11 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       else
       {
         // local
-        printf("\tpush\tfp[in]\n");
+        int locIdx = index-100;
+        if (locIdx >= argTable[funcIdx]) // for local
+          printf("\tpush\tfp[in]\n");
+        else // for parameter
+          printf("\tpush\tsb[in]\n");
       }
       break;
     }
@@ -1135,8 +1174,9 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       // }
       case CALL:
       {
-        ex(p->opr.op[1], blbl, clbl, infunc);
         int thisfuncIdx = getFUNCIdx(p->opr.op[0]->id.var_name);
+        thisArgc = argTable[thisfuncIdx];
+        ex(p->opr.op[1], blbl, clbl, infunc);
         printf("\tcall\tL%03d, %d\n", 500+2*thisfuncIdx, argTable[thisfuncIdx]);
         break;
       }
@@ -1203,7 +1243,12 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
           }
           else
           {
-            printf("\tpush\t%d\n", index - 100);
+            int locIdx = index - 100;
+            if (locIdx >= argTable[funcIdx]){ // for local array
+              printf("\tpush\t%d\n", locIdx - argTable[funcIdx]);
+            } else { // for array parameter
+              printf("\tpush\tfp[%d]\n", -3 - argTable[funcIdx] + locIdx);
+            }
           }
 
           // add up the index and the offset and store it in "in" register
@@ -1216,7 +1261,13 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
           }
           else
           {
-            printf("\tpop\tfp[in]\n");
+            int locIdx = index - 100;
+            if (locIdx>=argTable[funcIdx]){ // for local array
+              printf("\tpop\tfp[in]\n");
+            } else { // for array parameter
+              printIN();
+              printf("\tpop\tsb[in]\n");
+            }
           }
         }
         else if(p->opr.nops == 4) // 2D Array element assignment: vari [exper][expr] = expr
