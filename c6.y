@@ -115,8 +115,8 @@ function:
 	;
 
 para:   expr				      	{ $$ = $1; }
-  | ARRAY vari '[' INTEGER ']' '[' INTEGER ']' { matSize+=$4*$7-1; $$ = opr(ARRAY_DECLARE, 3, $2, con($4), con($7));}
-  | ARRAY vari '[' INTEGER ']' '[' INTEGER ']' '[' INTEGER ']' { matSize+=$4*$7*$10-1; $$ = opr(ARRAY_DECLARE, 4, $2, con($4), con($7), con($10));}
+  | ARRAY vari '[' INTEGER ']' '[' INTEGER ']' { $$ = opr(ARRAY_DECLARE, 3, $2, con($4), con($7));}
+  | ARRAY vari '[' INTEGER ']' '[' INTEGER ']' '[' INTEGER ']' { $$ = opr(ARRAY_DECLARE, 4, $2, con($4), con($7), con($10));}
 	| expr ',' para		      	{ $$ = opr(',', 2, $1, $3); }
 	;
 

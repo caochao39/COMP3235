@@ -174,7 +174,7 @@ void prepass(nodeType *p, int infunc){
     {
       if(infunc == 0)
       {
-        p->threedarray.name->id.isGlobal = 1;
+        p->threedarray.name->id.isGlobal = 1; 
       }
     }
     case typeOpr:
@@ -921,7 +921,7 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
 
       printf("\tjmp\tL%03d\n", 501 + 2*getFUNCIdx(p->func.name));
       printf("L%03d:\n", 500 + 2*getFUNCIdx(p->func.name));
-      //printf("func_name:%s ,loc_var_count: %d, argc: %d\n",p->func.name, loc_var_count, p->func.argc);
+      printf("func_name:%s ,loc_var_count: %d, argc: %d\n",p->func.name, loc_var_count, p->func.argc);
       printsp(loc_var_count-argTable[funcIdx]);
       ex(p->func.op, blbl, clbl, 1);
       // place to exit the function, check whether there is a return,
