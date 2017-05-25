@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include "calc3.h"
 
+#define TABLE_SIZE 4000
 
 /* prototypes */
 nodeType *createFunc(nodeType * funcNameId, nodeType *args, nodeType *stmtlist, int coun);
@@ -24,7 +25,7 @@ int yylex(void);
 void yyerror(char *s);
 
 // variable related
-char* sym[200]; //symbol table
+char* sym[TABLE_SIZE]; //symbol table
 int var_count = 0; //variable count
 int loc_var_count = 0;//count for local variable
 
@@ -47,11 +48,10 @@ int checkExprType (nodeType* p);
 
 //helper functions
 void printSYM();
-
 // function related
-char* func[200]; //function table
+char* func[TABLE_SIZE]; //function table
 int func_count = 0; //function count
-int argTable[200];
+int argTable[TABLE_SIZE];
 
 void insertFUNC(char *var_name);
 int getFUNCIdx(char *var_name);
@@ -59,7 +59,7 @@ void emptyFUNC();
 
 void insertArg(int argnum, int idx);
 // variable type related
-int vType[200]; //type table
+int vType[TABLE_SIZE]; //type table
 
 // expression type checking
 int checkExprType (nodeType* p);
@@ -84,7 +84,7 @@ void prepass(nodeType *p, int infunc);
 %token <vName> VARIABLE
 %token FOR WHILE IF BREAK CONTINUE RETURN
 %token PUTI PUTC PUTS PUTI_ PUTC_ PUTS_ GETI GETC GETS
-%token ARRAY ARRAY_DECLARE
+%token ARRAY ARRAY_DECLARE PARAM_ARRAY_DECLARE
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -100,7 +100,7 @@ void prepass(nodeType *p, int infunc);
 %%
 
 program:
-        tree                { prepass($1, 0); printsp(var_count); printSYM(); ex($1, 998, 998, 0); eop(); exit(0); }
+        tree                { emptySYM(1); prepass($1, 0); printsp(var_count); printSYM(); ex($1, 998, 998, 0); eop(); exit(0); }
         ;
 
 tree:
@@ -110,12 +110,14 @@ tree:
     ;
 
 function:
-	vari '(' para ')' '{' stmt_list '}' 	{ $$ = createFunc($1, $3, $6, argc); argc = 0; in_func = 1;}  // function definition
-	| vari '(' ')' '{' stmt_list '}' 	{ $$ = createFunc($1, NULL, $5, 0); argc = 0; in_func = 1;}
+	vari '(' para ')' '{' stmt_list '}' 	{ $$ = createFunc($1, $3, $6, argc); in_func = 1;}  // function definition
+	| vari '(' ')' '{' stmt_list '}' 	{ $$ = createFunc($1, NULL, $5, 0); in_func = 1;}
 	;
 
-para:   expr				      	{ argc=1; $$ = $1; }
-	| expr ',' para		      		{ argc++; $$ = opr(',', 2, $1, $3); }
+para:   expr				      	{ $$ = $1; }
+  | ARRAY vari '[' INTEGER ']' '[' INTEGER ']' { $$ = opr(PARAM_ARRAY_DECLARE, 3, $2, con($4), con($7));}
+  | ARRAY vari '[' INTEGER ']' '[' INTEGER ']' '[' INTEGER ']' { $$ = opr(PARAM_ARRAY_DECLARE, 4, $2, con($4), con($7), con($10));}
+	| expr ',' para		      	{ $$ = opr(',', 2, $1, $3); }
 	;
 
 stmt:
@@ -313,16 +315,31 @@ nodeType *createFunc(nodeType* funcNameId, nodeType *arguments, nodeType *stmtli
     size_t nodeSize;
     /* allocate node */
     nodeSize = SIZEOF_NODETYPE + sizeof(funcNodeType);
+
+
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
     /* copy information */
-    p->func.argc = coun;
+    p->func.argc = countArgc(arguments);
     p->func.args = arguments;
     p->func.name = funcNameId->id.var_name;
     p->func.op = stmtlist;
     p->type = typeFunc;
 
+    //printf("name:%s, argc: %d\n", funcNameId->id.var_name, p->func.argc);
     return p;
+}
+
+int countArgc(nodeType *arguments){
+    if (arguments!=NULL){
+      if (arguments->type == typeOpr && arguments->opr.oper == ','){
+        return 1+countArgc(arguments->opr.op[1]);
+      } else {
+        return 1;
+      }
+    }else{
+      return 0;
+    }
 }
 
 /* OneD Array construction function*/
