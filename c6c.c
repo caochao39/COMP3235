@@ -5,8 +5,8 @@
 #include <string.h>
 
 // for debugging
-//#define DEBUG
-//#define RTDEBUG
+// #define DEBUG
+// #define RTDEBUG
 
 extern int var_count, func_count, loc_var_count;
 extern int vType[200];
@@ -174,7 +174,7 @@ void prepass(nodeType *p, int infunc){
     {
       if(infunc == 0)
       {
-        p->threedarray.name->id.isGlobal = 1; 
+        p->threedarray.name->id.isGlobal = 1;
       }
     }
     case typeOpr:
@@ -233,11 +233,38 @@ void prepass(nodeType *p, int infunc){
       //   exit(0);
       // }
       break;
+      case PARAM_ARRAY_DECLARE:
+      {
+        char * array_name = p->opr.op[0]->id.var_name;
+        // int is_global = p->opr.op[0]->id.isGlobal;
+        int array_fst_size = p->opr.op[1]->con.value;
+
+        // if outside function then the array is global, the reverse is not true
+        if (infunc == 0){
+          p->opr.op[0]->id.isGlobal = 1;
+        }
+
+        if(p->opr.nops == 2)//1D Array
+        {
+          insert1DArrayList(array_name, array_fst_size);
+        }
+        if(p->opr.nops == 3)//2D Array
+        {
+          int array_scd_size = p->opr.op[2]->con.value;
+          insert2DArrayList(array_name, array_fst_size, array_scd_size);
+          insertSYM(array_name, p->opr.op[0]->id.isGlobal);
+        }
+        if(p->opr.nops == 4)//3D Array
+        {
+          int array_scd_size = p->opr.op[2]->con.value;
+          int array_thd_size = p->opr.op[3]->con.value;
+          insert3DArrayList(array_name, array_fst_size, array_scd_size, array_thd_size);
+          insertSYM(array_name, p->opr.op[0]->id.isGlobal);
+        }
+        break;
+      }
       case ARRAY_DECLARE:
       {
-// #ifdef DEBUG
-//         printf("[DEBUG]\tprepass func, array declaration\n");
-// #endif
         char * array_name = p->opr.op[0]->id.var_name;
         // int is_global = p->opr.op[0]->id.isGlobal;
         int array_fst_size = p->opr.op[1]->con.value;
@@ -881,9 +908,9 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       }
       int thisT = checkType(index);
       if (p->id.isGlobal == 1)
-      { 
+      {
         if (thisT == 4){ // this is an array paramter
-          printf("\tpush\t%d\n", index); 
+          printf("\tpush\t%d\n", index);
         }else{
           printf("\tpush\tsb[%d]\n", index);
         }
@@ -899,14 +926,14 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         {
           trueIdx = -3 - argTable[funcIdx] + index; //3 is accounted for the saved caller's pc, fp, sp
         }
-        
+
         if (thisT == 4){ // this is an array paramter
           //printf("idx: %d, argc: %d\n", trueIdx, argTable[funcIdx]);
           printf("\tpush\t%d\n", trueIdx);  // pass the reference
           printf("\tpush\t%d\n", 3+argTable[funcIdx]);
           printf("\tpush\tfp[-3]\n"); // compute the absolute position
           printf("\tadd\n");
-          printf("\tadd\n"); 
+          printf("\tadd\n");
         }else{
           printf("\tpush\tfp[%d]\n", trueIdx);
         }
@@ -921,7 +948,9 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
 
       printf("\tjmp\tL%03d\n", 501 + 2*getFUNCIdx(p->func.name));
       printf("L%03d:\n", 500 + 2*getFUNCIdx(p->func.name));
+#ifdef DEBUG
       printf("func_name:%s ,loc_var_count: %d, argc: %d\n",p->func.name, loc_var_count, p->func.argc);
+#endif
       printsp(loc_var_count-argTable[funcIdx]);
       ex(p->func.op, blbl, clbl, 1);
       // place to exit the function, check whether there is a return,
@@ -941,8 +970,8 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       int index = getSYMIdx(array_name, p->onedarray.name->id.isGlobal);
       if (index==-1)
       {
-        printf("\t[Debug]: Array name %s, is global: %d\n", array_name, p->onedarray.name->id.isGlobal);
-        printf("\tError: Array \"%s\" Undeclared\n", array_name);
+        printf("\t[Debug]: 1D Array name %s, is global: %d\n", array_name, p->onedarray.name->id.isGlobal);
+        printf("\tError: 1D Array \"%s\" Undeclared\n", array_name);
         exit(0);
       }
       //TODO check array index outofbound
@@ -996,8 +1025,8 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       int index = getSYMIdx(array_name, p->twodarray.name->id.isGlobal);
       if (index==-1)
       {
-        printf("\t[Debug]: Array name %s, is global: %d\n", array_name, p->twodarray.name->id.isGlobal);
-        printf("\tError: Array \"%s\" Undeclared\n", array_name);
+        printf("\t[Debug]: 2D Array name %s, is global: %d\n", array_name, p->twodarray.name->id.isGlobal);
+        printf("\tError: 2D Array \"%s\" Undeclared\n", array_name);
         exit(0);
       }
 
@@ -1022,7 +1051,7 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         printf("\tpush\t%d\n", index);
       }
       else
-      { 
+      {
         int locIdx = index-100;
         //printf("name: %s, locIdx: %d, argc: %d\n", array_name, locIdx, argTable[funcIdx]);
         if (locIdx >= argTable[funcIdx]) // for local
@@ -1057,8 +1086,8 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       int index = getSYMIdx(array_name, p->threedarray.name->id.isGlobal);
       if (index==-1)
       {
-        printf("\t[Debug]: Array name %s, is global: %d\n", array_name, p->threedarray.name->id.isGlobal);
-        printf("\tError: Array \"%s\" Undeclared\n", array_name);
+        printf("\t[Debug]: 3D Array name %s, is global: %d\n", array_name, p->threedarray.name->id.isGlobal);
+        printf("\tError: 3D Array \"%s\" Undeclared\n", array_name);
         exit(0);
       }
 
@@ -1089,7 +1118,7 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         printf("\tpush\t%d\n", index);
       }
       else
-      { 
+      {
         int locIdx = index-100;
         //printf("name: %s, locIdx: %d, argc: %d\n", array_name, locIdx, argTable[funcIdx]);
         if (locIdx >= argTable[funcIdx]) // for local
@@ -1324,7 +1353,13 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
           }
           else
           {
-            printf("\tpush\t%d\n", index - 100);
+            //printf("\tpush\t%d\n", index - 100);
+            int locIdx = index - 100;
+            if (locIdx >= argTable[funcIdx]){ // for local array
+              printf("\tpush\t%d\n", locIdx - argTable[funcIdx]);
+            } else { // for array parameter
+              printf("\tpush\tfp[%d]\n", -3 - argTable[funcIdx] + locIdx);
+            }
           }
 
           // add up the index and the offset and store it in "in" register
@@ -1337,7 +1372,14 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
           }
           else
           {
-            printf("\tpop\tfp[in]\n");
+            //printf("\tpop\tfp[in]\n");
+            int locIdx = index - 100;
+            if (locIdx>=argTable[funcIdx]){ // for local array
+              printf("\tpop\tfp[in]\n");
+            } else { // for array parameter
+              printIN();
+              printf("\tpop\tsb[in]\n");
+            }
           }
         }
         else if(p->opr.nops == 5) // 3D Array element assignment: vari [exper][expr][expr] = expr

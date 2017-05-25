@@ -47,7 +47,6 @@ int checkExprType (nodeType* p);
 
 //helper functions
 void printSYM();
-int matSize=0;
 // function related
 char* func[200]; //function table
 int func_count = 0; //function count
@@ -84,7 +83,7 @@ void prepass(nodeType *p, int infunc);
 %token <vName> VARIABLE
 %token FOR WHILE IF BREAK CONTINUE RETURN
 %token PUTI PUTC PUTS PUTI_ PUTC_ PUTS_ GETI GETC GETS
-%token ARRAY ARRAY_DECLARE
+%token ARRAY ARRAY_DECLARE PARAM_ARRAY_DECLARE
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -115,8 +114,8 @@ function:
 	;
 
 para:   expr				      	{ $$ = $1; }
-  | ARRAY vari '[' INTEGER ']' '[' INTEGER ']' { $$ = opr(ARRAY_DECLARE, 3, $2, con($4), con($7));}
-  | ARRAY vari '[' INTEGER ']' '[' INTEGER ']' '[' INTEGER ']' { $$ = opr(ARRAY_DECLARE, 4, $2, con($4), con($7), con($10));}
+  | ARRAY vari '[' INTEGER ']' '[' INTEGER ']' { $$ = opr(PARAM_ARRAY_DECLARE, 3, $2, con($4), con($7));}
+  | ARRAY vari '[' INTEGER ']' '[' INTEGER ']' '[' INTEGER ']' { $$ = opr(PARAM_ARRAY_DECLARE, 4, $2, con($4), con($7), con($10));}
 	| expr ',' para		      	{ $$ = opr(',', 2, $1, $3); }
 	;
 
@@ -315,19 +314,18 @@ nodeType *createFunc(nodeType* funcNameId, nodeType *arguments, nodeType *stmtli
     size_t nodeSize;
     /* allocate node */
     nodeSize = SIZEOF_NODETYPE + sizeof(funcNodeType);
-  
-    
+
+
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
     /* copy information */
-    p->func.argc = countArgc(arguments)+matSize;
-    matSize=0;
+    p->func.argc = countArgc(arguments);
     p->func.args = arguments;
     p->func.name = funcNameId->id.var_name;
     p->func.op = stmtlist;
     p->type = typeFunc;
 
-    //printf("name:%s, argc: %d\n", funcNameId->id.var_name, p->func.argc); 
+    //printf("name:%s, argc: %d\n", funcNameId->id.var_name, p->func.argc);
     return p;
 }
 
@@ -336,7 +334,7 @@ int countArgc(nodeType *arguments){
       if (arguments->type == typeOpr && arguments->opr.oper == ','){
         return 1+countArgc(arguments->opr.op[1]);
       } else {
-        return 1;      
+        return 1;
       }
     }else{
       return 0;

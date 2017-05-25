@@ -1,11 +1,11 @@
 	push	sp
-	push	4
+	push	9
 	add
 	pop	sp
 	push	1111
 	push	0
 	push	0
-	push	2
+	push	3
 	mul
 	add
 	push	0
@@ -15,7 +15,7 @@
 	push	2222
 	push	1
 	push	0
-	push	2
+	push	3
 	mul
 	add
 	push	0
@@ -25,7 +25,7 @@
 	push	3333
 	push	0
 	push	1
-	push	2
+	push	3
 	mul
 	add
 	push	0
@@ -35,7 +35,7 @@
 	push	4444
 	push	1
 	push	1
-	push	2
+	push	3
 	mul
 	add
 	push	0
@@ -48,12 +48,18 @@ L500:
 	push	0
 	add
 	pop	sp
-	push	-7
-	push	7
-	push	fp[-3]
+	push	0
+	push	1
+	push	3
+	mul
 	add
+	push	fp[-4]
 	add
-	call	L502, 4
+	pop	in
+	push	sb[in]
+	puti
+	push	fp[-4]
+	call	L502, 1
 	push	0
 	ret
 L501:
@@ -63,21 +69,31 @@ L502:
 	push	0
 	add
 	pop	sp
+	push	5555
 	push	1
-	push	0
-	push	2
+	push	1
+	push	3
 	mul
 	add
-	push	fp[-7]
+	push	fp[-4]
+	add
+	pop	in
+	pop	sb[in]
+	push	1
+	push	1
+	push	3
+	mul
+	add
+	push	fp[-4]
 	add
 	pop	in
 	push	sb[in]
-	puts
+	puti
 	push	0
 	ret
 L503:
 	push	0
-	call	L500, 4
+	call	L500, 1
 	jmp	L999
 L998:
 	push	999999
