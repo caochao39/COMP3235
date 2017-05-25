@@ -6,6 +6,7 @@
 
 // for debugging
 //#define DEBUG
+//#define INDEBUG
 
 // for sym table size
 #define TABLE_SIZE 4000
@@ -17,6 +18,7 @@ extern char* func[TABLE_SIZE];
 extern int argTable[TABLE_SIZE];
 int funcIdx = -1;
 int hasreturn = 0;
+int funcArg = 0;
 
 static int lbl;
 
@@ -536,17 +538,30 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       }
       else { // for local
         index = index-TABLE_SIZE/2;
-        if (thisT == 4){
-          printf("\tpush\t%d\n", index); // if it is an array parameter in a function call, directly push index inside  
-        }
-        else{
-          if (index >= argTable[funcIdx]) // for local variable
-          {
-            printf("\tpush\tfp[%d]\n",  index - argTable[funcIdx]);
+        if (index >= argTable[funcIdx]) // for local variable
+        {    
+          if (thisT == 4){// if it is an array parameter in a function call, directly push index inside  
+            printf("\tpush\t%d\n", index - argTable[funcIdx]);  // pass the reference
+            printf("\tpush\t%d\n", 4+funcArg);
+            printf("\tpush\tfp[-3]\n");
+            printf("\tadd\n");
+            printf("\tadd\n");
           }
-          else // for parameter
-          {
-            printf("\tpush\tfp[%d]\n",  -3 - argTable[funcIdx] + index); //3 is accounted for the saved caller's pc, fp, sp
+          else{
+            printf("\tpush\tfp[%d]\n", index - argTable[funcIdx]);
+          }
+        }
+        else // for parameter
+        {
+          if (thisT == 4){// if it is an array parameter in a function call, directly push index inside  
+            printf("\tpush\t%d\n", -3 - argTable[funcIdx] + index);  // pass the reference
+            printf("\tpush\t%d\n", 4+funcArg);
+            printf("\tpush\tfp[-3]\n");
+            printf("\tadd\n");
+            printf("\tadd\n");
+          }
+          else{ //3 is accounted for the saved caller's pc, fp, sp
+            printf("\tpush\tfp[%d]\n",  -3 - argTable[funcIdx] + index); 
           }
         }
       }
@@ -629,10 +644,12 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         {
           printf("\tpush\tfp[in]\n");
         } else { // for parameter
+          #ifdef INDEBUG
+          printf("\tpush\t\"in: \"\n");
+          printf("\tputs_\n");
           printf("\tpush\tin\n");
-          printf("\tpush\tfp[-2]\n");
-          printf("\tadd\n");
-          printf("\tpop\tin\n");
+          printf("\tputi\n");
+          #endif
           printf("\tpush\tsb[in]\n");
           //printf("\tpush\tfp[in]\n");
         }
@@ -713,8 +730,9 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       // }
       case CALL:
       {
-        ex(p->opr.op[1], blbl, clbl, infunc);
         int thisfuncIdx = getFUNCIdx(p->opr.op[0]->id.var_name);
+        funcArg = argTable[thisfuncIdx]; // get the argc for the current calling function
+        ex(p->opr.op[1], blbl, clbl, infunc);
         printf("\tcall\tL%03d, %d\n", 500+2*thisfuncIdx, argTable[thisfuncIdx]);
         break;
       }
@@ -803,10 +821,16 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
             if (locIdx>argTable[funcIdx]){ // for local array
               printf("\tpop\tfp[in]\n");
             } else { // for array parameter
+              
+              //printf("\tpush\tin\n");
+
+              #ifdef INDEBUG
+              printf("\tpush\t\"in: \"\n");
+              printf("\tputs_\n");
               printf("\tpush\tin\n");
-              printf("\tpush\tfp[-2]\n");
-              printf("\tadd\n");
-              printf("\tpop\tin\n");
+              printf("\tputi\n");
+              #endif
+
               printf("\tpop\tsb[in]\n");
               //printf("\tpop\tfp[in]\n");
             }
