@@ -1,3 +1,154 @@
+// declaration and defination of some global variable
+QUELIMIT = 50;
+array Q[50][4]; 
+// string will be dealed as char array
+array ALLTYPE[13] = "A234567890JQK";
+array ALLOP[4] = "+-*/";
+coun = 0;
+qNo = 0;
+array example1[20];
+example1[0]='2';
+example1[1]='*';
+example1[2]='(';
+example1[3]='3';
+example1[4]='+';
+example1[5]='4';
+example1[6]=')';
+example1[7]='e';
+
+array example2[20]="(3+4)*(1+1)n"; 
+
+valueOf(c){ // convert a char to an int value
+  if (c == 'A')
+    return 1;
+  if (c == '2')
+    return 2;
+  if (c == '3')
+    return 3;
+  if (c == '4')
+    return 4;
+  if (c == '5')
+    return 5;
+  if (c == '6')
+    return 6;
+  if (c == '7')
+    return 7;
+  if (c == '8')
+    return 8;
+  if (c == '9')
+    return 9;
+  if (c == '0')
+    return 10;
+  if (c == 'J')
+    return 11;
+  if (c == 'Q')
+    return 12;
+  if (c == 'K')
+    return 13;
+}
+
+valToChar(val){
+  a=@ALLTYPE[val-1];
+  return a;
+}
+
+valOp(c){
+  if (c=='+')
+    return 0;
+  if (c=='-')
+    return 1;
+  if (c=='*')
+    return 2;
+  if (c=='/')
+    return 3;
+}
+
+precedence(c){ // compute the precedence of an operator
+  if (c=='(' || c==')')
+    return 0;
+  if (c=='+' || c=='-')
+    return 1;
+  if (c=='*' || c=='/')
+    return 2;
+}
+
+push(stack, ptr, content){
+  stack[ptr]=content;
+  ptr=ptr+1;
+  return ptr;
+}
+
+pop(stack, ptr){
+  ptr=ptr-1;
+  stack[ptr]=-99999;
+  return ptr;
+}
+
+peek(stack, ptr){
+  return stack[ptr-1];
+}
+
+evaluate(input){
+  array oprStack[50];
+  array valStack[50];
+  oprPtr=0;
+  valPtr=0;
+  strPtr=0;
+  while(input[strPtr] != 'e'){
+    c=input[strPtr];
+    if (c=='A'|| c=='2'|| c=='3'|| c=='4'|| c=='5'|| c=='6'|| c=='7'|| c=='8'|| c=='9'|| c=='0'|| c=='J'|| c=='Q'|| c=='K'){
+      valPtr=push(valStack, valPtr, valueOf(c));
+    }
+    if (c=='(')
+      oprPtr=push(oprStack, oprPtr, c);
+    if (c=='+' || c=='-' || c=='*' || c=='/'){
+      if (oprPtr==0)
+        oprPtr=push(oprStack, oprPtr, c);
+      else if (precedence(c) > precedence(peek(oprStack, oprPtr)))
+        oprPtr=push(oprStack, oprPtr, c);
+      else{
+        while(oprPtr > 0 && precedence(c) <= precedence(peek(oprStack, oprPtr))){
+          ope1=peek(valStack, valPtr);
+          valPtr=pop(valStack, valPtr);
+          ope2=peek(valStack, valPtr);
+          valPtr=pop(valStack, valPtr);
+          op=peek(oprStack, oprPtr);
+          oprPtr=pop(oprStack, oprPtr);
+          valPtr=push(valStack, valPtr, compute(ope1, ope2, valOp(op)));
+        }
+        oprPtr=push(oprStack, oprPtr, c);
+      }
+    }
+    if (c==')'){
+      while (peek(oprStack, oprPtr)!='('){
+        ope1=peek(valStack, valPtr);
+        valPtr=pop(valStack, valPtr);
+        ope2=peek(valStack, valPtr);
+        valPtr=pop(valStack, valPtr);
+        op=peek(oprStack, oprPtr);
+        oprPtr=pop(oprStack, oprPtr);
+        valPtr=push(valStack, valPtr, compute(ope1, ope2, valOp(op)));
+      }
+      oprPtr=pop(oprStack, oprPtr); 
+    }
+    strPtr=strPtr+1;
+  } 
+
+  while (oprPtr>0){
+    ope1=peek(valStack, valPtr);
+    valPtr=pop(valStack, valPtr);
+    ope2=peek(valStack, valPtr);
+    valPtr=pop(valStack, valPtr);
+    op=peek(oprStack, oprPtr);
+    oprPtr=pop(oprStack, oprPtr);
+    valPtr=push(valStack, valPtr, compute(ope1, ope2, valOp(op)));
+  }
+  res = peek(valStack, valPtr);
+  
+  return res;
+}
+
+
 compute(x, y, op)
 {
   if(op == 0)
@@ -212,8 +363,6 @@ check(n1, n2, n3, n4)
   }
 }
 
-array Q[20][4];
-
 genQ()
 {
   count = 0;
@@ -236,7 +385,7 @@ genQ()
             @Q[count][2] = n3;
             @Q[count][3] = n4;
             count = count + 1;
-            if(count > 19)
+            if(count >= @QUELIMIT)
             {
               return 0;
             }
@@ -254,11 +403,9 @@ genQ()
   }
 }
 
-genQ();
-
 printQ()
 {
-  for(i = 0; i < 20; i = i + 1;)
+  for(i = 0; i < @QUELIMIT; i = i + 1;)
   {
     for(j = 0; j < 4; j = j + 1;)
     {
@@ -269,4 +416,7 @@ printQ()
   }
 }
 
+puti(evaluate(example1));
+
+genQ();
 printQ();
