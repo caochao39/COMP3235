@@ -1,3 +1,12 @@
+// declaration and defination of some global variable
+QUELIMIT = 99;
+array questionBase[99][4]; 
+// string will be dealed as char array
+array ALLTYPE[13] = "A234567890JQK";
+array ALLOP[4] = "+-*/";
+coun = 0;
+qNo = 0;
+
 valueOf(c){ // convert a char to an int value
   if (c == 'A')
     return 1;
@@ -73,8 +82,6 @@ evaluate(input){
   strPtr=0;
   while(input[strPtr] != 'e'){
     c=input[strPtr];
-    puts_("[DEBUG] input char: ");    
-    putc(c);
     if (c=='A'|| c=='2'|| c=='3'|| c=='4'|| c=='5'|| c=='6'|| c=='7'|| c=='8'|| c=='9'|| c=='0'|| c=='J'|| c=='Q'|| c=='K'){
       valPtr=push(valStack, valPtr, valueOf(c));
     }
@@ -123,24 +130,57 @@ evaluate(input){
     valPtr=push(valStack, valPtr, compute(ope1, ope2, op));
   }
   res = peek(valStack, valPtr);
+  
   return res;
 }
 
-array c[12];
-c[0]='(';
-c[1]='(';
-c[2]='6';
-c[3]='-';
-c[4]='2';
-c[5]=')';
-c[6]='+';
-c[7]='8';
-c[8]=')';
-c[9]='*';
-c[10]='2';
-c[11]='e';
+// a question base to store the question used for playing
 
-res=evaluate(c);
-puts_("final result: ");
-puti(res);
+generateBase(){ // function to generate the question base
+  solvable=0; // a flag to show whether the four number has a solution
+  for (i=0; i<6; i=i+1;){
+  for (j=12; j>6; j=j-1;){
+  for (p=0; p<6; p=p+1;){
+  for (q=12; q>6; q=q-1;){ // for each combination of number
+    for (x=0; x<4; x=x+1;){
+    for (y=1; y<4; y=y+1;){
+    for (z=2; z<4; z=z+1;){
+      @coun=@coun+1;
+      if (@coun>99)
+        break;
+      // initInput();
+      // change the value of a global variable
+      array input[50];
+      
+      puti_(i);
+      puti_(j);
+      puti_(p);
+      puti_(q);
+      puti_(x);
+      puti_(y);
+      puti(z);
+      evaluate(input);
+    }
+    if (@coun>99)
+      break;
+    }
+    if (@coun>99)
+      break;
+    }
+    if (@coun>99)
+      break;
+  }
+  if (@coun>99)
+    break;
+  }
+  if (@coun>99)
+    break;
+  }
+  if (@coun>99)
+    break;
+  }
+}
+
+generateBase();
+
 

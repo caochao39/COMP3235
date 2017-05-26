@@ -158,6 +158,7 @@ void prepass(nodeType *p, int infunc){
     break;
     case typeOneDArray:
     {
+      prepass(p->onedarray.index, infunc);
       if(infunc == 0)
       {
         p->onedarray.name->id.isGlobal = 1;
@@ -166,6 +167,8 @@ void prepass(nodeType *p, int infunc){
     }
     case typeTwoDArray:
     {
+      prepass(p->twodarray.fst_index, infunc);
+      prepass(p->twodarray.scd_index, infunc);
       if(infunc == 0)
       {
         p->twodarray.name->id.isGlobal = 1;
@@ -173,6 +176,9 @@ void prepass(nodeType *p, int infunc){
     }
     case typeThreeDArray:
     {
+      prepass(p->threedarray.fst_index, infunc);
+      prepass(p->threedarray.scd_index, infunc);
+      prepass(p->threedarray.thd_index, infunc);
       if(infunc == 0)
       {
         p->threedarray.name->id.isGlobal = 1;

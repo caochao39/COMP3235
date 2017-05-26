@@ -1,55 +1,33 @@
 	push	sp
-	push	10
+	push	4
 	add
 	pop	sp
-	push	'h'
+	push	1
 	push	0
 	push	0
 	add
 	pop	in
 	pop	sb[in]
-	push	'e'
+	push	2
 	push	1
 	push	0
 	add
 	pop	in
 	pop	sb[in]
-	push	'l'
-	push	2
-	push	0
-	add
-	pop	in
-	pop	sb[in]
-	push	'l'
 	push	3
-	push	0
-	add
-	pop	in
-	pop	sb[in]
-	push	'o'
-	push	4
+	push	2
 	push	0
 	add
 	pop	in
 	pop	sb[in]
 	push	2
+	pop	sb[3]
+	push	sb[3]
 	push	0
 	add
 	pop	in
 	push	sb[in]
-	putc
-	push	'e'
-	push	2
-	push	0
-	add
-	pop	in
-	pop	sb[in]
-	push	2
-	push	0
-	add
-	pop	in
-	push	sb[in]
-	putc
+	puti
 	jmp	L999
 L998:
 	push	999999

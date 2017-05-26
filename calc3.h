@@ -63,15 +63,15 @@ typedef struct nodeTypeTag {
     /* union must be last entry in nodeType */
     /* because operNodeType may dynamically increase */
     union {
-        conNodeType con;        /* constants */
-	charConNodeType charCon; /* character constants */
-	strConNodeType strCon;	/* string constants */
-        idNodeType id;          /* identifiers */
-        oprNodeType opr;        /* operators */
-	funcNodeType func;	/* functions */
-  OneDArrayNodeType onedarray; /* 1D Array */
-  TwoDArrayNodeType twodarray; /* 2D Array */
-  ThreeDArrayNodeType threedarray; /* 3D Array */
+      conNodeType con;        /* constants */
+      charConNodeType charCon; /* character constants */
+      strConNodeType strCon;	/* string constants */
+      idNodeType id;          /* identifiers */
+      oprNodeType opr;        /* operators */
+      funcNodeType func;	/* functions */
+      OneDArrayNodeType onedarray; /* 1D Array */
+      TwoDArrayNodeType twodarray; /* 2D Array */
+      ThreeDArrayNodeType threedarray; /* 3D Array */
     };
 } nodeType;
 

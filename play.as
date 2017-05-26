@@ -1,7 +1,115 @@
 	push	sp
-	push	13
+	push	416
 	add
 	pop	sp
+	push	99
+	pop	sb[0]
+	push	'A'
+	push	0
+	push	397
+	add
+	pop	in
+	pop	sb[in]
+	push	'2'
+	push	1
+	push	397
+	add
+	pop	in
+	pop	sb[in]
+	push	'3'
+	push	2
+	push	397
+	add
+	pop	in
+	pop	sb[in]
+	push	'4'
+	push	3
+	push	397
+	add
+	pop	in
+	pop	sb[in]
+	push	'5'
+	push	4
+	push	397
+	add
+	pop	in
+	pop	sb[in]
+	push	'6'
+	push	5
+	push	397
+	add
+	pop	in
+	pop	sb[in]
+	push	'7'
+	push	6
+	push	397
+	add
+	pop	in
+	pop	sb[in]
+	push	'8'
+	push	7
+	push	397
+	add
+	pop	in
+	pop	sb[in]
+	push	'9'
+	push	8
+	push	397
+	add
+	pop	in
+	pop	sb[in]
+	push	'0'
+	push	9
+	push	397
+	add
+	pop	in
+	pop	sb[in]
+	push	'J'
+	push	10
+	push	397
+	add
+	pop	in
+	pop	sb[in]
+	push	'Q'
+	push	11
+	push	397
+	add
+	pop	in
+	pop	sb[in]
+	push	'K'
+	push	12
+	push	397
+	add
+	pop	in
+	pop	sb[in]
+	push	'+'
+	push	0
+	push	410
+	add
+	pop	in
+	pop	sb[in]
+	push	'-'
+	push	1
+	push	410
+	add
+	pop	in
+	pop	sb[in]
+	push	'*'
+	push	2
+	push	410
+	add
+	pop	in
+	pop	sb[in]
+	push	'/'
+	push	3
+	push	410
+	add
+	pop	in
+	pop	sb[in]
+	push	0
+	pop	sb[414]
+	push	0
+	pop	sb[415]
 	jmp	L501
 L500:
 	push	sp
@@ -275,10 +383,6 @@ L024:
 	pop	in
 	push	sb[in]
 	pop	fp[103]
-	push	"[DEBUG] input char: "
-	puts_
-	push	fp[103]
-	putc
 	push	fp[103]
 	push	'A'
 	compEQ
@@ -671,85 +775,182 @@ L039:
 	push	fp[107]
 	ret
 L513:
-	push	'('
-	push	0
-	push	0
+	jmp	L515
+L514:
+	push	sp
+	push	58
 	add
-	pop	in
-	pop	sb[in]
-	push	'('
-	push	1
+	pop	sp
 	push	0
-	add
-	pop	in
-	pop	sb[in]
-	push	'6'
-	push	2
+	pop	fp[0]
 	push	0
-	add
-	pop	in
-	pop	sb[in]
-	push	'-'
-	push	3
-	push	0
-	add
-	pop	in
-	pop	sb[in]
-	push	'2'
-	push	4
-	push	0
-	add
-	pop	in
-	pop	sb[in]
-	push	')'
-	push	5
-	push	0
-	add
-	pop	in
-	pop	sb[in]
-	push	'+'
+	pop	fp[1]
+L040:
+	push	fp[1]
 	push	6
+	compLT
+	j0	L041
+	push	12
+	pop	fp[2]
+L043:
+	push	fp[2]
+	push	6
+	compGT
+	j0	L044
 	push	0
+	pop	fp[3]
+L046:
+	push	fp[3]
+	push	6
+	compLT
+	j0	L047
+	push	12
+	pop	fp[4]
+L049:
+	push	fp[4]
+	push	6
+	compGT
+	j0	L050
+	push	0
+	pop	fp[5]
+L052:
+	push	fp[5]
+	push	4
+	compLT
+	j0	L053
+	push	1
+	pop	fp[6]
+L055:
+	push	fp[6]
+	push	4
+	compLT
+	j0	L056
+	push	2
+	pop	fp[7]
+L058:
+	push	fp[7]
+	push	4
+	compLT
+	j0	L059
+	push	sb[414]
+	push	1
 	add
-	pop	in
-	pop	sb[in]
-	push	'8'
-	push	7
-	push	0
-	add
-	pop	in
-	pop	sb[in]
-	push	')'
-	push	8
-	push	0
-	add
-	pop	in
-	pop	sb[in]
-	push	'*'
-	push	9
-	push	0
-	add
-	pop	in
-	pop	sb[in]
-	push	'2'
-	push	10
-	push	0
-	add
-	pop	in
-	pop	sb[in]
-	push	'e'
-	push	11
-	push	0
-	add
-	pop	in
-	pop	sb[in]
-	push	0
-	call	L512, 1
-	pop	sb[12]
-	push	"final result: "
-	puts_
-	push	sb[12]
+	pop	sb[414]
+	push	sb[414]
+	push	99
+	compGT
+	j0	L061
+	jmp	L059
+L061:
+	push	fp[1]
+	puti_
+	push	fp[2]
+	puti_
+	push	fp[3]
+	puti_
+	push	fp[4]
+	puti_
+	push	fp[5]
+	puti_
+	push	fp[6]
+	puti_
+	push	fp[7]
 	puti
+	push	8
+	push	3
+	push	fp[-3]
+	add
+	add
+	call	L512, 1
+L060:
+	push	fp[7]
+	push	1
+	add
+	pop	fp[7]
+	jmp	L058
+L059:
+	push	sb[414]
+	push	99
+	compGT
+	j0	L062
+	jmp	L056
+L062:
+L057:
+	push	fp[6]
+	push	1
+	add
+	pop	fp[6]
+	jmp	L055
+L056:
+	push	sb[414]
+	push	99
+	compGT
+	j0	L063
+	jmp	L053
+L063:
+L054:
+	push	fp[5]
+	push	1
+	add
+	pop	fp[5]
+	jmp	L052
+L053:
+	push	sb[414]
+	push	99
+	compGT
+	j0	L064
+	jmp	L050
+L064:
+L051:
+	push	fp[4]
+	push	1
+	sub
+	pop	fp[4]
+	jmp	L049
+L050:
+	push	sb[414]
+	push	99
+	compGT
+	j0	L065
+	jmp	L047
+L065:
+L048:
+	push	fp[3]
+	push	1
+	add
+	pop	fp[3]
+	jmp	L046
+L047:
+	push	sb[414]
+	push	99
+	compGT
+	j0	L066
+	jmp	L044
+L066:
+L045:
+	push	fp[2]
+	push	1
+	sub
+	pop	fp[2]
+	jmp	L043
+L044:
+	push	sb[414]
+	push	99
+	compGT
+	j0	L067
+	jmp	L041
+L067:
+L042:
+	push	fp[1]
+	push	1
+	add
+	pop	fp[1]
+	jmp	L040
+L041:
+	push	0
+	ret
+L515:
+	call	L514, 0
 	jmp	L999
 L998:
 	push	999999

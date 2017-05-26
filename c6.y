@@ -101,7 +101,7 @@ void prepass(nodeType *p, int infunc);
 %%
 
 program:
-        tree                { emptySYM(1); prepass($1, 0); printsp(var_count); printSYM(); ex($1, 998, 998, 0); eop(); exit(0); }
+        tree                {  prepass($1, 0); printsp(var_count); printSYM(); ex($1, 998, 998, 0); eop(); exit(0); }
         ;
 
 tree:
