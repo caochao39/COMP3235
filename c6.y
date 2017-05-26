@@ -4,7 +4,7 @@
 #include <stdarg.h>
 #include "calc3.h"
 
-#define TABLE_SIZE 4000
+#define TABLE_SIZE 40000
 
 /* prototypes */
 nodeType *createFunc(nodeType * funcNameId, nodeType *args, nodeType *stmtlist, int coun);

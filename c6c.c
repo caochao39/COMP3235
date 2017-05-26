@@ -8,7 +8,7 @@
 // #define DEBUG
 // #define RTDEBUG
 
-#define TABLE_SIZE 4000
+#define TABLE_SIZE 40000
 extern int var_count, func_count, loc_var_count;
 extern int vType[TABLE_SIZE];
 extern char* func[TABLE_SIZE];

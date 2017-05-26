@@ -75,7 +75,7 @@ typedef struct nodeTypeTag {
     };
 } nodeType;
 
-#define TABLE_SIZE 4000
+#define TABLE_SIZE 40000
 extern char* sym[TABLE_SIZE];
 
 #define MAIN 997
