@@ -173,6 +173,7 @@ void prepass(nodeType *p, int infunc){
       {
         p->twodarray.name->id.isGlobal = 1;
       }
+      break;
     }
     case typeThreeDArray:
     {
@@ -183,6 +184,7 @@ void prepass(nodeType *p, int infunc){
       {
         p->threedarray.name->id.isGlobal = 1;
       }
+      break;
     }
     case typeOpr:
     switch(p->opr.oper) {
@@ -1399,7 +1401,6 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         }
         else if(p->opr.nops == 4) // 2D Array element assignment: vari [exper][expr] = expr
         {
-
           char * array_name = p->opr.op[0]->id.var_name;
           int is_global = p->opr.op[0]->id.isGlobal;
           int index = getSYMIdx(array_name, is_global);

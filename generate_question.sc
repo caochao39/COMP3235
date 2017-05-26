@@ -212,6 +212,7 @@ check(n1, n2, n3, n4)
   }
 }
 
+array Q[20][4];
 
 genQ()
 {
@@ -230,8 +231,12 @@ genQ()
           }
           if(check(n1, n2, n3, n4) == 1)
           {
+            @Q[count][0] = n1;
+            @Q[count][1] = n2;
+            @Q[count][2] = n3;
+            @Q[count][3] = n4;
             count = count + 1;
-            if(count > 50)
+            if(count > 19)
             {
               return 0;
             }
@@ -250,3 +255,18 @@ genQ()
 }
 
 genQ();
+
+printQ()
+{
+  for(i = 0; i < 20; i = i + 1;)
+  {
+    for(j = 0; j < 4; j = j + 1;)
+    {
+      puti_(@Q[i][j]);
+      putc_(' ');
+    }
+    putc(' ');
+  }
+}
+
+printQ();
