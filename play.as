@@ -1,5 +1,5 @@
 	push	sp
-	push	260
+	push	249
 	add
 	pop	sp
 	push	50
@@ -107,126 +107,80 @@
 	pop	in
 	pop	sb[in]
 	push	0
-	pop	sb[218]
+	pop	sb[222]
 	push	0
-	pop	sb[219]
+	pop	sb[223]
+	push	0
+	pop	sb[224]
+	push	'('
+	push	0
+	push	225
+	add
+	pop	in
+	pop	sb[in]
 	push	'2'
-	push	0
-	push	220
-	add
-	pop	in
-	pop	sb[in]
-	push	'*'
 	push	1
-	push	220
-	add
-	pop	in
-	pop	sb[in]
-	push	'('
-	push	2
-	push	220
-	add
-	pop	in
-	pop	sb[in]
-	push	'3'
-	push	3
-	push	220
-	add
-	pop	in
-	pop	sb[in]
-	push	'+'
-	push	4
-	push	220
-	add
-	pop	in
-	pop	sb[in]
-	push	'4'
-	push	5
-	push	220
-	add
-	pop	in
-	pop	sb[in]
-	push	')'
-	push	6
-	push	220
-	add
-	pop	in
-	pop	sb[in]
-	push	'e'
-	push	7
-	push	220
-	add
-	pop	in
-	pop	sb[in]
-	push	'('
-	push	0
-	push	240
-	add
-	pop	in
-	pop	sb[in]
-	push	'3'
-	push	1
-	push	240
+	push	225
 	add
 	pop	in
 	pop	sb[in]
 	push	'+'
 	push	2
-	push	240
+	push	225
 	add
 	pop	in
 	pop	sb[in]
-	push	'4'
+	push	'0'
 	push	3
-	push	240
+	push	225
 	add
 	pop	in
 	pop	sb[in]
 	push	')'
 	push	4
-	push	240
+	push	225
 	add
 	pop	in
 	pop	sb[in]
 	push	'*'
 	push	5
-	push	240
+	push	225
 	add
 	pop	in
 	pop	sb[in]
 	push	'('
 	push	6
-	push	240
+	push	225
 	add
 	pop	in
 	pop	sb[in]
-	push	'1'
+	push	'A'
 	push	7
-	push	240
+	push	225
 	add
 	pop	in
 	pop	sb[in]
 	push	'+'
 	push	8
-	push	240
+	push	225
 	add
 	pop	in
 	pop	sb[in]
-	push	'1'
+	push	'A'
 	push	9
-	push	240
+	push	225
 	add
 	pop	in
 	pop	sb[in]
 	push	')'
 	push	10
-	push	240
+	push	225
 	add
 	pop	in
 	pop	sb[in]
-	push	'n'
+	push	'e'
 	push	11
-	push	240
+	push	225
 	add
 	pop	in
 	pop	sb[in]
@@ -488,7 +442,7 @@ L514:
 	pop	fp[102]
 L020:
 	push	fp[102]
-	push	fp[-4]
+	push	225
 	add
 	pop	in
 	push	sb[in]
@@ -496,7 +450,7 @@ L020:
 	compNE
 	j0	L021
 	push	fp[102]
-	push	fp[-4]
+	push	225
 	add
 	pop	in
 	push	sb[in]
@@ -554,7 +508,7 @@ L020:
 	or
 	j0	L022
 	push	50
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -569,7 +523,7 @@ L022:
 	compEQ
 	j0	L023
 	push	0
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -599,7 +553,7 @@ L023:
 	compEQ
 	j0	L025
 	push	0
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -612,7 +566,7 @@ L025:
 	push	fp[103]
 	call	L506, 1
 	push	0
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -622,7 +576,7 @@ L025:
 	compGT
 	j0	L027
 	push	0
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -639,7 +593,7 @@ L029:
 	push	fp[103]
 	call	L506, 1
 	push	0
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -650,7 +604,7 @@ L029:
 	and
 	j0	L030
 	push	50
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -658,7 +612,7 @@ L029:
 	call	L512, 2
 	pop	fp[104]
 	push	50
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -666,7 +620,7 @@ L029:
 	call	L510, 2
 	pop	fp[101]
 	push	50
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -674,7 +628,7 @@ L029:
 	call	L512, 2
 	pop	fp[105]
 	push	50
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -682,7 +636,7 @@ L029:
 	call	L510, 2
 	pop	fp[101]
 	push	0
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -690,7 +644,7 @@ L029:
 	call	L512, 2
 	pop	fp[106]
 	push	0
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -698,7 +652,7 @@ L029:
 	call	L510, 2
 	pop	fp[100]
 	push	50
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -713,7 +667,7 @@ L029:
 	jmp	L029
 L030:
 	push	0
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -730,7 +684,7 @@ L024:
 	j0	L031
 L032:
 	push	0
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -740,7 +694,7 @@ L032:
 	compNE
 	j0	L033
 	push	50
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -748,7 +702,7 @@ L032:
 	call	L512, 2
 	pop	fp[104]
 	push	50
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -756,7 +710,7 @@ L032:
 	call	L510, 2
 	pop	fp[101]
 	push	50
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -764,7 +718,7 @@ L032:
 	call	L512, 2
 	pop	fp[105]
 	push	50
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -772,7 +726,7 @@ L032:
 	call	L510, 2
 	pop	fp[101]
 	push	0
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -780,7 +734,7 @@ L032:
 	call	L512, 2
 	pop	fp[106]
 	push	0
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -788,7 +742,7 @@ L032:
 	call	L510, 2
 	pop	fp[100]
 	push	50
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -803,7 +757,7 @@ L032:
 	jmp	L032
 L033:
 	push	0
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -823,7 +777,7 @@ L034:
 	compGT
 	j0	L035
 	push	50
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -831,7 +785,7 @@ L034:
 	call	L512, 2
 	pop	fp[104]
 	push	50
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -839,7 +793,7 @@ L034:
 	call	L510, 2
 	pop	fp[101]
 	push	50
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -847,7 +801,7 @@ L034:
 	call	L512, 2
 	pop	fp[105]
 	push	50
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -855,7 +809,7 @@ L034:
 	call	L510, 2
 	pop	fp[101]
 	push	0
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -863,7 +817,7 @@ L034:
 	call	L512, 2
 	pop	fp[106]
 	push	0
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -871,7 +825,7 @@ L034:
 	call	L510, 2
 	pop	fp[100]
 	push	50
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -886,7 +840,7 @@ L034:
 	jmp	L034
 L035:
 	push	50
-	push	4
+	push	3
 	push	fp[-3]
 	add
 	add
@@ -1483,6 +1437,71 @@ L533:
 	jmp	L535
 L534:
 	push	sp
+	push	0
+	add
+	pop	sp
+	push	0
+	push	fp[-5]
+	push	4
+	mul
+	add
+	push	fp[-4]
+	add
+	pop	in
+	push	sb[in]
+	push	0
+	push	218
+	add
+	pop	in
+	pop	sb[in]
+	push	1
+	push	fp[-5]
+	push	4
+	mul
+	add
+	push	fp[-4]
+	add
+	pop	in
+	push	sb[in]
+	push	1
+	push	218
+	add
+	pop	in
+	pop	sb[in]
+	push	2
+	push	fp[-5]
+	push	4
+	mul
+	add
+	push	fp[-4]
+	add
+	pop	in
+	push	sb[in]
+	push	2
+	push	218
+	add
+	pop	in
+	pop	sb[in]
+	push	3
+	push	fp[-5]
+	push	4
+	mul
+	add
+	push	fp[-4]
+	add
+	pop	in
+	push	sb[in]
+	push	3
+	push	218
+	add
+	pop	in
+	pop	sb[in]
+	push	0
+	ret
+L535:
+	jmp	L537
+L536:
+	push	sp
 	push	5
 	add
 	pop	sp
@@ -1601,20 +1620,6 @@ L094:
 	push	0
 	ret
 L096:
-	push	fp[1]
-	puti_
-	push	' '
-	putc_
-	push	fp[2]
-	puti_
-	push	' '
-	putc_
-	push	fp[3]
-	puti_
-	push	' '
-	putc_
-	push	fp[4]
-	puti
 L095:
 L093:
 	push	fp[4]
@@ -1644,9 +1649,9 @@ L084:
 	pop	fp[1]
 	jmp	L082
 L083:
-L535:
-	jmp	L537
-L536:
+L537:
+	jmp	L539
+L538:
 	push	sp
 	push	2
 	add
@@ -1695,12 +1700,101 @@ L099:
 L098:
 	push	0
 	ret
-L537:
-	push	220
-	call	L514, 1
-	puti
-	call	L534, 0
+L539:
 	call	L536, 0
+L103:
+	push	1
+	j0	L104
+	push	"please input command [s]tart | [e]xit:"
+	puts
+	getc
+	pop	sb[245]
+	push	sb[245]
+	push	'e'
+	compEQ
+	j0	L105
+	jmp	L104
+L105:
+	push	"please input question no (0~49): "
+	puts_
+	geti
+	pop	sb[246]
+	push	sb[246]
+	push	1
+	call	L534, 2
+	push	0
+	push	218
+	add
+	pop	in
+	push	sb[in]
+	call	L502, 1
+	putc_
+	push	'\t'
+	putc_
+	push	1
+	push	218
+	add
+	pop	in
+	push	sb[in]
+	call	L502, 1
+	putc_
+	push	'\t'
+	putc_
+	push	2
+	push	218
+	add
+	pop	in
+	push	sb[in]
+	call	L502, 1
+	putc_
+	push	'\t'
+	putc_
+	push	3
+	push	218
+	add
+	pop	in
+	push	sb[in]
+	call	L502, 1
+	putc
+	push	"[please notice: 0 represents 10]\n"
+	puts
+	push	"please input your solution:"
+	puts
+	push	"[please input 'A', 'J', 'Q', 'K' and '0'. Also, the string should end with an 'e']"
+	puts
+	gets
+	pop	sb[247]
+	push	"computation result: "
+	puts_
+	call	L514, 0
+	pop	sb[248]
+	push	sb[248]
+	puti
+	push	sb[248]
+	push	24
+	compEQ
+	j0	L106
+	push	"Congradulations!"
+	puts
+	push	sb[223]
+	push	1
+	add
+	pop	sb[223]
+	push	"Your current score: "
+	puts_
+	push	sb[223]
+	puti
+	jmp	L107
+L106:
+	push	"Sorry, the answer is not corret."
+	puts
+	push	"Your current score: "
+	puts_
+	push	sb[223]
+	puti
+L107:
+	jmp	L103
+L104:
 	jmp	L999
 L998:
 	push	999999

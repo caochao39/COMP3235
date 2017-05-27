@@ -4,19 +4,12 @@ array Q[50][4];
 // string will be dealed as char array
 array ALLTYPE[13] = "A234567890JQK";
 array ALLOP[4] = "+-*/";
+array currQ[4];
 coun = 0;
+score = 0;
 qNo = 0;
-array example1[20];
-example1[0]='2';
-example1[1]='*';
-example1[2]='(';
-example1[3]='3';
-example1[4]='+';
-example1[5]='4';
-example1[6]=')';
-example1[7]='e';
 
-array example2[20]="(3+4)*(1+1)n"; 
+array input[20]="(2+0)*(A+A)e"; 
 
 valueOf(c){ // convert a char to an int value
   if (c == 'A')
@@ -88,14 +81,14 @@ peek(stack, ptr){
   return stack[ptr-1];
 }
 
-evaluate(input){
+evaluate(){ // function to evaluate an infix expression
   array oprStack[50];
   array valStack[50];
   oprPtr=0;
   valPtr=0;
   strPtr=0;
-  while(input[strPtr] != 'e'){
-    c=input[strPtr];
+  while(@input[strPtr] != 'e'){
+    c=@input[strPtr];
     if (c=='A'|| c=='2'|| c=='3'|| c=='4'|| c=='5'|| c=='6'|| c=='7'|| c=='8'|| c=='9'|| c=='0'|| c=='J'|| c=='Q'|| c=='K'){
       valPtr=push(valStack, valPtr, valueOf(c));
     }
@@ -149,7 +142,7 @@ evaluate(input){
 }
 
 
-compute(x, y, op)
+compute(x, y, op) // function for a single computation, 2 operand and 1 operator
 {
   if(op == 0)
   {
@@ -181,6 +174,7 @@ compute(x, y, op)
 
 }
 
+// cal1~5 are 5 kinds of computation order of the 4 numbers
 cal1(n1, n2, n3, n4, op1, op2, op3)
 {
   r1 = compute(n1, n2, op1);
@@ -221,7 +215,7 @@ cal5(n1, n2, n3, n4, op1, op2, op3)
   return r3;
 }
 
-getOp(op)
+getOp(op) // get the operator from its value
 {
   if(op == 0)
   {
@@ -245,7 +239,7 @@ getOp(op)
   }
 }
 
-getResult(n1, n2, n3, n4)
+getResult(n1, n2, n3, n4) // generate the solution for the combination of 4 numbers
 {
   for(op1 = 0; op1 < 4; op1 = op1 + 1;)
   {
@@ -329,7 +323,7 @@ getResult(n1, n2, n3, n4)
 }
 
 
-check(n1, n2, n3, n4)
+check(n1, n2, n3, n4) // function to check whether the four numbers are solvable for 24 points
 {
   for(op1 = 0; op1 < 4; op1 = op1 + 1;)
   {
@@ -363,7 +357,14 @@ check(n1, n2, n3, n4)
   }
 }
 
-genQ()
+fetchQ(idx, array qb[50][4]){
+  @currQ[0] = qb[idx][0];
+  @currQ[1] = qb[idx][1];
+  @currQ[2] = qb[idx][2];
+  @currQ[3] = qb[idx][3];
+}
+
+genQ() // function to generate a question base, used when game initialize.
 {
   count = 0;
   for(n1 = 1; n1 < 14; n1 = n1 + 1;)
@@ -389,13 +390,13 @@ genQ()
             {
               return 0;
             }
-            puti_(n1);
-            putc_(' ');
-            puti_(n2);
-            putc_(' ');
-            puti_(n3);
-            putc_(' ');
-            puti(n4);
+            //puti_(n1);
+            //putc_(' ');
+            //puti_(n2);
+            //putc_(' ');
+            //puti_(n3);
+            //putc_(' ');
+            //puti(n4);
           }
         }
       }
@@ -403,7 +404,7 @@ genQ()
   }
 }
 
-printQ()
+printQ() // function to print the current question base
 {
   for(i = 0; i < @QUELIMIT; i = i + 1;)
   {
@@ -416,7 +417,51 @@ printQ()
   }
 }
 
-puti(evaluate(example1));
+//puti(evaluate());
 
+// following is the main logic of the game
 genQ();
-printQ();
+while(1){
+  puts("please input command [s]tart | [e]xit:");
+  getc(cmd);
+  if (cmd == 'e') // exit of the game
+    break;
+  puts_("please input question no (0~49): ");
+  geti(no);
+  fetchQ(no, Q); // fetch the question with number no
+
+  // print the question
+  putc_(valToChar(currQ[0]));
+  putc_('\t');
+  putc_(valToChar(currQ[1]));
+  putc_('\t');
+  putc_(valToChar(currQ[2]));
+  putc_('\t');
+  putc(valToChar(currQ[3]));
+
+  puts("[please notice: 0 represents 10]\n");  
+  
+  puts("please input your solution:");
+  puts("[please input 'A', 'J', 'Q', 'K' and '0'. Also, the string should end with an 'e']");
+  gets(ans);
+
+  puts_("computation result: ");
+  //TODO: use the user input answer to evaluate;
+  res = evaluate();
+  puti(res);  
+  if (res == 24){
+    puts("Congradulations!");
+    score=score+1;
+    puts_("Your current score: ");
+    puti(score);
+  } else {
+    puts("Sorry, the answer is not corret.");
+    puts_("Your current score: ");
+    puti(score);
+  }
+}
+
+
+
+
+
