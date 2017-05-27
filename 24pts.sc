@@ -412,13 +412,6 @@ genQ() // function to generate a question base, used when game initialize.
             {
               return 0;
             }
-            //puti_(n1);
-            //putc_(' ');
-            //puti_(n2);
-            //putc_(' ');
-            //puti_(n3);
-            //putc_(' ');
-            //puti(n4);
           }
         }
       }
@@ -439,8 +432,12 @@ printQ() // function to print the current question base
   }
 }
 
-// following is the main logic of the game
-genQ();
+//==========================================//
+//                                          //
+// following is the main logic of the game  //
+//                                          //
+//==========================================//
+genQ(); // before start, generate the question base
 while(1){
   puts("please input command [s]tart | [e]xit:");
   getc(cmd);
@@ -451,25 +448,29 @@ while(1){
   fetchQ(no, Q); // fetch the question with number no
 
   // print the question
+  puts("==========================");
+  puts_("|");
   putc_(valToChar(currQ[0]));
   putc_('\t');
   putc_(valToChar(currQ[1]));
   putc_('\t');
   putc_(valToChar(currQ[2]));
   putc_('\t');
-  putc(valToChar(currQ[3]));
-
+  putc_(valToChar(currQ[3]));
+  puts("|");  
+  puts("=========================="); 
+  
   puts("[please notice: 0 represents 10]\n");  
   
   puts("please input your solution:");
-  puts("[please input 'A', 'J', 'Q', 'K' and '0'. Also, the string should end with an 'e']");
+  puts("[please input 'A', 'J', 'Q', 'K' and '0'. Please press enter for submission.]");
   // gets(ans);
   
   strRun = 1;
   iniInput();
   input[0]='(';
   getc(cmd);
-  while (cmd != 'e'){
+  while (cmd != '\n'){
     input[strRun] = @cmd;  
     strRun=strRun+1;
     getc(cmd);
@@ -493,4 +494,3 @@ while(1){
     puti(score);
   }
 }
-

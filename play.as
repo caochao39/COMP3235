@@ -1784,6 +1784,10 @@ L112:
 	push	sb[247]
 	push	2
 	call	L538, 2
+	push	"=========================="
+	puts
+	push	"|"
+	puts_
 	push	0
 	push	219
 	add
@@ -1817,12 +1821,16 @@ L112:
 	pop	in
 	push	sb[in]
 	call	L506, 1
-	putc
+	putc_
+	push	"|"
+	puts
+	push	"=========================="
+	puts
 	push	"[please notice: 0 represents 10]\n"
 	puts
 	push	"please input your solution:"
 	puts
-	push	"[please input 'A', 'J', 'Q', 'K' and '0'. Also, the string should end with an 'e']"
+	push	"[please input 'A', 'J', 'Q', 'K' and '0'. Please press enter for submission.]"
 	puts
 	push	1
 	pop	sb[248]
@@ -1837,7 +1845,7 @@ L112:
 	pop	sb[246]
 L113:
 	push	sb[246]
-	push	'e'
+	push	'\n'
 	compNE
 	j0	L114
 	push	sb[246]
