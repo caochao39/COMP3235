@@ -1,5 +1,6 @@
 // declaration and defination of some global variable
 QUELIMIT = 50;
+c='s';
 array Q[50][4]; 
 // string will be dealed as char array
 array ALLTYPE[13] = "A234567890JQK";
@@ -9,7 +10,20 @@ coun = 0;
 score = 0;
 qNo = 0;
 
-array input[20]="(2+0)*(A+A)e"; 
+array input[20]="((Q-2)+K+A)e";
+
+iniInput(){
+  for (i=0; i<20; i=i+1;){
+    @input[i]='e';
+  }
+}
+
+printInput(){
+  for (i=0; i<20; i=i+1;){
+    putc_(@input[i]);
+  }
+  putc('');
+}
 
 valueOf(c){ // convert a char to an int value
   if (c == 'A')
@@ -90,8 +104,10 @@ evaluate(){ // function to evaluate an infix expression
   valPtr=0;
   // runner of the string
   strPtr=0;
-  while(@input[strPtr] != 'e'){ // while the end of string is not met
+  while(1){ // while the end of string is not met
     c=@input[strPtr];
+    if (c=='e')
+      break;
     if (c=='A'|| c=='2'|| c=='3'|| c=='4'|| c=='5'|| c=='6'|| c=='7'|| c=='8'|| c=='9'|| c=='0'|| c=='J'|| c=='Q'|| c=='K'){ // if it is a value
       valPtr=push(valStack, valPtr, valueOf(c));
     }
@@ -128,6 +144,7 @@ evaluate(){ // function to evaluate an infix expression
       }
       oprPtr=pop(oprStack, oprPtr); 
     }
+    
     strPtr=strPtr+1;
   } 
 
@@ -151,15 +168,15 @@ compute(x, y, op) // function for a single computation, 2 operand and 1 operator
 {
   if(op == 0)
   {
-    return x + y;
+    return y + x;
   }
   else if(op == 1)
   {
-    return x - y;
+    return y - x;
   }
   else if(op == 2)
   {
-    return x * y;
+    return y * x;
   }
   else if(op == 3)
   {
@@ -169,7 +186,7 @@ compute(x, y, op) // function for a single computation, 2 operand and 1 operator
     }
     else
     {
-      return x / y;
+      return y / x;
     }
   }
   else
@@ -446,9 +463,22 @@ while(1){
   
   puts("please input your solution:");
   puts("[please input 'A', 'J', 'Q', 'K' and '0'. Also, the string should end with an 'e']");
-  gets(ans);
+  // gets(ans);
+  
+  strRun = 1;
+  iniInput();
+  input[0]='(';
+  getc(cmd);
+  while (cmd != 'e'){
+    input[strRun] = @cmd;  
+    strRun=strRun+1;
+    getc(cmd);
+  }  
+  input[strRun]=')';
+    
+  printInput();
 
-  puts_("computation result: ");
+  puts("computation result: ");
   //TODO: use the user input answer to evaluate;
   res = evaluate();
   puti(res);  
