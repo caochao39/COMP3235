@@ -273,70 +273,70 @@ getResult(n1, n2, n3, n4) // generate the solution for the combination of 4 numb
         {
           putc_('(');
           putc_('(');
-          puti_(n1);
+          putc_(valToChar(n1));
           putc_(getOp(op1));
-          puti_(n2);
+          putc_(valToChar(n2));
           putc_(')');
           putc_(getOp(op2));
-          puti_(n3);
+          putc_(valToChar(n3));
           putc_(')');
           putc_(getOp(op3));
-          puti(n4);
+          putc(valToChar(n4));
         }
         if(cal2(n1, n2, n3, n4, op1, op2, op3) == 24)
         {
           putc_('(');
-          puti_(n1);
+          putc_(valToChar(n1));
           putc_(getOp(op1));
           putc_('(');
-          puti_(n2);
+          putc_(valToChar(n2));
           putc_(getOp(op2));
-          puti_(n3);
+          putc_(valToChar(n3));
           putc_(')');
           putc_(')');
           putc_(getOp(op3));
-          puti(n4);
+          putc(valToChar(n4));
         }
         if(cal3(n1, n2, n3, n4, op1, op2, op3) == 24)
         {
-          puti_(n1);
+          putc_(valToChar(n1));
           putc_(getOp(op1));
           putc_('(');
-          puti_(n2);
+          putc_(valToChar(n2));
           putc_(getOp(op2));
           putc_('(');
-          puti_(n3);
+          putc_(valToChar(n3));
           putc_(getOp(op3));
-          puti_(n4);
+          putc_(valToChar(n4));
           putc_(')');
           putc(')');
         }
         if(cal4(n1, n2, n3, n4, op1, op2, op3) == 24)
         {
-          puti_(n1);
+          putc_(valToChar(n1));
           putc_(getOp(op1));
           putc_('(');
           putc_('(');
-          puti_(n2);
+          putc_(valToChar(n2));
           putc_(getOp(op2));
-          puti_(n3);
+          putc_(valToChar(n3));
           putc_(')');
           putc_(getOp(op3));
-          puti_(n4);
+          putc_(valToChar(n4));
           putc(')');
         }
         if(cal5(n1, n2, n3, n4, op1, op2, op3) == 24)
         {
           putc_('(');
-          puti_(n1);
+          putc_(valToChar(n1));
           putc_(getOp(op1));
-          puti_(n2);
+          putc_(valToChar(n2));
           putc_(')');
           putc_(getOp(op2));
           putc_('(');
-          puti_(n3);
+          putc_(valToChar(n3));
           putc_(getOp(op3));
-          puti_(n4);
+          putc_(valToChar(n4));
           putc(')');
         }
       }
@@ -436,6 +436,7 @@ printQ() // function to print the current question base
 // following is the main logic of the game  //
 //                                          //
 //==========================================//
+//getResult(1,2,3,4);
 genQ(); // before start, generate the question base
 while(1){
   puts("please input command [s]tart | [e]xit:");

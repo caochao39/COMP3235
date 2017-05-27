@@ -1182,26 +1182,30 @@ L067:
 	push	'('
 	putc_
 	push	fp[-7]
-	puti_
+	call	L506, 1
+	putc_
 	push	fp[0]
 	call	L532, 1
 	putc_
 	push	fp[-6]
-	puti_
+	call	L506, 1
+	putc_
 	push	')'
 	putc_
 	push	fp[1]
 	call	L532, 1
 	putc_
 	push	fp[-5]
-	puti_
+	call	L506, 1
+	putc_
 	push	')'
 	putc_
 	push	fp[2]
 	call	L532, 1
 	putc_
 	push	fp[-4]
-	puti
+	call	L506, 1
+	putc
 L070:
 	push	fp[-7]
 	push	fp[-6]
@@ -1217,19 +1221,22 @@ L070:
 	push	'('
 	putc_
 	push	fp[-7]
-	puti_
+	call	L506, 1
+	putc_
 	push	fp[0]
 	call	L532, 1
 	putc_
 	push	'('
 	putc_
 	push	fp[-6]
-	puti_
+	call	L506, 1
+	putc_
 	push	fp[1]
 	call	L532, 1
 	putc_
 	push	fp[-5]
-	puti_
+	call	L506, 1
+	putc_
 	push	')'
 	putc_
 	push	')'
@@ -1238,7 +1245,8 @@ L070:
 	call	L532, 1
 	putc_
 	push	fp[-4]
-	puti
+	call	L506, 1
+	putc
 L071:
 	push	fp[-7]
 	push	fp[-6]
@@ -1252,26 +1260,30 @@ L071:
 	compEQ
 	j0	L072
 	push	fp[-7]
-	puti_
+	call	L506, 1
+	putc_
 	push	fp[0]
 	call	L532, 1
 	putc_
 	push	'('
 	putc_
 	push	fp[-6]
-	puti_
+	call	L506, 1
+	putc_
 	push	fp[1]
 	call	L532, 1
 	putc_
 	push	'('
 	putc_
 	push	fp[-5]
-	puti_
+	call	L506, 1
+	putc_
 	push	fp[2]
 	call	L532, 1
 	putc_
 	push	fp[-4]
-	puti_
+	call	L506, 1
+	putc_
 	push	')'
 	putc_
 	push	')'
@@ -1289,7 +1301,8 @@ L072:
 	compEQ
 	j0	L073
 	push	fp[-7]
-	puti_
+	call	L506, 1
+	putc_
 	push	fp[0]
 	call	L532, 1
 	putc_
@@ -1298,19 +1311,22 @@ L072:
 	push	'('
 	putc_
 	push	fp[-6]
-	puti_
+	call	L506, 1
+	putc_
 	push	fp[1]
 	call	L532, 1
 	putc_
 	push	fp[-5]
-	puti_
+	call	L506, 1
+	putc_
 	push	')'
 	putc_
 	push	fp[2]
 	call	L532, 1
 	putc_
 	push	fp[-4]
-	puti_
+	call	L506, 1
+	putc_
 	push	')'
 	putc
 L073:
@@ -1328,12 +1344,14 @@ L073:
 	push	'('
 	putc_
 	push	fp[-7]
-	puti_
+	call	L506, 1
+	putc_
 	push	fp[0]
 	call	L532, 1
 	putc_
 	push	fp[-6]
-	puti_
+	call	L506, 1
+	putc_
 	push	')'
 	putc_
 	push	fp[1]
@@ -1342,12 +1360,14 @@ L073:
 	push	'('
 	putc_
 	push	fp[-5]
-	puti_
+	call	L506, 1
+	putc_
 	push	fp[2]
 	call	L532, 1
 	putc_
 	push	fp[-4]
-	puti_
+	call	L506, 1
+	putc_
 	push	')'
 	putc
 L074:
