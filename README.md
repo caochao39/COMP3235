@@ -53,13 +53,13 @@ We demo our C6C compiler using an application for playing the 24-point game writ
 ### Features of the demo case
 1. generation of a question base: before the start of game, we generate 50 solvable questions into the global Q matrix
 2. an infix parser and evaluator: and infix calculator to evaluate the user answer, stacks are used.
-  a. There are two stacks for this part, the value stack and opertor stack. \n
-  b. Operators have their own precedence, and the order of the precedence is '(',')' < '+','-' < '\*', '\\'
-  c. The input string will be scaned once, values (A, 2 ~ 10, J, Q, K) will be directly pushed into the value stack.
-  d. For operator, if the current operator stack is empty, or it's a '(', or the current operator has a higher precedence compared with   the one on top of the operator stack, this operator will be pushed onto the operator stack
-  e. otherwise, the top of the two stacks will be computed until a ')' is met or the above premises are broken
-  f. when the scanning finishes, the remaining part in the two stack will be computed
-  g. the last number in the value stack is result.
+  * There are two stacks for this part, the value stack and opertor stack. \n
+  * Operators have their own precedence, and the order of the precedence is '(',')' < '+','-' < '\*', '\\'
+  * The input string will be scaned once, values (A, 2 ~ 10, J, Q, K) will be directly pushed into the value stack.
+  * For operator, if the current operator stack is empty, or it's a '(', or the current operator has a higher precedence compared with   the one on top of the operator stack, this operator will be pushed onto the operator stack
+  * otherwise, the top of the two stacks will be computed until a ')' is met or the above premises are broken
+  * when the scanning finishes, the remaining part in the two stack will be computed
+  * the last number in the value stack is result.
 3. Stack operations: push, pop, peek
 4. function to give all the solutions for a combination of 4 numbers: used when the user asks for help and when to generate question base
 5. global variable and local variable: the global ones are defined at the begining
