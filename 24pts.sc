@@ -1,7 +1,7 @@
 // declaration and defination of some global variable
 QUELIMIT = 50;
 c='s';
-array Q[50][4]; 
+array Q[50][4];
 // string will be dealed as char array
 array ALLTYPE[13] = "A234567890JQK";
 array ALLOP[4] = "+-*/";
@@ -116,7 +116,7 @@ evaluate(){ // function to evaluate an infix expression
     if (c=='+' || c=='-' || c=='*' || c=='/'){
       if (oprPtr==0) // when the current operator stack is empty
         oprPtr=push(oprStack, oprPtr, c);
-      else if (precedence(c) > precedence(peek(oprStack, oprPtr))) 
+      else if (precedence(c) > precedence(peek(oprStack, oprPtr)))
         // when current operator has higher precedence
         oprPtr=push(oprStack, oprPtr, c);
       else{ // when the operator in the stack has higher precedence
@@ -142,11 +142,11 @@ evaluate(){ // function to evaluate an infix expression
         oprPtr=pop(oprStack, oprPtr);
         valPtr=push(valStack, valPtr, compute(ope2, ope1, valOp(op)));
       }
-      oprPtr=pop(oprStack, oprPtr); 
+      oprPtr=pop(oprStack, oprPtr);
     }
-    
+
     strPtr=strPtr+1;
-  } 
+  }
 
   while (oprPtr>0){ // final computation
     ope1=peek(valStack, valPtr);
@@ -159,7 +159,7 @@ evaluate(){ // function to evaluate an infix expression
   }
   // the result is the last element in the value stack
   res = peek(valStack, valPtr);
-  
+
   return res;
 }
 
@@ -373,10 +373,10 @@ check(n1, n2, n3, n4) // function to check whether the four numbers are solvable
         {
           return 1;
         }
-        return 0;
       }
     }
   }
+  return 0;
 }
 
 fetchQ(idx, array qb[50][4]){ // fetch a question from the question base with a given index
@@ -457,24 +457,24 @@ while(1){
   putc_(valToChar(currQ[2]));
   putc_('\t');
   putc_(valToChar(currQ[3]));
-  puts("|");  
-  puts("=========================="); 
-  
-  puts("[please notice: 0 represents 10]\n");  
-  
+  puts("|");
+  puts("==========================");
+
+  puts("[please notice: 0 represents 10]\n");
+
   puts("please input your solution:");
   puts("[please input 'A', 'J', 'Q', 'K' and '0'. Please press enter for submission, and enter 'h' for help.]");
   // gets(ans);
-  
+
   strRun = 1;
   iniInput();
   input[0]='(';
   getc(cmd);
   while (cmd != '\n'){
-    input[strRun] = @cmd;  
+    input[strRun] = @cmd;
     strRun=strRun+1;
     getc(cmd);
-  }  
+  }
   input[strRun]=')';
   //TODO: use the user input answer to evaluate;
   if (input[1] == 'h'){
@@ -482,7 +482,7 @@ while(1){
   }else{
     puts("computation result: ");
     res = evaluate();
-    puti(res);  
+    puti(res);
     if (res == 24){
       puts("Congradulations!");
       score=score+1;
