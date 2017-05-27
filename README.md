@@ -44,26 +44,25 @@ We demo our C6C compiler using an application for playing the 24-point game writ
 
 ### Playing instructions
 
-1. Press 's' to start the game
-2. Choose a problem from the problem set (0 - 49)
+1. Press 's' to start the game.
+2. Choose a problem from the problem set (0 - 49).
 3. Enter your calculation, press Enter to submit.
-4. Or, give up and press 'h' check for the solutions
+4. Or, give up and press 'h' check for the solutions.
 5. The program will check if your solution is correct and count your score accordingly.
 
 ### Features of the demo case
-1. generation of a question base: before the start of game, we generate 50 solvable questions into the global Q matrix
-2. an infix parser and evaluator: and infix calculator to evaluate the user answer, stacks are used.
-  * There are two stacks for this part, the value stack and opertor stack. \n
-  * Operators have their own precedence, and the order of the precedence is '(',')' < '+','-' < '\*', '\\'
-  * The input string will be scaned once, values (A, 2 ~ 10, J, Q, K) will be directly pushed into the value stack.
-  * For operator, if the current operator stack is empty, or it's a '(', or the current operator has a higher precedence compared with   the one on top of the operator stack, this operator will be pushed onto the operator stack
-  * otherwise, the top of the two stacks will be computed until a ')' is met or the above premises are broken
-  * when the scanning finishes, the remaining part in the two stack will be computed
-  * the last number in the value stack is result.
-3. Stack operations: push, pop, peek
-4. function to give all the solutions for a combination of 4 numbers: used when the user asks for help and when to generate question base
-5. global variable and local variable: the global ones are defined at the begining
-6. String dealt as char array: for string ALLTYPE and ALLOP, functions do their work by dealing them as char array. e.g. the valToChar()
-7. Access global varaible in function. e.g. checkAns()
-8. int, char, string put get operations
-9. 2d array as parameter of a function. e.g. fetchQ()
+1. Generation of a problem set: we first generate 50 solvable problems and store them in a global 2D array Q.
+2. Implementation of a calculator: we implement a parser and evaluator for infix expressions to handle user's input:
+  * For the calculator, we implement two stacks using two 1D arrays: the value stack and the opertor stack.
+  * We take the user's input as a string containing values (A, 2 ~ 10, J, Q, K) and operators '(',')' < '+','-' < '\*', '\\'.
+  * The input will be scaned once, and the values and operators will be pushed into stacks accordingly.
+  * For operators, if the operator stack is empty, or contains only a '(', or the current operator has a higher precedence than the one on stack top, then the operator will be pushed onto the stack.
+  * otherwise, the top of the two stacks will be computed until a ')' is met or the above conditions is not satisfied.
+  * when the scanning finishes, the remaining part of the two stack will be computed.
+  * the last number in the value stack is the result.
+3. Implementation of Stack operations: push, pop, peek using 1D array.
+4. Implementation of a function to generate the 24 points solutions: used when the user asks for help and when to generate the problem set.
+5. Usage of global and local variables: eg. the problem set is defined globally, which requires reading and writing operations at differnet places of the program.
+6. String implemented as char arrays: eg. string ALLTYPE and ALLOP are treat as char arrays.
+7. Access global varaible in function. e.g. checkAns().
+8. Pass array as function parameters: fetchQ() takes a 2d array as parameter, the array is passed by reference.
