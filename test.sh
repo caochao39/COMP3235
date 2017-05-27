@@ -1,0 +1,12 @@
+./c6c tc01.sc>tc01.as;
+./c6c tc02.sc>tc02.as;
+./c6c tc03.sc>tc03.as;
+./c6c tc04.sc>tc04.as;
+./c6c tc05.sc>tc05.as;
+./c6c tc06.sc>tc06.as;
+./c6c tc07.sc>tc07.as;
+./c6c tc08.sc>tc08.as;
+./c6c tc09.sc>tc09.as;
+./c6c tc10.sc>tc10.as;
+./c6c tc11.sc>tc11.as;
+./c6c fact.sc>fact.as
