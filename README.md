@@ -55,7 +55,7 @@ We demo our C6C compiler using an application for playing the 24-point game writ
 1. generation of a question base: before the start of game, we generate 50 solvable questions into the global Q matrix
 2. an infix parser and evaluator: and infix calculator to evaluate the user answer, stacks are used. 
   1) There are two stacks for this part, the value stack and opertor stack. 
-  2) Operators have their own precedence, and the order of the precedence is '(',')' < '+','-' < '\*', '\'
+  2) Operators have their own precedence, and the order of the precedence is '(',')' < '+','-' < '\*', '\\'
   3) The input string will be scaned once, values (A, 2 ~ 10, J, Q, K) will be directly pushed into the value stack.
   4) For operator, if the current operator stack is empty, or it's a '(', or the current operator has a higher precedence compared with   the one on top of the operator stack, this operator will be pushed onto the operator stack
   5) otherwise, the top of the two stacks will be computed until a ')' is met or the above premises are broken
