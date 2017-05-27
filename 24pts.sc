@@ -434,13 +434,19 @@ printQ() // function to print the current question base
 
 
 
-checkcmd(cmd, n1, n2, n3, n4)
-{
-  if(cmd != n1 && cmd != n2 && cmd != n3 && cmd != n4 && cmd != '+' && cmd != '-' && cmd != '*' && cmd != '/' && cmd != '(' && cmd != ')' && cmd != ' ')
-  {
-    return 0;
+checkAns() // function to check whether the answer is a valid one, i.e. Q+Q is 24 but not correct
+{ 
+  checker=0;
+  for (i=0; i<20; i=i+1;){
+    for (j=0; j<4; j=j+1;){
+      if (valToChar(@currQ[j]) == @input[i])
+        checker=checker+1;
+    }
   }
-  return 1;
+  if (checker == 4)
+    return 1; 
+  else
+    return 0;
 }
 
 
@@ -487,16 +493,11 @@ while(1){
   input[0]='(';
   getc(cmd);
   while (cmd != '\n'){
-    if(checkcmd(cmd, valToChar(currQ[0]), valToChar(currQ[1]), valToChar(currQ[2]), valToChar(currQ[3])) == 0)
-    {
-      puts_("Invalid input: ");
-      putc(cmd);
-      val = 0;
-    }
     input[strRun] = @cmd;
     strRun=strRun+1;
     getc(cmd);
   }
+  
   input[strRun]=')';
   //TODO: use the user input answer to evaluate;
   if (input[1] == 'h' || val == 0){
@@ -506,13 +507,17 @@ while(1){
     puts("computation result: ");
     res = evaluate();
     puti(res);
-    if (res == 24){
+    if (res == 24 && checkAns() == 1){
       puts("Congradulations!");
       score=score+1;
       puts_("Your current score: ");
       puti(score);
-    } else {
+    } else if (res != 24){
       puts("Sorry, the answer is not corret.");
+      puts_("Your current score: ");
+      puti(score);
+    } else if (checkAns() == 0){
+      puts("Sorry, the answer is not valid for the current question.");
       puts_("Your current score: ");
       puti(score);
     }

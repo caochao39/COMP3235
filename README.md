@@ -49,3 +49,14 @@ We demo our C6C compiler using an application for playing the 24-point game writ
 3. Enter your calculation, press Enter to submit.
 4. Or, give up and press 'h' check for the solutions
 5. The program will check if your solution is correct and count your score accordingly.
+
+### Features of the demo case
+1. generation of a question base: before the start of game, we generate 50 solvable questions into the global Q matrix
+2. an infix parser and evaluator: and infix calculator to evaluate the user answer, stacks are used
+3. Stack operations: push, pop, peek
+4. function to give all the solutions for a combination of 4 numbers: used when the user asks for help and when to generate question base
+5. global variable and local variable: the global ones are defined at the begining
+6. String dealt as char array: for string ALLTYPE and ALLOP, functions do their work by dealing them as char array. e.g. the valToChar()
+7. Access global varaible in function. e.g. checkAns()
+8. int, char, string put get operations
+9. 2d array as parameter of a function. e.g. fetchQ()
