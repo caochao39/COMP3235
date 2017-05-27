@@ -477,8 +477,6 @@ while(1){
   }  
   input[strRun]=')';
     
-  printInput();
-
   puts("computation result: ");
   //TODO: use the user input answer to evaluate;
   res = evaluate();
