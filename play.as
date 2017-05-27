@@ -719,8 +719,8 @@ L036:
 	add
 	add
 	push	fp[101]
-	push	fp[104]
 	push	fp[105]
+	push	fp[104]
 	push	fp[106]
 	call	L508, 1
 	call	L520, 3
@@ -809,8 +809,8 @@ L039:
 	add
 	add
 	push	fp[101]
-	push	fp[104]
 	push	fp[105]
+	push	fp[104]
 	push	fp[106]
 	call	L508, 1
 	call	L520, 3
@@ -892,8 +892,8 @@ L041:
 	add
 	add
 	push	fp[101]
-	push	fp[104]
 	push	fp[105]
+	push	fp[104]
 	push	fp[106]
 	call	L508, 1
 	call	L520, 3
@@ -922,8 +922,8 @@ L520:
 	push	0
 	compEQ
 	j0	L043
-	push	fp[-5]
 	push	fp[-6]
+	push	fp[-5]
 	add
 	ret
 	jmp	L044
@@ -932,8 +932,8 @@ L043:
 	push	1
 	compEQ
 	j0	L045
-	push	fp[-5]
 	push	fp[-6]
+	push	fp[-5]
 	sub
 	ret
 	jmp	L046
@@ -942,8 +942,8 @@ L045:
 	push	2
 	compEQ
 	j0	L047
-	push	fp[-5]
 	push	fp[-6]
+	push	fp[-5]
 	mul
 	ret
 	jmp	L048
@@ -960,8 +960,8 @@ L047:
 	ret
 	jmp	L051
 L050:
-	push	fp[-5]
 	push	fp[-6]
+	push	fp[-5]
 	div
 	ret
 L051:
@@ -1830,7 +1830,7 @@ L112:
 	puts
 	push	"please input your solution:"
 	puts
-	push	"[please input 'A', 'J', 'Q', 'K' and '0'. Please press enter for submission.]"
+	push	"[please input 'A', 'J', 'Q', 'K' and '0'. Please press enter for submission, and enter 'h' for help.]"
 	puts
 	push	1
 	pop	sb[248]
@@ -1868,7 +1868,37 @@ L114:
 	add
 	pop	in
 	pop	sb[in]
-	call	L502, 0
+	push	1
+	push	226
+	add
+	pop	in
+	push	sb[in]
+	push	'h'
+	compEQ
+	j0	L115
+	push	0
+	push	219
+	add
+	pop	in
+	push	sb[in]
+	push	1
+	push	219
+	add
+	pop	in
+	push	sb[in]
+	push	2
+	push	219
+	add
+	pop	in
+	push	sb[in]
+	push	3
+	push	219
+	add
+	pop	in
+	push	sb[in]
+	call	L534, 4
+	jmp	L116
+L115:
 	push	"computation result: "
 	puts
 	call	L518, 0
@@ -1878,7 +1908,7 @@ L114:
 	push	sb[249]
 	push	24
 	compEQ
-	j0	L115
+	j0	L117
 	push	"Congradulations!"
 	puts
 	push	sb[224]
@@ -1889,14 +1919,15 @@ L114:
 	puts_
 	push	sb[224]
 	puti
-	jmp	L116
-L115:
+	jmp	L118
+L117:
 	push	"Sorry, the answer is not corret."
 	puts
 	push	"Your current score: "
 	puts_
 	push	sb[224]
 	puti
+L118:
 L116:
 	jmp	L110
 L111:

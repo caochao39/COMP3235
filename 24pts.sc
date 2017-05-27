@@ -127,7 +127,7 @@ evaluate(){ // function to evaluate an infix expression
           valPtr=pop(valStack, valPtr);
           op=peek(oprStack, oprPtr);
           oprPtr=pop(oprStack, oprPtr);
-          valPtr=push(valStack, valPtr, compute(ope1, ope2, valOp(op)));
+          valPtr=push(valStack, valPtr, compute(ope2, ope1, valOp(op)));
         }
         oprPtr=push(oprStack, oprPtr, c);
       }
@@ -140,7 +140,7 @@ evaluate(){ // function to evaluate an infix expression
         valPtr=pop(valStack, valPtr);
         op=peek(oprStack, oprPtr);
         oprPtr=pop(oprStack, oprPtr);
-        valPtr=push(valStack, valPtr, compute(ope1, ope2, valOp(op)));
+        valPtr=push(valStack, valPtr, compute(ope2, ope1, valOp(op)));
       }
       oprPtr=pop(oprStack, oprPtr); 
     }
@@ -155,7 +155,7 @@ evaluate(){ // function to evaluate an infix expression
     valPtr=pop(valStack, valPtr);
     op=peek(oprStack, oprPtr);
     oprPtr=pop(oprStack, oprPtr);
-    valPtr=push(valStack, valPtr, compute(ope1, ope2, valOp(op)));
+    valPtr=push(valStack, valPtr, compute(ope2, ope1, valOp(op)));
   }
   // the result is the last element in the value stack
   res = peek(valStack, valPtr);
@@ -168,15 +168,15 @@ compute(x, y, op) // function for a single computation, 2 operand and 1 operator
 {
   if(op == 0)
   {
-    return y + x;
+    return x + y;
   }
   else if(op == 1)
   {
-    return y - x;
+    return x - y;
   }
   else if(op == 2)
   {
-    return y * x;
+    return x * y;
   }
   else if(op == 3)
   {
@@ -186,7 +186,7 @@ compute(x, y, op) // function for a single computation, 2 operand and 1 operator
     }
     else
     {
-      return y / x;
+      return x / y;
     }
   }
   else
@@ -431,7 +431,6 @@ printQ() // function to print the current question base
     putc(' ');
   }
 }
-
 //==========================================//
 //                                          //
 // following is the main logic of the game  //
@@ -463,7 +462,7 @@ while(1){
   puts("[please notice: 0 represents 10]\n");  
   
   puts("please input your solution:");
-  puts("[please input 'A', 'J', 'Q', 'K' and '0'. Please press enter for submission.]");
+  puts("[please input 'A', 'J', 'Q', 'K' and '0'. Please press enter for submission, and enter 'h' for help.]");
   // gets(ans);
   
   strRun = 1;
@@ -476,19 +475,22 @@ while(1){
     getc(cmd);
   }  
   input[strRun]=')';
-    
-  puts("computation result: ");
   //TODO: use the user input answer to evaluate;
-  res = evaluate();
-  puti(res);  
-  if (res == 24){
-    puts("Congradulations!");
-    score=score+1;
-    puts_("Your current score: ");
-    puti(score);
-  } else {
-    puts("Sorry, the answer is not corret.");
-    puts_("Your current score: ");
-    puti(score);
+  if (input[1] == 'h'){
+    getResult(currQ[0], currQ[1], currQ[2], currQ[3]);
+  }else{
+    puts("computation result: ");
+    res = evaluate();
+    puti(res);  
+    if (res == 24){
+      puts("Congradulations!");
+      score=score+1;
+      puts_("Your current score: ");
+      puti(score);
+    } else {
+      puts("Sorry, the answer is not corret.");
+      puts_("Your current score: ");
+      puti(score);
+    }
   }
 }
