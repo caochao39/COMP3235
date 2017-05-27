@@ -462,21 +462,23 @@ while(1){
 
   // print the question
   puts("==========================");
-  puts_("|");
+  //puts_("|");
   putc_(valToChar(currQ[0]));
   putc_('\t');
   putc_(valToChar(currQ[1]));
   putc_('\t');
   putc_(valToChar(currQ[2]));
   putc_('\t');
-  putc_(valToChar(currQ[3]));
-  puts("|");
+  putc(valToChar(currQ[3]));
+  //puts("|");
   puts("==========================");
 
   puts("[please notice: 0 represents 10]\n");
 
-  puts("please input your solution:");
-  puts("[please input 'A', 'J', 'Q', 'K' and '0'. Please press enter for submission, and enter 'h' for help.]");
+  puts("Please input your calculation, or press 'h' to checkout the solutions.");
+  puts("[Please use 'A', '0', 'J', 'Q', 'K' to denote 1, 10, 11, 12, 13]");
+  puts("[You can use '+', '-', '*', '/' and '()' for calculation]");
+  puts("[Press Enter to submit.]");
   // gets(ans);
 
   strRun = 1;
