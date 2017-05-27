@@ -40,12 +40,12 @@ valueOf(c){ // convert a char to an int value
     return 13;
 }
 
-valToChar(val){
-  a=@ALLTYPE[val-1];
+valToChar(val){ // input is the value of the card, this function will change it to the card type
+  a=@ALLTYPE[val-1]; // string is deal with as char array
   return a;
 }
 
-valOp(c){
+valOp(c){ // value of the operators
   if (c=='+')
     return 0;
   if (c=='-')
@@ -65,41 +65,45 @@ precedence(c){ // compute the precedence of an operator
     return 2;
 }
 
-push(stack, ptr, content){
+push(stack, ptr, content){ // stack push
   stack[ptr]=content;
   ptr=ptr+1;
   return ptr;
 }
 
-pop(stack, ptr){
+pop(stack, ptr){ // stack pop
   ptr=ptr-1;
   stack[ptr]=-99999;
   return ptr;
 }
 
-peek(stack, ptr){
+peek(stack, ptr){ // stack peek
   return stack[ptr-1];
 }
 
 evaluate(){ // function to evaluate an infix expression
+  // two stacks to deal with operator and value separately
   array oprStack[50];
   array valStack[50];
+  // two pointer for the two stack
   oprPtr=0;
   valPtr=0;
+  // runner of the string
   strPtr=0;
-  while(@input[strPtr] != 'e'){
+  while(@input[strPtr] != 'e'){ // while the end of string is not met
     c=@input[strPtr];
-    if (c=='A'|| c=='2'|| c=='3'|| c=='4'|| c=='5'|| c=='6'|| c=='7'|| c=='8'|| c=='9'|| c=='0'|| c=='J'|| c=='Q'|| c=='K'){
+    if (c=='A'|| c=='2'|| c=='3'|| c=='4'|| c=='5'|| c=='6'|| c=='7'|| c=='8'|| c=='9'|| c=='0'|| c=='J'|| c=='Q'|| c=='K'){ // if it is a value
       valPtr=push(valStack, valPtr, valueOf(c));
     }
-    if (c=='(')
+    if (c=='(') // if it is a (, push it onto the operator stack
       oprPtr=push(oprStack, oprPtr, c);
     if (c=='+' || c=='-' || c=='*' || c=='/'){
-      if (oprPtr==0)
+      if (oprPtr==0) // when the current operator stack is empty
         oprPtr=push(oprStack, oprPtr, c);
-      else if (precedence(c) > precedence(peek(oprStack, oprPtr)))
+      else if (precedence(c) > precedence(peek(oprStack, oprPtr))) 
+        // when current operator has higher precedence
         oprPtr=push(oprStack, oprPtr, c);
-      else{
+      else{ // when the operator in the stack has higher precedence
         while(oprPtr > 0 && precedence(c) <= precedence(peek(oprStack, oprPtr))){
           ope1=peek(valStack, valPtr);
           valPtr=pop(valStack, valPtr);
@@ -112,7 +116,7 @@ evaluate(){ // function to evaluate an infix expression
         oprPtr=push(oprStack, oprPtr, c);
       }
     }
-    if (c==')'){
+    if (c==')'){ // compute the expression between ( and )
       while (peek(oprStack, oprPtr)!='('){
         ope1=peek(valStack, valPtr);
         valPtr=pop(valStack, valPtr);
@@ -127,7 +131,7 @@ evaluate(){ // function to evaluate an infix expression
     strPtr=strPtr+1;
   } 
 
-  while (oprPtr>0){
+  while (oprPtr>0){ // final computation
     ope1=peek(valStack, valPtr);
     valPtr=pop(valStack, valPtr);
     ope2=peek(valStack, valPtr);
@@ -136,6 +140,7 @@ evaluate(){ // function to evaluate an infix expression
     oprPtr=pop(oprStack, oprPtr);
     valPtr=push(valStack, valPtr, compute(ope1, ope2, valOp(op)));
   }
+  // the result is the last element in the value stack
   res = peek(valStack, valPtr);
   
   return res;
@@ -357,7 +362,7 @@ check(n1, n2, n3, n4) // function to check whether the four numbers are solvable
   }
 }
 
-fetchQ(idx, array qb[50][4]){
+fetchQ(idx, array qb[50][4]){ // fetch a question from the question base with a given index
   @currQ[0] = qb[idx][0];
   @currQ[1] = qb[idx][1];
   @currQ[2] = qb[idx][2];
@@ -417,8 +422,6 @@ printQ() // function to print the current question base
   }
 }
 
-//puti(evaluate());
-
 // following is the main logic of the game
 genQ();
 while(1){
@@ -460,8 +463,4 @@ while(1){
     puti(score);
   }
 }
-
-
-
-
 
