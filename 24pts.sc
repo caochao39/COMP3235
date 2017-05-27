@@ -431,6 +431,19 @@ printQ() // function to print the current question base
     putc(' ');
   }
 }
+
+
+
+checkcmd(cmd, n1, n2, n3, n4)
+{
+  if(cmd != n1 && cmd != n2 && cmd != n3 && cmd != n4 && cmd != '+' && cmd != '-' && cmd != '*' && cmd != '/' && cmd != '(' && cmd != ')' && cmd != ' ')
+  {
+    return 0;
+  }
+  return 1;
+}
+
+
 //==========================================//
 //                                          //
 // following is the main logic of the game  //
@@ -439,9 +452,9 @@ printQ() // function to print the current question base
 //getResult(1,2,3,4);
 genQ(); // before start, generate the question base
 while(1){
-  puts("please input command [s]tart | [e]xit:");
+  puts("please press 's' to start and any other key to exit:");
   getc(cmd);
-  if (cmd == 'e') // exit of the game
+  if (cmd != 's') // exit of the game
     break;
   puts_("please input question no (0~49): ");
   geti(no);
@@ -467,17 +480,25 @@ while(1){
   // gets(ans);
 
   strRun = 1;
+  val = 1;
   iniInput();
   input[0]='(';
   getc(cmd);
   while (cmd != '\n'){
+    if(checkcmd(cmd, valToChar(currQ[0]), valToChar(currQ[1]), valToChar(currQ[2]), valToChar(currQ[3])) == 0)
+    {
+      puts_("Invalid input: ");
+      putc(cmd);
+      val = 0;
+    }
     input[strRun] = @cmd;
     strRun=strRun+1;
     getc(cmd);
   }
   input[strRun]=')';
   //TODO: use the user input answer to evaluate;
-  if (input[1] == 'h'){
+  if (input[1] == 'h' || val == 0){
+    puts("This problem can be solved as: ");
     getResult(currQ[0], currQ[1], currQ[2], currQ[3]);
   }else{
     puts("computation result: ");
