@@ -10,12 +10,8 @@ coun = 0;
 score = 0;
 qNo = 0;
 
-array input[20]="((Q-2)+K+A)e";
-
 iniInput(){
-  for (i=0; i<20; i=i+1;){
-    @input[i]='e';
-  }
+  array @input[20]='e';
 }
 
 printInput(){

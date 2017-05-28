@@ -1350,24 +1350,77 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
         int is_global = p->opr.op[0]->id.isGlobal;
         int index = getSYMIdx(array_name, is_global);
 
-        int array_fst_size = p->opr.op[1]->con.value;
         
         if(index == -1)
         {
           printf("\tError: Array %s used before declared!\n", array_name);
         }
-        int idx;
-        
-        for (idx=index; idx<index+array_fst_size; idx++){
-          ex(p->opr.op[2], blbl, clbl, infunc);
-          if(is_global)
-          { 
-            printf("\tpop\tsb[%d]\n", idx);
+        if(p->opr.nops == 3)// array initialization:  vari [Integer] = expr
+        {
+          int fst_size = p->opr.op[1]->con.value;
+          int idx;
+          
+          for (idx=index; idx<index+fst_size; idx++){
+            // evaluate the expression to get the value to be assigned
+            ex(p->opr.op[2], blbl, clbl, infunc);
+            if(is_global)
+            { 
+              printf("\tpop\tsb[%d]\n", idx);
+            }
+            else
+            {
+              int locIdx = idx - TABLE_SIZE/2;
+              printf("\tpop\tfp[%d]\n", locIdx - argTable[funcIdx]);
+            }
           }
-          else
-          {
-            int locIdx = idx - TABLE_SIZE/2;
-            printf("\tpop\tfp[%d]\n", locIdx - argTable[funcIdx]);
+        } 
+        else if (p->opr.nops == 4) // array initialization:  vari [Integer][Integer] = expr
+        {
+
+          twoDArray* array = getTwoDArray(array_name);
+          int scd_size = array->scd_size;
+          int fst_size = array->fst_size;
+
+          int idx;
+          
+          for (idx=index; idx<index+fst_size*scd_size; idx++){
+            
+            // evaluate the expression to get the value to be assigned
+            ex(p->opr.op[3], blbl, clbl, infunc);
+            if(is_global)
+            { 
+              printf("\tpop\tsb[%d]\n", idx);
+            }
+            else
+            {
+              int locIdx = idx - TABLE_SIZE/2;
+              printf("\tpop\tfp[%d]\n", locIdx - argTable[funcIdx]);
+            }
+          }
+        }
+        else if (p->opr.nops == 5) // array initialization:  vari [Integer][Integer][Integer] = expr
+        {
+
+          threeDArray* array = getThreeDArray(array_name);
+          int fst_size = array->fst_size;
+          int scd_size = array->scd_size;
+          int thd_size = array->thd_size;
+
+          int idx;
+          
+          for (idx=index; idx<index+fst_size*scd_size*thd_size; idx++){
+            
+            // evaluate the expression to get the value to be assigned
+            ex(p->opr.op[4], blbl, clbl, infunc);
+            if(is_global)
+            { 
+              printf("\tpop\tsb[%d]\n", idx);
+            }
+            else
+            {
+              int locIdx = idx - TABLE_SIZE/2;
+              printf("\tpop\tfp[%d]\n", locIdx - argTable[funcIdx]);
+            }
           }
         }
         break;  
