@@ -318,6 +318,40 @@ void prepass(nodeType *p, int infunc){
         setType(index, 4); // set the type to be 4
         break;
       }
+      case ARRAY_INIT:
+      {
+        prepass(p->opr.op[2], infunc);
+        char * array_name = p->opr.op[0]->id.var_name;
+        // int is_global = p->opr.op[0]->id.isGlobal;
+        int array_fst_size = p->opr.op[1]->con.value;
+
+        // if outside function then the array is global, the reverse is not true
+        if (infunc == 0 || p->opr.op[0]->id.isGlobal){
+          p->opr.op[0]->id.isGlobal = 1;
+        }
+
+        if(p->opr.nops == 3)//1D Array
+        {
+          insert1DArraySYM(array_name, array_fst_size, p->opr.op[0]->id.isGlobal);
+          insert1DArrayList(array_name, array_fst_size);
+        }
+        if(p->opr.nops == 4)//2D Array
+        {
+          int array_scd_size = p->opr.op[2]->con.value;
+          insert2DArraySYM(array_name, array_fst_size, array_scd_size, p->opr.op[0]->id.isGlobal);
+          insert2DArrayList(array_name, array_fst_size, array_scd_size);
+        }
+        if(p->opr.nops == 5)//3D Array
+        {
+          int array_scd_size = p->opr.op[2]->con.value;
+          int array_thd_size = p->opr.op[3]->con.value;
+          insert3DArraySYM(array_name, array_fst_size, array_scd_size, array_thd_size, p->opr.op[0]->id.isGlobal);
+          insert3DArrayList(array_name, array_fst_size, array_scd_size, array_thd_size);
+        }
+        int index = getSYMIdx(array_name, p->opr.op[0]->id.isGlobal);
+        setType(index, 4); // set the type to be 4
+        break;
+      }
       case GETI:
       case GETS:
       case GETC:
@@ -1310,6 +1344,33 @@ int ex(nodeType *p, int blbl, int clbl, int infunc) {
       case ARRAY_DECLARE:
       {
         break;
+      }
+      case ARRAY_INIT:{
+        char * array_name = p->opr.op[0]->id.var_name;
+        int is_global = p->opr.op[0]->id.isGlobal;
+        int index = getSYMIdx(array_name, is_global);
+
+        int array_fst_size = p->opr.op[1]->con.value;
+        
+        if(index == -1)
+        {
+          printf("\tError: Array %s used before declared!\n", array_name);
+        }
+        int idx;
+        
+        for (idx=index; idx<index+array_fst_size; idx++){
+          ex(p->opr.op[2], blbl, clbl, infunc);
+          if(is_global)
+          { 
+            printf("\tpop\tsb[%d]\n", idx);
+          }
+          else
+          {
+            int locIdx = idx - TABLE_SIZE/2;
+            printf("\tpop\tfp[%d]\n", locIdx - argTable[funcIdx]);
+          }
+        }
+        break;  
       }
       case '=':
       {

@@ -85,7 +85,7 @@ void prepass(nodeType *p, int infunc);
 %token FOR WHILE IF BREAK CONTINUE RETURN
 %token PUTI PUTC PUTS PUTI_ PUTC_ PUTS_ GETI GETC GETS
 %token ARRAY ARRAY_DECLARE PARAM_ARRAY_DECLARE
-%token STRING_ARRAY_DECLARE
+%token STRING_ARRAY_DECLARE ARRAY_INIT
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -96,7 +96,7 @@ void prepass(nodeType *p, int infunc);
 %left '*' '/' '%'
 %nonassoc UMINUS
 
-%type <nPtr> stmt expr stmt_list vari function tree para arr_dec dec_list
+%type <nPtr> stmt expr stmt_list vari function tree para arr_dec dec_list 
 
 %%
 
@@ -127,7 +127,10 @@ dec_list:
   ;
 
 arr_dec:
-    vari '[' INTEGER ']'    { $$ = opr(ARRAY_DECLARE, 2, $1, con($3));}
+    vari '[' INTEGER ']' '=' expr      { $$ = opr(ARRAY_INIT, 3, $1, con($3), $6);}
+  | vari '[' INTEGER ']' '[' INTEGER ']' '=' expr { $$ = opr(ARRAY_INIT, 4, $1, con($3), con($6), $9);}
+  | vari '[' INTEGER ']' '[' INTEGER ']' '[' INTEGER ']' '=' expr { $$ = opr(ARRAY_INIT, 5, $1, con($3), con($6), con($9), $12);}
+  | vari '[' INTEGER ']'      { $$ = opr(ARRAY_DECLARE, 2, $1, con($3));}
   | vari '[' INTEGER ']' '[' INTEGER ']' { $$ = opr(ARRAY_DECLARE, 3, $1, con($3), con($6));}
   | vari '[' INTEGER ']' '[' INTEGER ']' '[' INTEGER ']' { $$ = opr(ARRAY_DECLARE, 4, $1, con($3), con($6), con($9));}
   ;
