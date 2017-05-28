@@ -9,9 +9,12 @@ array currQ[4];
 coun = 0;
 score = 0;
 qNo = 0;
+array input[20]='e'; // string is initialized with all 'e' characters
 
 iniInput(){
-  array @input[20]='e';
+  for (i=0; i<20; i=i+1;){
+    @input[i]='e';
+  }
 }
 
 printInput(){
