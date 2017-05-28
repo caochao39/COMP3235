@@ -96,7 +96,7 @@ void prepass(nodeType *p, int infunc);
 %left '*' '/' '%'
 %nonassoc UMINUS
 
-%type <nPtr> stmt expr stmt_list vari function tree para
+%type <nPtr> stmt expr stmt_list vari function tree para arr_dec dec_list
 
 %%
 
@@ -121,6 +121,17 @@ para:   expr				      	{ $$ = $1; }
 	| expr ',' para		      	{ $$ = opr(',', 2, $1, $3); }
 	;
 
+dec_list:
+    ARRAY arr_dec           { $$ = $2; }
+  | dec_list ',' arr_dec    { $$ = opr(',', 2, $1, $3); }
+  ;
+
+arr_dec:
+    vari '[' INTEGER ']'    { $$ = opr(ARRAY_DECLARE, 2, $1, con($3));}
+  | vari '[' INTEGER ']' '[' INTEGER ']' { $$ = opr(ARRAY_DECLARE, 3, $1, con($3), con($6));}
+  | vari '[' INTEGER ']' '[' INTEGER ']' '[' INTEGER ']' { $$ = opr(ARRAY_DECLARE, 4, $1, con($3), con($6), con($9));}
+  ;
+
 stmt:
           ';'                                 { $$ = opr(';', 2, NULL, NULL); }
         | vari '=' expr ';'                   { $$ = opr('=', 2, $1, $3); }
@@ -142,9 +153,7 @@ stmt:
         | PUTS_ '(' expr ')' ';'              { $$ = opr(PUTS_, 1, $3);}
         | RETURN expr ';'                     { $$ = opr(RETURN,1,$2);}
         | expr ';'                            { $$ = $1; }
-        | ARRAY vari '[' INTEGER ']' ';'      { $$ = opr(ARRAY_DECLARE, 2, $2, con($4));}
-        | ARRAY vari '[' INTEGER ']' '[' INTEGER ']' ';' { $$ = opr(ARRAY_DECLARE, 3, $2, con($4), con($7));}
-        | ARRAY vari '[' INTEGER ']' '[' INTEGER ']' '[' INTEGER ']' ';' { $$ = opr(ARRAY_DECLARE, 4, $2, con($4), con($7), con($10));}
+        | dec_list ';'                        { $$ = $1; }
         | vari '[' expr ']' '=' expr ';'      { $$ = opr('=', 3, $1, $3, $6);}
         | vari '[' expr ']' '[' expr ']' '=' expr ';' { $$ = opr('=', 4, $1, $3, $6, $9); }
         | vari '[' expr ']' '[' expr ']' '[' expr ']' '=' expr ';' { $$ = opr('=', 5, $1, $3, $6, $9, $12); }
