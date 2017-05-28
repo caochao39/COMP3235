@@ -464,6 +464,10 @@ while(1){
     break;
   puts_("please input question no (0~49): ");
   geti(no);
+  while (no>49 || no<0){
+    puts_("Sorry, please input a valid question no (0~49): ");
+    geti(no);   
+  }
   fetchQ(no, Q); // fetch the question with number no
 
   // print the question

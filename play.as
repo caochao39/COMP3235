@@ -1786,63 +1786,73 @@ L543:
 	jmp	L545
 L544:
 	push	sp
-	push	0
+	push	3
 	add
 	pop	sp
-	push	fp[-8]
-	push	fp[-7]
-	compNE
-	push	fp[-8]
-	push	fp[-6]
-	compNE
-	and
-	push	fp[-8]
-	push	fp[-5]
-	compNE
-	and
-	push	fp[-8]
-	push	fp[-4]
-	compNE
-	and
-	push	fp[-8]
-	push	'+'
-	compNE
-	and
-	push	fp[-8]
-	push	'-'
-	compNE
-	and
-	push	fp[-8]
-	push	'*'
-	compNE
-	and
-	push	fp[-8]
-	push	'/'
-	compNE
-	and
-	push	fp[-8]
-	push	'('
-	compNE
-	and
-	push	fp[-8]
-	push	')'
-	compNE
-	and
-	push	fp[-8]
-	push	' '
-	compNE
-	and
-	j0	L110
+	push	0
+	pop	fp[0]
+	push	0
+	pop	fp[1]
+L110:
+	push	fp[1]
+	push	20
+	compLT
+	j0	L111
+	push	0
+	pop	fp[2]
+L113:
+	push	fp[2]
+	push	4
+	compLT
+	j0	L114
+	push	fp[2]
+	push	219
+	add
+	pop	in
+	push	sb[in]
+	call	L506, 1
+	push	fp[1]
+	push	226
+	add
+	pop	in
+	push	sb[in]
+	compEQ
+	j0	L116
+	push	fp[0]
+	push	1
+	add
+	pop	fp[0]
+L116:
+L115:
+	push	fp[2]
+	push	1
+	add
+	pop	fp[2]
+	jmp	L113
+L114:
+L112:
+	push	fp[1]
+	push	1
+	add
+	pop	fp[1]
+	jmp	L110
+L111:
+	push	fp[0]
+	push	4
+	compEQ
+	j0	L117
+	push	1
+	ret
+	jmp	L118
+L117:
 	push	0
 	ret
-L110:
-	push	1
-	ret
+L118:
 L545:
 	call	L540, 0
-L111:
+L119:
 	push	1
-	j0	L112
+	j0	L120
 	push	"please press 's' to start and any other key to exit:"
 	puts
 	getc
@@ -1850,13 +1860,28 @@ L111:
 	push	sb[246]
 	push	's'
 	compNE
-	j0	L113
-	jmp	L112
-L113:
+	j0	L121
+	jmp	L120
+L121:
 	push	"please input question no (0~49): "
 	puts_
 	geti
 	pop	sb[247]
+L122:
+	push	sb[247]
+	push	49
+	compGT
+	push	sb[247]
+	push	0
+	compLT
+	or
+	j0	L123
+	push	"Sorry, please input a valid question no (0~49): "
+	puts_
+	geti
+	pop	sb[247]
+	jmp	L122
+L123:
 	push	sb[247]
 	push	2
 	call	L538, 2
@@ -1921,47 +1946,11 @@ L113:
 	pop	sb[in]
 	getc
 	pop	sb[246]
-L114:
+L124:
 	push	sb[246]
 	push	'\n'
 	compNE
-	j0	L115
-	push	sb[246]
-	push	0
-	push	219
-	add
-	pop	in
-	push	sb[in]
-	call	L506, 1
-	push	1
-	push	219
-	add
-	pop	in
-	push	sb[in]
-	call	L506, 1
-	push	2
-	push	219
-	add
-	pop	in
-	push	sb[in]
-	call	L506, 1
-	push	3
-	push	219
-	add
-	pop	in
-	push	sb[in]
-	call	L506, 1
-	call	L544, 5
-	push	0
-	compEQ
-	j0	L116
-	push	"Invalid input: "
-	puts_
-	push	sb[246]
-	putc
-	push	0
-	pop	sb[249]
-L116:
+	j0	L125
 	push	sb[246]
 	push	sb[248]
 	push	226
@@ -1974,8 +1963,8 @@ L116:
 	pop	sb[248]
 	getc
 	pop	sb[246]
-	jmp	L114
-L115:
+	jmp	L124
+L125:
 	push	')'
 	push	sb[248]
 	push	226
@@ -1993,7 +1982,7 @@ L115:
 	push	0
 	compEQ
 	or
-	j0	L117
+	j0	L126
 	push	"This problem can be solved as: "
 	puts
 	push	0
@@ -2017,8 +2006,8 @@ L115:
 	pop	in
 	push	sb[in]
 	call	L534, 4
-	jmp	L118
-L117:
+	jmp	L127
+L126:
 	push	"computation result: "
 	puts
 	call	L518, 0
@@ -2028,7 +2017,11 @@ L117:
 	push	sb[250]
 	push	24
 	compEQ
-	j0	L119
+	call	L544, 0
+	push	1
+	compEQ
+	and
+	j0	L128
 	push	"Congradulations!"
 	puts
 	push	sb[224]
@@ -2039,18 +2032,36 @@ L117:
 	puts_
 	push	sb[224]
 	puti
-	jmp	L120
-L119:
+	jmp	L129
+L128:
+	push	sb[250]
+	push	24
+	compNE
+	j0	L130
 	push	"Sorry, the answer is not corret."
 	puts
 	push	"Your current score: "
 	puts_
 	push	sb[224]
 	puti
+	jmp	L131
+L130:
+	call	L544, 0
+	push	0
+	compEQ
+	j0	L132
+	push	"Sorry, the answer is not valid for the current question."
+	puts
+	push	"Your current score: "
+	puts_
+	push	sb[224]
+	puti
+L132:
+L131:
+L129:
+L127:
+	jmp	L119
 L120:
-L118:
-	jmp	L111
-L112:
 	jmp	L999
 L998:
 	push	999999
