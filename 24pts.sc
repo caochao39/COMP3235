@@ -9,7 +9,7 @@ array currQ[4];
 coun = 0;
 score = 0;
 qNo = 0;
-array @input[20]='e'; // string is initialized with all 'e' characters
+array input[20]='e'; // string is initialized with all 'e' characters
 
 iniInput(){
   for (i=0; i<20; i=i+1;){
